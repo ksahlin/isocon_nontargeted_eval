@@ -1,5 +1,6 @@
 """
     snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile experimental_experiments.json --latency-wait 100 --verbose -n
+    snakemake  --configfile experimental_experiments.json --latency-wait 100 --verbose -n
     snakemake --configfile experimental_experiments.json --latency-wait 100 --verbose --rerun-incomplete quality -n 
     snakemake --rulegraph --configfile experiments.json | dot -Tpng > figures/ruledag.png
 """
@@ -371,9 +372,9 @@ rule ISOCON:
         out_folder= config["ROOT"] + "cluster_output/{0}/original_output/{1}/ISOCON/{2}_{3}/{4}".format(wildcards.EXPERIMENT_ID, wildcards.experiment, wildcards.batch_size, wildcards.polish, wildcards.primer_id) # "~/tmp/tmp_HITEM_{0}_{1}_{2}_{3}/".format(wildcards.gene_member, wildcards.family_size, wildcards.isoform_distribution, wildcards.mutation_rate)
         shell("mkdir -p {out_folder}")
         if wildcards.polish == "unpolished":
-            shell("{time} python {isocon_folder}isocon_nontargeted pipeline -fl_reads {input.flnc_by_primer} -outfolder {out_folder}  --cleanup 2>&1 | tee {output.time_and_mem} ")
+            shell("{time} python {isocon_folder}isocon_nontargeted pipeline --nr_cores 64 -fl_reads {input.flnc_by_primer} -outfolder {out_folder}  --cleanup 2>&1 | tee {output.time_and_mem} ")
         else:
-            shell("{time} python {isocon_folder}isocon_nontargeted pipeline -fl_reads {input.flnc_by_primer} -outfolder {out_folder} --ccs {input.ccs_bam}  --cleanup 2>&1 | tee {output.time_and_mem} ")
+            shell("{time} python {isocon_folder}isocon_nontargeted pipeline --nr_cores 64 -fl_reads {input.flnc_by_primer} -outfolder {out_folder} --ccs {input.ccs_bam}  --cleanup 2>&1 | tee {output.time_and_mem} ")
         shell("mv {out_folder}/not_converged.fa {output.consensus_transcripts_lq}")
         # shell("mv {out_folder}/candidates_converged.fa {output.consensus_transcripts}")
 
