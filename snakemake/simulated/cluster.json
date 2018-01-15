@@ -11,10 +11,10 @@
         "exclude" : "nn[9-10]"
     },
 
-    "THREECO" : 
+    "ISOCON" : 
     {
         "jobname" : "ISOCON",
-        "ntasks" : "8",
+        "ntasks" : "4",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "<remove or fill in e-mail address>",

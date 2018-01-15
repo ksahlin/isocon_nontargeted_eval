@@ -288,7 +288,7 @@ rule ISOCON:
         mkdir_p(config["ROOT"] + "cluster_output/" + config["EXPERIMENT_ID"] + "/performance/")
         out_folder= config["ROOT"] + "cluster_output/" + config["EXPERIMENT_ID"] + "/original_output/{0}/ISOCON/{1}_{2}_{3}_{4}_{5}_{6}/".format(wildcards.experiment, wildcards.gene_member, wildcards.family_size, wildcards.abundance, wildcards.mutation_rate, wildcards.read_count, wildcards.run_id) # "~/tmp/tmp_HITEM_{0}_{1}_{2}_{3}/".format(wildcards.gene_member, wildcards.family_size, wildcards.isoform_distribution, wildcards.mutation_rate)
         shell("mkdir -p {out_folder}")
-        shell("{time} python {isocon_folder}IsoCon pipeline -fl_reads {input.fl_reads} -outfolder {out_folder} --cleanup 2>&1 | tee {output.time_and_mem} ")
+        shell("{time} python {isocon_folder}IsoCon pipeline --nr_cores 4 -fl_reads {input.fl_reads} -outfolder {out_folder} --cleanup 2>&1 | tee {output.time_and_mem} ")
 
 
 
