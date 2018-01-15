@@ -1,6 +1,7 @@
 """
     snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile simulated_experiments.json --latency-wait 100 --verbose plots quality -n
     snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile experiments_brubeck_paper.json --latency-wait 100 --verbose plots quality -n
+    snakemake --configfile simulated_experiments.json --latency-wait 100 --verbose plots quality 
     # snakemake --configfile experiments_brubeck_paper.json --latency-wait 100 --verbose --forcerun editdistance_plot violinplots_compare_tools -n
     # snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile experiment_8_isoforms.json --latency-wait 100 --verbose 
     # snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile experiment_reads_subsample_1000.json --latency-wait 100 --verbose 
@@ -187,7 +188,7 @@ rule all:
 rule init_folder_structure:
     input:
     output: config_folder = config["ROOT"] + "configs/",
-            biological_material_folder = config["ROOT"] + "biological_material/",
+            biological_material_folder = config["ROOT"] + "biological_material/",            
             pacbio_reads_folder = config["ROOT"] + "pacbio_reads/",
             cluster_output_folder = config["ROOT"] + "cluster_output/",
             results_folder = config["ROOT"] + "results/",
