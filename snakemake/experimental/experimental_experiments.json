@@ -24,6 +24,17 @@
             "pa16_3-6kb" : { "ISOCON" :  ["1"], "ICE_NO_QUAL" : ["1"], "ICE_QUAL":["1"], "ICE_SEP_PRIMERS_NO_QUAL":["1"],  "PROOVREAD" :  ["1"] }
     },
 
+    "zebra" : {
+            "POLISH" : ["polished"],
+            "SIZES" : ["all"],
+            "RAW_DATA" : ["/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/data/AvianBrainTranscriptome/RawDataDemultiplexed/RawDataDemultiplexedZebrafinch"]
+    },
+    "humming" : {
+            "POLISH" : ["polished"],
+            "SIZES" : ["all"],
+            "RAW_DATA" : ["/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/data/AvianBrainTranscriptome/RawDataDemultiplexed/RawDataDemultiplexedHummingbird"]
+    },
+
 
     "RAW_DATA" : "/galaxy/home/ksahlin/data/pacbio/transcriptomics/IsoSeqPaulKatarynaGrant/raw_data",
     "ROOT_OUT" : "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/IsoCon_paper_biological",
@@ -32,7 +43,7 @@
     "TOOLS" :["ISOCON", "ICE_QUAL", "PROOVREAD"],
     "GNUTIME" : "/usr/bin/time -v",
     "SCRIPT_FOLDER" : "/galaxy/home/ksahlin/prefix/source/isocon_nontargeted_eval/snakemake/snake_helper_scripts",
-    "EXPERIMENT_ID" : "nontargeted_experiment",
+    "EXPERIMENT_ID" : "nontargeted_experiment_test_ratio",
     "ISOCON_FOLDER" : "/galaxy/home/ksahlin/prefix/source/isocon_nontargeted/",
     "ROOT" : "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/IsoCon_paper_biological/"
 }
