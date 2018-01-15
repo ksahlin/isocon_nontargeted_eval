@@ -192,12 +192,12 @@ rule init_folder_structure:
             cluster_output_folder = config["ROOT"] + "cluster_output/",
             results_folder = config["ROOT"] + "results/",
             evaluation = config["ROOT"] + "evaluation/" + config["EXPERIMENT_ID"],
-            transcript_folder =  config["ROOT"] + "cluster_output/"+ config["EXPERIMENT_ID"] + "/transcripts",
+            transcript_folder =  config["ROOT"] + "cluster_output/"+ config["EXPERIMENT_ID"] + "/original_output",
             perfornamce_folder =  config["ROOT"] + "cluster_output/"+ config["EXPERIMENT_ID"] + "/performance",
-            mapped_folder = config["ROOT"] + "mapped/"
+            # mapped_folder = config["ROOT"] + "mapped/"
 
     run:
-        for folder in init_folder_structure.output:
+        for folder in output:
             mkdir_p(folder)
 
 
