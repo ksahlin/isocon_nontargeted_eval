@@ -43,7 +43,7 @@
     "TOOLS" :["ISOCON", "ICE_QUAL", "PROOVREAD"],
     "GNUTIME" : "/usr/bin/time -v",
     "SCRIPT_FOLDER" : "/galaxy/home/ksahlin/prefix/source/isocon_nontargeted_eval/snakemake/snake_helper_scripts",
-    "EXPERIMENT_ID" : "nontargeted_experiment_test_ratio",
+    "EXPERIMENT_ID" : "nontargeted_experiment_test_ratio_01_16_18",
     "ISOCON_FOLDER" : "/galaxy/home/ksahlin/prefix/source/isocon_nontargeted/",
     "ROOT" : "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/IsoCon_paper_biological/"
 }
