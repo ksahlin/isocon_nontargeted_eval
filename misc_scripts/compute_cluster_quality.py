@@ -6,49 +6,85 @@ from collections import defaultdict
 
 from sklearn.metrics.cluster import v_measure_score, completeness_score, homogeneity_score
 
-def parse_inferred_clusters_tsv(tsv_file):
+def parse_inferred_clusters_tsv(tsv_file, args):
     infile = open(tsv_file , "r")
     clusters = {}
     for line in infile:
         cluster_id, read_acc = line.strip().split("\t")
-        read_acc = "_".join([item for item in read_acc.split("_")[:-1] ])
+        if args.simulated:
+            read_acc = "_".join([item for item in read_acc.split("_")[:-1] ])
+        else:
+            read_acc = read_acc.split("_strand")[0] 
+
         clusters[read_acc] = int(cluster_id)
     return clusters
 
-# def parse_true_clusters(sam_file):
-#     ccs_dict = defaultdict(dict)
-#     for read in ccs_file.fetch(until_eof=True):
-#         ccs_read = CCS(read.query_name, read.query_alignment_sequence, read.query_qualities, read.get_tag("np"))
-#         ccs_dict[read.query_name] = ccs_read
-#         # ccs_dict[read.query_name]["seq"] = read.query_alignment_sequence
-#         # print(read.query_qualities)
-#         # sys.exit()
-#         # ccs_dict[read.query_name]["qual"] = read.query_qualities
-#         # ccs_dict[read.query_name]["np"] = read.get_tag("np")
-#         assert len(read.query_alignment_sequence) == len(read.query_qualities)
-        
-#         # if ccs_read.np > 10:
-#         #     print(ccs_read.np, ccs_read.positions_with_p_error_higher_than(0.01))
-#     return ccs_dict
+def parse_true_clusters(ref_file):
+    classes = defaultdict(dict)
+    class_index = 1
+    class_ranges = {}
+    ref_id_to_chrom = {}
+    alignment_counter = defaultdict(int)
+    for read in ref_file.fetch(until_eof=True):
+        if read.is_secondary:
+            continue
+
+        chrom = read.reference_name
+        classes[read.query_name] = int(read.reference_id)  # chrom
+        ref_id_to_chrom[int(read.reference_id)] = chrom
+        alignment_counter[int(read.reference_id)] += 1
+        # if chrom not in class_ranges:
+        #     class_ranges[chrom] = {}
+
+        # read_ref_start = read.reference_start
+        # read_ref_end = read.reference_end
+        # print(chrom, read_ref_start, read_ref_end)
+        # for start, stop in class_ranges[chrom]:
+        #     if start <= read_ref_start and  read_ref_end <= stop:
+        #         # entirly within
+        #     elif
+
+        # classes[read.query_name] =  #read.reference_name.split("|")[0]  #"|".join(read.reference_name.split("|")[:2])
+    print(ref_id_to_chrom)
+    print()
+    print(alignment_counter)
+    print()
+    return classes
 
 
 def parse_true_clusters_simulated(ref_file):
     classes = defaultdict(dict)
     for read in ref_file.fetch(until_eof=True):
-        classes[read.query_name] = read.reference_name.split("|")[0]
+        classes[read.query_name] = read.reference_name.split("|")[0]  #"|".join(read.reference_name.split("|")[:2])
     return classes
 
+# def compute_V_measure(clusters, classes):
+#     class_list, cluster_list = [], []
+#     print(len(clusters), len(classes))
+#     not_found_id = 1000000
+#     for read in classes:
+#         class_list.append( classes[read] )
+#         if read not in clusters:
+#             cluster_list.append(not_found_id)
+#             not_found_id += 1
+#         else:
+#             cluster_list.append( clusters[read] )
+
+
+#     v_score = v_measure_score(class_list, cluster_list)
+#     compl_score = completeness_score(class_list, cluster_list)
+#     homog_score = homogeneity_score(class_list, cluster_list)
+#     print(v_score, compl_score, homog_score)
+
+
+# CONSIDER ONLY READS THAT HAVE BEEN PROCESSED
 def compute_V_measure(clusters, classes):
     class_list, cluster_list = [], []
     print(len(clusters), len(classes))
     not_found_id = 1000000
-    for read in classes:
+    for read in clusters:
         class_list.append( classes[read] )
-        if read not in clusters:
-            cluster_list.append(not_found_id)
-            not_found_id += 1
-        else:
-            cluster_list.append( clusters[read] )
+        cluster_list.append( clusters[read] )
 
 
     v_score = v_measure_score(class_list, cluster_list)
@@ -57,16 +93,42 @@ def compute_V_measure(clusters, classes):
     print(v_score, compl_score, homog_score)
 
 
+def get_cluster_information(clusters, classes):
+    cl_dict = {}
+    for read_acc, cl_id in clusters.items():
+        if cl_id not in cl_dict:
+            cl_dict[cl_id] = [read_acc]
+        else:
+            cl_dict[cl_id].append(read_acc)
+    not_clustered = set([acc_list[0] for cl_id, acc_list in cl_dict.items() if len(acc_list) == 1 ])
+    # not_considered = set([read for read in classes if read not in clusters ])
+
+    not_clustered_classes = defaultdict(int)
+    clustered_classes = defaultdict(int)
+    for read in clusters:
+        class_id = classes[read]
+        if read in not_clustered:
+            not_clustered_classes[class_id] += 1
+        else:
+            clustered_classes[class_id] += 1
+
+    print("UNCLUSTERED:", "Tot classes:", len(not_clustered_classes), sorted(not_clustered_classes.items(), key=lambda x: x[1], reverse=True))
+    print("CLUSTERED:", "Tot classes:", len(clustered_classes), sorted(clustered_classes.items(), key=lambda x: x[1], reverse=True))
+    print("MIXED:", "Tot classes containing both:", len( set(clustered_classes.keys()) & set(not_clustered_classes.keys())))
+    print("Total number of classes (unique gene ID):", len(set(classes.values())))
+
 def main(args):
 
-    clusters = parse_inferred_clusters_tsv(args.clusters)
-    ref_file = pysam.AlignmentFile(args.classes, "r", check_sq=False)
+    clusters = parse_inferred_clusters_tsv(args.clusters, args)
     if args.simulated:
+        ref_file = pysam.AlignmentFile(args.classes, "r", check_sq=False)
         classes  = parse_true_clusters_simulated(ref_file)
     else:
-        truth  = parse_true_clusters(args.classes)
+        ref_file = pysam.AlignmentFile(args.classes, "rb", check_sq=False)
+        classes  = parse_true_clusters(ref_file)
 
     value = compute_V_measure(clusters, classes)
+    get_cluster_information(clusters, classes)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Align predicted transcripts to transcripts in ensembl reference data base.")
