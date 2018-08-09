@@ -107,18 +107,21 @@ def compute_V_measure(clusters, classes):
     class_list, cluster_list = [], []
     print(len(clusters), len(classes))
     not_found_id = 1000000
+    clustered_but_unaligned = 0
     for read in clusters:
         if read in classes:
             class_list.append( classes[read] )
             cluster_list.append( clusters[read] )
         else:
-            print("Read was clustered but unaligned:", read)
+            # print("Read was clustered but unaligned:", read)
+            clustered_but_unaligned +=1
 
 
     v_score = v_measure_score(class_list, cluster_list)
     compl_score = completeness_score(class_list, cluster_list)
     homog_score = homogeneity_score(class_list, cluster_list)
-    print(v_score, compl_score, homog_score)
+    print("V:", v_score, "Completeness:", compl_score, "Homogeneity:", homog_score)
+    print("Nr reads clustered but unaligned (i.e., no class and excluded from V-veasure): ", clustered_but_unaligned)
 
 
 def get_cluster_information(clusters, classes):
@@ -134,7 +137,11 @@ def get_cluster_information(clusters, classes):
     not_clustered_classes = defaultdict(int)
     clustered_classes = defaultdict(int)
     for read in clusters:
-        class_id = classes[read]
+        if read in classes:
+            class_id = classes[read]
+        else:
+            class_id = "unaligned"
+        
         if read in not_clustered:
             not_clustered_classes[class_id] += 1
         else:
