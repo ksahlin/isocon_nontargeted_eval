@@ -25,19 +25,44 @@ def parse_true_clusters(ref_file):
     class_ranges = {}
     ref_id_to_chrom = {}
     alignment_counter = defaultdict(int)
+    
+    prev_chrom = -1
+    curr_class_id = -1
+    prev_ref_start = -1
+    prev_ref_stop = -1
+    prev_read_id = ""
     for read in ref_file.fetch(until_eof=True):
-        if read.is_secondary:
+        if read.is_secondary or read.is_unmapped or read.is_supplementary: # deal with supplementary alignments!!
             continue
+        # print(read.query_name, read.flag)
+        assert prev_read_id != read.query_name
 
         chrom = read.reference_name
-        classes[read.query_name] = int(read.reference_id)  # chrom
+        if chrom != prev_chrom:
+            curr_class_id += 1
+            classes[read.query_name] = curr_class_id
+            prev_chrom = chrom
+        else:
+            read_ref_start = read.reference_start
+            read_ref_end = read.reference_end
+            if read_ref_start > prev_ref_stop:
+                curr_class_id += 1
+                classes[read.query_name] = curr_class_id
+            else:
+                classes[read.query_name] = curr_class_id
+            
+        prev_ref_start = read.reference_start
+        prev_ref_stop = read.reference_end
+        prev_read_id = read.query_name
+
+
+
+        # classes[read.query_name] = int(read.reference_id)  # chrom
         ref_id_to_chrom[int(read.reference_id)] = chrom
         alignment_counter[int(read.reference_id)] += 1
         # if chrom not in class_ranges:
         #     class_ranges[chrom] = {}
 
-        # read_ref_start = read.reference_start
-        # read_ref_end = read.reference_end
         # print(chrom, read_ref_start, read_ref_end)
         # for start, stop in class_ranges[chrom]:
         #     if start <= read_ref_start and  read_ref_end <= stop:
@@ -83,8 +108,11 @@ def compute_V_measure(clusters, classes):
     print(len(clusters), len(classes))
     not_found_id = 1000000
     for read in clusters:
-        class_list.append( classes[read] )
-        cluster_list.append( clusters[read] )
+        if read in classes:
+            class_list.append( classes[read] )
+            cluster_list.append( clusters[read] )
+        else:
+            print("Read was clustered but unaligned:", read)
 
 
     v_score = v_measure_score(class_list, cluster_list)
@@ -133,7 +161,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Align predicted transcripts to transcripts in ensembl reference data base.")
     parser.add_argument('--clusters', type=str, help='Inferred clusters (tsv file)')
-    parser.add_argument('--classes', type=str, help='A sam file.')
+    parser.add_argument('--classes', type=str, help='A sorted and indexed bam file.')
     parser.add_argument('--simulated', action="store_true", help='Simulated data, we can simply read correct classes from the ref field.')
     parser.add_argument('--outfolder', type=str, help='Output path of results')
     args = parser.parse_args()
