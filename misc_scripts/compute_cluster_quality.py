@@ -80,7 +80,8 @@ def parse_true_clusters(ref_file):
 def parse_true_clusters_simulated(ref_file):
     classes = defaultdict(dict)
     for read in ref_file.fetch(until_eof=True):
-        classes[read.query_name] = read.reference_name.split("|")[0]  #"|".join(read.reference_name.split("|")[:2])
+        classes[read.query_name] = read.reference_name.split("|")[0] # by gene id 
+        # classes[read.query_name] = read.reference_name.split("|")[1] # by transcript id 
     return classes
 
 # def compute_V_measure(clusters, classes):
@@ -136,6 +137,7 @@ def get_cluster_information(clusters, classes):
 
     not_clustered_classes = defaultdict(int)
     clustered_classes = defaultdict(int)
+    reads_not_clustered = defaultdict(list)
     for read in clusters:
         if read in classes:
             class_id = classes[read]
@@ -144,8 +146,16 @@ def get_cluster_information(clusters, classes):
         
         if read in not_clustered:
             not_clustered_classes[class_id] += 1
+            reads_not_clustered[class_id].append(read)
         else:
             clustered_classes[class_id] += 1
+
+    print()
+    print("Not clustered:")
+    for cl_id in reads_not_clustered:
+        print("{0}\t{1}".format(cl_id, reads_not_clustered[cl_id] ))
+
+    print()
 
     print("UNCLUSTERED:", "Tot classes:", len(not_clustered_classes), sorted(not_clustered_classes.items(), key=lambda x: x[1], reverse=True))
     print("CLUSTERED:", "Tot classes:", len(clustered_classes), sorted(clustered_classes.items(), key=lambda x: x[1], reverse=True))
