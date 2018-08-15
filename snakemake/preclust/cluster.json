@@ -12,81 +12,38 @@
 
     },
 
-    "ISOCON" : 
+    "preclust" : 
     {
-        "jobname" : "ISOCON",
+        "jobname" : "preclust",
         "ntasks" : "64",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
-        "exclude" : "nn[1-2]"
+        "exclude" : "nn[0-1]"
     },
 
-    "PROOVREAD" : 
-    {
-        "jobname" : "PROOVREAD",
-        "ntasks" : "4",
-        "Nodes" : 1,
-        "runtime" : "7-00:00:00",
-        "mail" : "ksahlin@kth.se",
-        "mail_type" : "FAIL",
-        "exclude" : "nn[9-10]"
-    },
 
-    "ICE_NO_QUAL" : 
+    "isoseq3" : 
     {
-        "jobname" : "ICE_NO_QUAL",
-        "ntasks" : "4",
-        "Nodes" : 1,
-        "runtime" : "7-00:00:00",
-        "mail" : "ksahlin@kth.se",
-        "mail_type" : "FAIL",
-        "exclude" : "nn[1-2]"
-    },
-
-    "ICE_SEP_PRIMERS_NO_QUAL" : 
-    {
-        "jobname" : "ICE_SEP_PRIMERS_NO_QUAL",
-        "ntasks" : "8",
-        "Nodes" : 1,
-        "runtime" : "7-00:00:00",
-        "mail" : "ksahlin@kth.se",
-        "mail_type" : "FAIL",
-        "exclude" : "nn[1-2]"
-    },
-
-    "ICE_QUAL" : 
-    {
-        "jobname" : "ICE_QUAL",
+        "jobname" : "isoseq3",
         "ntasks" : "6",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
-        "exclude" : "nn[1-2]"
-    },
-
-    "classify" : 
-    {
-        "jobname" : "classify",
-        "ntasks" : "16",
-        "Nodes" : 1,
-        "runtime" : "04:00:00",
-        "mail" : "ksahlin@kth.se",
-        "mail_type" : "FAIL",
-        "exclude" : "nn[1-2]"
+        "exclude" : "nn[0-1]"
     },
 
     "ccs" : 
     {
         "jobname" : "ccs",
-        "ntasks" : "64",
+        "ntasks" : "16",
         "Nodes" : 1,
-        "runtime" : "7-00:00:00",
+        "runtime" : "4-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
-        "exclude" : "nn[1-2]"
+        "exclude" : "nn0"
     },
     "bax2bam" : 
     {
@@ -96,6 +53,6 @@
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
-        "exclude" : "nn[1-2]"
+        "exclude" : "nn[0-1]"
     }
 }

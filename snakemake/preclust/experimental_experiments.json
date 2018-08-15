@@ -43,7 +43,7 @@
                     "m150202_111405_42142_c100731020310000001823150705141502",
                     "m150202_111824_42141_c100692750070000001823137202231582"]},
 
-    "RC0_1cell_2017": {"movies": "m54086_170204_081430" },
+    "RC0_1cell_2017": {"movies": ["m54086_170204_081430"] },
 
     "DATA" : "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/data/",
     "ROOT_OUT" : "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/",

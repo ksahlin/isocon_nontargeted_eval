@@ -130,81 +130,60 @@ def clean_dir(folder):
 # preprocess
 TARGET_FILES = {}
 
+def subreads_files(datasets):
+    files = []
+    for dataset in datasets:
+        for movie in config[dataset]["movies"]:
+            files.append(config["DATA"] + "{0}/subreads/{1}.subreads.bam".format(dataset, movie))
+    return files
 
-subreads_files = lambda wildcards: expand(config["DATA"] + "{dataset}/subreads/{movie}.subreads.bam", dataset = config["DATASET"], movie = config[wildcards.dataset]["movies"] )
-# subreads_files = lambda wildcards: expand("{subreads}", dataset = config["DATASET"], subreads = config[wildcards.dataset]["subreads"] )
-ccs_files = lambda wildcards: expand(config["DATA"] + "{dataset}/ccs/{movie}.ccs.bam", dataset = config["DATASET"], movie = config[wildcards.dataset]
-lima_files = lambda wildcards: expand(config["DATA"] + "{dataset}/lima/{movie}.lima.bam", dataset = config["DATASET"], movie = config[wildcards.dataset]
-
-# ccs_files = expand(config["DATA"] + "ccs_folder/{dataset}/", EXPERIMENT_ID=config["EXPERIMENT_ID"], experiment=["targeted"], tool = config["TOOLS"])
-# lima_files = expand(config["DATA"] + "lima_folder/{dataset}/", EXPERIMENT_ID=config["EXPERIMENT_ID"], experiment=["targeted"], tool = config["TOOLS"])
-
-TARGET_FILES['preprocess'] = subreads_files + ccs_files + lima_files
+# subreads_files = lambda dataset: expand(config["DATA"] + "{dataset}/subreads/{movie}.subreads.bam", dataset = dataset, movie = config[dataset]["movies"] )
+# ccs_files = lambda wildcards: expand(config["DATA"] + "{dataset}/ccs/{movie}.ccs.bam", dataset = config["DATASET"], movie = config[wildcards.dataset]["movies"] )
+# lima_files = lambda wildcards: expand(config["DATA"] + "{dataset}/lima/{movie}.lima.bam", dataset = config["DATASET"], movie = config[wildcards.dataset]["movies"])
 
 
-rule all:
-    input:  TARGET_FILES["preprocess"], TARGET_FILES["simulation"], TARGET_FILES["cluster"], TARGET_FILES["evaluation"]
+TARGET_FILES['preprocess'] = subreads_files(config["DATASET"]) #+ ccs_files(config["DATASET"]) + lima_files(config["DATASET"])
+
+
+# rule all:
+#     input:  TARGET_FILES["preprocess"], TARGET_FILES["simulation"], TARGET_FILES["cluster"], TARGET_FILES["evaluation"]
 
 rule preprocess:
         input: TARGET_FILES["preprocess"]
 
-rule simulation:
-        input: TARGET_FILES["simulation"]
+# rule simulation:
+#         input: TARGET_FILES["simulation"]
 
-rule cluster:
-        input: TARGET_FILES["cluster"]
+# rule cluster:
+#         input: TARGET_FILES["cluster"]
 
 #####################################################
 
 rule bax2bam:
         input: #hdf5_files = config["RAW_DATA"] + "{batch_size}/{movie,*bax.h5}"
-        output: bam_subreads = config["ROOT_OUT"] + "/{experiment}/{batch_size}.subreads.bam",
-                bam_index = config["ROOT_OUT"] + "/{experiment}/{batch_size}.subreads.bam.pbi"
+        output: bam_subreads = config["DATA"] + "{dataset}/subreads/{movie}.subreads.bam",
+                bam_index = config["DATA"] + "{dataset}/subreads/{movie}.subreads.bam.pbi"
         run:
-            hdf5_path = config["RAW_DATA"] + "/{0}".format(wildcards.batch_size)#"/galaxy/home/ksahlin/data/pacbio/transcriptomics/IsoSeqPaulKatarynaGrant/raw_data"
-            out = config["ROOT_OUT"] + "/{0}/{1}".format(wildcards.experiment, wildcards.batch_size)
-            shell("bax2bam {hdf5_path}/*bax.h5 -o {out}")
+            pass
+            # shell("bax2bam  $raw_path$movie\_s1_p0.1.bax.h5 $raw_path$movie\_s1_p0.2.bax.h5 $raw_path$movie\_s1_p0.3.bax.h5 -o {wildcards.dataset}/subreads/{wildcards.movie} ")
 
-rule make_bas_fofn:
-    input: subreads = rules.bax2bam.output.bam_subreads
-    output: subreads_index = config["ROOT_OUT"] + "/{experiment}/{batch_size}.subreadsset.xml"
-    run:    
-        # dataset create --type SubreadSet --generateIndices my.subreadset.xml
-        shell("dataset create --type SubreadSet --generateIndices {output.subreads_index} {input.subreads}")
 
 rule ccs:
     input: bam_subreads = rules.bax2bam.output.bam_subreads
-    output: ccs_bam = config["ROOT_OUT"] + "/{experiment}/{batch_size}_{polish}.ccs.bam",
-            bam_index = config["ROOT_OUT"] + "/{experiment}/{batch_size}_{polish}.ccs.bam.pbi",
-            ccs_xml = config["ROOT_OUT"] + "/{experiment}/{batch_size}_{polish}.ccs.xml"
+    output: ccs_bam = config["DATA"] + "{dataset}/ccs/{movie}.ccs.bam",
+            bam_index = config["DATA"] + "{dataset}/ccs/{movie}.ccs.bam",
     run:
-        if wildcards.polish == "polished":
-            shell("ccs --numThreads=64 --polish --minLength=10 --minPasses=1 --minZScore=-999 --maxDropFraction=0.8 --minPredictedAccuracy=0.8 --minSnr=4 {input.bam_subreads} {output.ccs_bam}")
-            shell("dataset create --type ConsensusReadSet {output.ccs_xml} {output.ccs_bam}")
-
-        else:
-            shell("ccs --numThreads=64 --noPolish --minLength=10 --minPasses=1 --minZScore=-999 --maxDropFraction=0.8 --minPredictedAccuracy=0.8 --minSnr=4 {input.bam_subreads} {output.ccs_bam}")
-            shell("dataset create --type ConsensusReadSet {output.ccs_xml} {output.ccs_bam}")
+        shell("ccs --minPasses=1 --numThreads=16 --polish {input.bam_subreads} {output.ccs_bam} ")
 
 
 rule lima:
-    input: flnc = rules.classify.output.flnc,
-            nfl = rules.classify.output.nfl
-    output: flnc_by_primer = config["ROOT_OUT"] + "/{experiment}/{batch_size}_{polish}/{primer_id}/flnc.fasta",  #expand(config["ROOT_OUT"] + "/{experiment}/{batch_size}_{polish}/{primer_id}/flnc.fasta",  lambda wildcards: config[wildcards.batch_size]),
-            nfl_by_primer = config["ROOT_OUT"] + "/{experiment}/{batch_size}_{polish}/{primer_id}/nfl.fasta" #expand(config["ROOT_OUT"] + "/{experiment}/{batch_size}_{polish}/{primer_id}/nfl.fasta", lambda wildcards: config[wildcards.batch_size])
+    input: ccs_reads = rules.ccs.output.ccs_bam, 
+            primers = config["DATA"] + "{dataset}/primers.fasta"
+    output: demultiplexed_ccs_reads = config["DATA"] + "{dataset}/lima/{movie}.demux.primer_5p--primer_3p.bam" 
     run:
-        if wildcards.experiment == "targeted":
-            primers = config[wildcards.experiment]["PRIMERS"][wildcards.batch_size]
-            out_dir = config["ROOT_OUT"] + "/{0}/{1}_{2}/".format(wildcards.experiment, wildcards.batch_size, wildcards.polish)
-            shell("python /galaxy/home/ksahlin/prefix/source/IsoCon_Eval/misc_scripts/split_by_primer.py --reads {input.flnc} --primer_file {primers}  --outfolder {out_dir}")
-            shell("python /galaxy/home/ksahlin/prefix/source/IsoCon_Eval/misc_scripts/split_by_primer.py --reads {input.nfl} --primer_file {primers}  --outfolder {out_dir}")
-
-        else:
-            out_dir = config["ROOT_OUT"] + "/{0}/{1}_{2}/{3}/".format(wildcards.experiment, wildcards.batch_size, wildcards.polish, wildcards.primer_id)
-            shell("mkdir -p {out_dir}")
-            shell("cp {input.flnc}  {output.flnc_by_primer}")
-            shell("cp {input.nfl}  {output.nfl_by_primer}")
-
+        shell("source activate isoseq3")
+        out = config["DATA"] + "{0}/lima/{1}.demux.bam".format(wildcards.dataset, wildcards.movie)
+        shell("lima {input.ccs_reads} {input.primers} {out} --isoseq --no-pbi")
 
 
 
