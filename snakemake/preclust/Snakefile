@@ -186,7 +186,7 @@ rule bax2bam:
 rule ccs:
     input: bam_subreads = rules.bax2bam.output.bam_subreads
     output: ccs_bam = config["DATA"] + "{dataset}/ccs/{movie}.ccs.bam",
-            bam_index = config["DATA"] + "{dataset}/ccs/{movie}.ccs.bam",
+            bam_index = config["DATA"] + "{dataset}/ccs/{movie}.ccs.bam.pbi",
     run:
         shell("ccs --minPasses=1 --numThreads=16 --polish {input.bam_subreads} {output.ccs_bam} ")
 
