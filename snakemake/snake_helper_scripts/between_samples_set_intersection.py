@@ -89,7 +89,7 @@ def main(params):
         predicted_seqs = set([seq.upper() for (acc, seq) in  read_fasta(open(file_, 'r'))])
         sample2_seqs.update(predicted_seqs)
 
-
+    print(sample1_seqs - sample2_seqs)
     print(len(sample1_seqs), len(sample2_seqs))
     r = venn2([sample1_seqs, sample2_seqs], (params.names[0], params.names[1]))
     plt.savefig(params.outfile)

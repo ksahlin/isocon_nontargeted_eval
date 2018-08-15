@@ -120,7 +120,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="plot graph from dot file.")
     parser.add_argument('--dot_file', type=str, help='Path to the dot graph.')
     parser.add_argument('--outfile', type=str, help='Output path of plot')
-    parser.add_argument('--layout', type=str, default="shell", help='"shell" or ')
+    parser.add_argument('--layout', type=str, default="shell", help='"shell" or "pydot".')
     args = parser.parse_args()
 
     path_, file_prefix = os.path.split(args.outfile)
