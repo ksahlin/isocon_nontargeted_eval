@@ -8,7 +8,7 @@
         "jobname" : "pipline",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
-        "exclude" : "nn[9-10]"
+        "exclude" : "nn[0-1]"
 
     },
 

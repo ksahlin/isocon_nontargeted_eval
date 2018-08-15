@@ -159,6 +159,9 @@ def lima_files(datasets):
 
 TARGET_FILES['preprocess'] = subreads_files(config["DATASET"]) + ccs_files(config["DATASET"]) + lima_files(config["DATASET"])
 
+#cluster
+
+TARGET_FILES["cluster"] = 
 
 # rule all:
 #     input:  TARGET_FILES["preprocess"], TARGET_FILES["simulation"], TARGET_FILES["cluster"], TARGET_FILES["evaluation"]
@@ -169,8 +172,8 @@ rule preprocess:
 # rule simulation:
 #         input: TARGET_FILES["simulation"]
 
-# rule cluster:
-#         input: TARGET_FILES["cluster"]
+rule cluster:
+        input: TARGET_FILES["cluster"]
 
 #####################################################
 
@@ -201,6 +204,13 @@ rule lima:
         shell("lima {input.ccs_reads} {input.primers} {out} --isoseq --no-pbi")
 
 
+rule merge_demultiplexed_files:
+    input: infiles = rules.lima.output.demultiplexed_ccs_reads, 
+    output: outfile = config["ROOT_OUT"] + "ccs/{dataset}/ccs.bam" 
+    
+    run:
+        shell("samtools merge {output.outfile} {input.infiles}")
+        shell("pbindex {output.outfile}")
 
 
 # rule isoseq3:
