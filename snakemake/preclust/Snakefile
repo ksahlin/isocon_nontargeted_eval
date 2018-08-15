@@ -137,12 +137,27 @@ def subreads_files(datasets):
             files.append(config["DATA"] + "{0}/subreads/{1}.subreads.bam".format(dataset, movie))
     return files
 
+
+def ccs_files(datasets):
+    files = []
+    for dataset in datasets:
+        for movie in config[dataset]["movies"]:
+            files.append(config["DATA"] + "{0}/ccs/{1}.ccs.bam".format(dataset, movie))
+    return files
+
+def lima_files(datasets):
+    files = []
+    for dataset in datasets:
+        for movie in config[dataset]["movies"]:
+            files.append(config["DATA"] + "{0}/lima/{1}.demux.primer_5p--primer_3p.bam".format(dataset, movie))
+    return files
+
 # subreads_files = lambda dataset: expand(config["DATA"] + "{dataset}/subreads/{movie}.subreads.bam", dataset = dataset, movie = config[dataset]["movies"] )
 # ccs_files = lambda wildcards: expand(config["DATA"] + "{dataset}/ccs/{movie}.ccs.bam", dataset = config["DATASET"], movie = config[wildcards.dataset]["movies"] )
 # lima_files = lambda wildcards: expand(config["DATA"] + "{dataset}/lima/{movie}.lima.bam", dataset = config["DATASET"], movie = config[wildcards.dataset]["movies"])
 
 
-TARGET_FILES['preprocess'] = subreads_files(config["DATASET"]) #+ ccs_files(config["DATASET"]) + lima_files(config["DATASET"])
+TARGET_FILES['preprocess'] = subreads_files(config["DATASET"]) + ccs_files(config["DATASET"]) + lima_files(config["DATASET"])
 
 
 # rule all:
