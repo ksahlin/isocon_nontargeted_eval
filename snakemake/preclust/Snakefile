@@ -161,7 +161,7 @@ TARGET_FILES['preprocess'] = subreads_files(config["DATASET"]) + ccs_files(confi
 
 #cluster
 
-isoseq3_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.{suffix}", suffix = ["bam", "cluster", "flnc.bam"], dataset = config["DATASET"]) 
+isoseq3_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.{suffix}", dataset = config["DATASET"], suffix = ["bam", "cluster", "flnc.bam"]) 
 # qt_qlust_files =
 TARGET_FILES["cluster"] = isoseq3_files
 
@@ -207,7 +207,7 @@ rule lima:
 
 
 rule merge_demultiplexed_files:
-    input: infiles = rules.lima.output.demultiplexed_ccs_reads, 
+    input: infiles = lambda wildcards: expand(rules.lima.output.demultiplexed_ccs_reads, dataset = wildcards.dataset, movie = config[wildcards.dataset]["movies"]) 
     output: outfile = config["ROOT_OUT"] + "ccs/{dataset}/ccs.bam" 
     
     run:
