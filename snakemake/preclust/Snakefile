@@ -16,11 +16,11 @@
     
     # algorithms
     3. demultiplexed ccs to isoseq3 cluster
-    3'. (1) demultiplexed ccs (w. q values) and (2) the accessions of the flnc ccs reads produced by isoseq3 cluster to preclust (check if seqs have been altered!)
+    3'. (1) demultiplexed ccs (w. q values) and (2) the accessions of the flnc ccs reads produced by isoseq3 cluster to qt-clust (check if seqs have been altered!)
 
     # evaluation
     4. alignment of reads to hg38 (skip this if simulated data)
-    5. Fix cluster-files produced by cluster and preclust to a unified format
+    5. Fix cluster-files produced by cluster and qt-clust to a unified format
     6. Run "compute_cluster_quality.py" and get various metrics
 
     # structure
@@ -161,7 +161,9 @@ TARGET_FILES['preprocess'] = subreads_files(config["DATASET"]) + ccs_files(confi
 
 #cluster
 
-TARGET_FILES["cluster"] = 
+isoseq3_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.{suffix}", suffix = ["bam", "cluster", "flnc.bam"], dataset = config["DATASET"]) 
+# qt_qlust_files =
+TARGET_FILES["cluster"] = isoseq3_files
 
 # rule all:
 #     input:  TARGET_FILES["preprocess"], TARGET_FILES["simulation"], TARGET_FILES["cluster"], TARGET_FILES["evaluation"]
@@ -213,51 +215,36 @@ rule merge_demultiplexed_files:
         shell("pbindex {output.outfile}")
 
 
-# rule isoseq3:
-#     input:  flnc_by_primer = config["ROOT_OUT"] + "/{experiment}/{batch_size}_{polish}/{primer_id}/flnc.fasta", # rules.PROOVREAD.output.consensus_transcripts, # config["ROOT_OUT"] + "/{experiment}/{batch_size}_{polish}/{primer_id}/flnc.fasta",
-#             nfl_by_primer = config["ROOT_OUT"] + "/{experiment}/{batch_size}_{polish}/{primer_id}/nfl.fasta", 
-#             bas_fofn = rules.make_bas_fofn.output.subreads_index
-#     output: time_and_mem = config["ROOT"] + "cluster_output/{EXPERIMENT_ID}/performance/{experiment}/ICE_QUAL/{batch_size}_{polish}/{primer_id}/runtime.stdout",
-#             logfile = config["ROOT"] + "cluster_output/{EXPERIMENT_ID}/original_output/{experiment}/ICE_QUAL/{batch_size}_{polish}/{primer_id}/logfile.txt",
-#             consensus_transcripts = config["ROOT"] + "cluster_output/{EXPERIMENT_ID}/original_output/{experiment}/ICE_QUAL/{batch_size}_{polish}/{primer_id}/final_candidates.fa",
-#             consensus_transcripts_lq = config["ROOT"] + "cluster_output/{EXPERIMENT_ID}/original_output/{experiment}/ICE_QUAL/{batch_size}_{polish}/{primer_id}/final_candidates_lq.fa"
+rule isoseq3:
+    input:  ccs = rules.merge_demultiplexed_files.output.outfile
+    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/isoseq3/{dataset}/runtime.stdout",
+            clusters = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.cluster",
+            flnc = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.flnc.bam",
+            consensus = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.bam"
+    run:
+        shell("source activate isoseq3")
+        time = config["GNUTIME"]
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/isoseq3/{0}/".format(wildcards.dataset) )
+        mkdir_p(config["ROOT_OUT"] + "cluster/isoseq3/{0}/".format(wildcards.dataset) )
+        shell("{time} isoseq3 cluster --num-threads 8 {input.ccs} {output.consensus} --verbose 2> {output.time_and_mem} ")
+
+
+# rule qt_clust:
+#     input:  flnc = rules.isoseq3.output.flnc,
+#             ccs  = rules.merge_demultiplexed_files.output.outfile
+#     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{dataset}/runtime.stdout",
+#             clusters = config["ROOT_OUT"] + "cluster/qt_clust/{dataset}/pre_clusters.csv",
 #     run:
 #         time = config["GNUTIME"]
-#         isocon_folder = config["ISOCON_FOLDER"]
-#         mkdir_p(config["ROOT"] + "cluster_output/" + config["EXPERIMENT_ID"] + "/performance/")
+#         mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/".format(wildcards.dataset) )
+#         outfolder = config["ROOT_OUT"] + "cluster/qt_clust/{0}/".format(wildcards.dataset)
 
-#         out_folder = config["ROOT"] + "cluster_output/{0}/original_output/{1}/ICE_QUAL/{2}_{3}/{4}".format(wildcards.EXPERIMENT_ID, wildcards.experiment, wildcards.batch_size, wildcards.polish, wildcards.primer_id) 
-#         shell("rm -rf {out_folder}")
-#         mkdir_p(out_folder)
-#         shell("touch {output.logfile}")
-#         shell("touch {output.time_and_mem}")
-#         shell("{time} pbtranscript cluster --quiver  --nfl_fa {input.nfl_by_primer} --bas_fofn {input.bas_fofn}  --blasr_nproc 8 --quiver_nproc 8 --max_sge_jobs 8 -d {out_folder} {input.flnc_by_primer} {output.consensus_transcripts} 2>&1 | tee {output.time_and_mem} ")
-#         # shell("{time} pbtranscript cluster --targeted_isoseq --blasr_nproc 4 --max_sge_jobs 4 -d {out_folder} {input.flnc} {output.consensus_transcripts} 2>&1 | tee {output.time_and_mem} ")
-#         shell("rm -f {output.consensus_transcripts}")
-#         shell("cp {out_folder}/all_quivered_hq.100_30_0.99.fasta {output.consensus_transcripts}")
-#         shell("cp {out_folder}/all_quivered_lq.fasta {output.consensus_transcripts_lq}")
-#         clean_dir(out_folder)
+#         mkdir_p(config["ROOT_OUT"] + "cluster/qt_clust/{0}/".format(wildcards.dataset) )
+#         shell("{time} /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/preclust3.py --t 8 --flnc {input.flnc} --ccs {input.ccs}  --outfolder {outfolder}  2> {output.time_and_mem}")
 
 
-# rule preclust:
-#     input: flnc_by_primer = config["ROOT_OUT"] + "/{experiment}/{batch_size}_{polish}/{primer_id}/flnc.fasta", # rules.PROOVREAD.output.consensus_transcripts #config["ROOT_OUT"] + "/{experiment}/{batch_size}_{polish}/{primer_id}/flnc.fasta",
-#             ccs_bam = config["ROOT_OUT"] + "/{experiment}/{batch_size}_{polish}.ccs.bam"
-#     output: time_and_mem = config["ROOT"] + "cluster_output/{EXPERIMENT_ID}/performance/{experiment}/ISOCON/{batch_size}_{polish}/{primer_id}/runtime.stdout",
-#             logfile = config["ROOT"] + "cluster_output/{EXPERIMENT_ID}/original_output/{experiment}/ISOCON/{batch_size}_{polish}/{primer_id}/logfile.txt",
-#             consensus_transcripts = config["ROOT"] + "cluster_output/{EXPERIMENT_ID}/original_output/{experiment}/ISOCON/{batch_size}_{polish}/{primer_id}/final_candidates.fa",
-#             consensus_transcripts_lq = config["ROOT"] + "cluster_output/{EXPERIMENT_ID}/original_output/{experiment}/ISOCON/{batch_size}_{polish}/{primer_id}/final_candidates_lq.fa"
-#     run:
-#         time = config["GNUTIME"]
-#         isocon_folder = config["ISOCON_FOLDER"]
-#         mkdir_p(config["ROOT"] + "cluster_output/" + config["EXPERIMENT_ID"] + "/performance/")
-#         out_folder= config["ROOT"] + "cluster_output/{0}/original_output/{1}/ISOCON/{2}_{3}/{4}".format(wildcards.EXPERIMENT_ID, wildcards.experiment, wildcards.batch_size, wildcards.polish, wildcards.primer_id) # "~/tmp/tmp_HITEM_{0}_{1}_{2}_{3}/".format(wildcards.gene_member, wildcards.family_size, wildcards.isoform_distribution, wildcards.mutation_rate)
-#         shell("mkdir -p {out_folder}")
-#         if wildcards.polish == "unpolished":
-#             shell("{time} python {isocon_folder}isocon_nontargeted pipeline --nr_cores 64 -fl_reads {input.flnc_by_primer} -outfolder {out_folder}  --cleanup 2>&1 | tee {output.time_and_mem} ")
-#         else:
-#             shell("{time} python {isocon_folder}isocon_nontargeted pipeline --nr_cores 64 -fl_reads {input.flnc_by_primer} -outfolder {out_folder} --ccs {input.ccs_bam}  --cleanup 2>&1 | tee {output.time_and_mem} ")
-#         shell("mv {out_folder}/not_converged.fa {output.consensus_transcripts_lq}")
-#         # shell("mv {out_folder}/candidates_converged.fa {output.consensus_transcripts}")
+
+
 
 
 # rule minimap2:

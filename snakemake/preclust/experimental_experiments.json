@@ -49,7 +49,7 @@
     "ROOT_OUT" : "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/",
     "ENSEMBL" : "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/data/",
     "DESIGNED" : "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/IsoCon_paper_biological/DATABASES/marta_design_references.fa",
-    "TOOLS" :["preclust", "isoseq3"],
+    "TOOLS" :["qt_clust", "isoseq3"],
     "GNUTIME" : "/usr/bin/time -v",
     "SCRIPT_FOLDER" : "/galaxy/home/ksahlin/prefix/source/isocon_nontargeted_eval/snakemake/preclust/snake_helper_scripts",
     "EXPERIMENT_ID" : "quality_values_left_shift_fix_02_06_experimental",

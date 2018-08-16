@@ -12,10 +12,10 @@
 
     },
 
-    "preclust" : 
+    "qt_clust" : 
     {
-        "jobname" : "preclust",
-        "ntasks" : "64",
+        "jobname" : "qt_clust",
+        "ntasks" : "8",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -27,7 +27,7 @@
     "isoseq3" : 
     {
         "jobname" : "isoseq3",
-        "ntasks" : "6",
+        "ntasks" : "8",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
