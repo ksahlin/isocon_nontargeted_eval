@@ -32,7 +32,7 @@
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
-        "exclude" : "nn[0-1]"
+        "exclude" : "c[4,6-7,8-16]"
     },
 
     "ccs" : 
