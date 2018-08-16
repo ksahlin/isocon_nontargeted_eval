@@ -226,7 +226,7 @@ rule isoseq3:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/isoseq3/{0}/".format(wildcards.dataset) )
         mkdir_p(config["ROOT_OUT"] + "cluster/isoseq3/{0}/".format(wildcards.dataset) )
-        shell("{time} isoseq3 cluster --num-threads 8 {input.ccs} {output.consensus} --verbose 2> {output.time_and_mem} ")
+        shell("{time} isoseq3 cluster --num-threads 8 {input.ccs} {output.consensus} --verbose 2>&1 | tee {output.time_and_mem} ")
 
 
 # rule qt_clust:
@@ -240,7 +240,7 @@ rule isoseq3:
 #         outfolder = config["ROOT_OUT"] + "cluster/qt_clust/{0}/".format(wildcards.dataset)
 
 #         mkdir_p(config["ROOT_OUT"] + "cluster/qt_clust/{0}/".format(wildcards.dataset) )
-#         shell("{time} /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/preclust3.py --t 8 --flnc {input.flnc} --ccs {input.ccs}  --outfolder {outfolder}  2> {output.time_and_mem}")
+#         shell("{time} /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/preclust3.py --t 8 --flnc {input.flnc} --ccs {input.ccs}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
 
