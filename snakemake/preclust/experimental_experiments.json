@@ -1,6 +1,8 @@
 {
 
-    "DATASET" : ["Alzheimer_IsoSeq_2016", "RC0_1cell_2017"],
+    "REAL_DATASET" : ["Alzheimer_IsoSeq_2016", "RC0_1cell_2017"],
+    "SIM_DATASET" : ["ENSEMBL"],
+    "NR_SIM_READS" : ["100000", "500000", "1000000"],
 
     "Alzheimer_IsoSeq_2016" : { "movies" : ["m141129_125831_42161_c100698142550000001823143403261592",
                     "m141129_162011_42161_c100698142550000001823143403261593",
