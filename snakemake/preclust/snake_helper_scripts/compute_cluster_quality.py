@@ -143,7 +143,7 @@ def get_cluster_information(clusters, classes):
     min_class_size = min(class_distribution)
     max_class_size = max(class_distribution)
     mean_class_size = sum(class_distribution) / float(len(class_distribution))
-    median_class_size = class_distribution[ int(len(class_distribution)/2) ] if len(class_distribution) % 2 == 1 else sum( class_distribution[ int(len(class_distribution)/2) ] + class_distribution[ int(len(class_distribution)/2) -1] ) / 2.0
+    median_class_size = class_distribution[ int(len(class_distribution)/2) ] if len(class_distribution) % 2 == 1 else ( class_distribution[ int(len(class_distribution)/2) ] + class_distribution[ int(len(class_distribution)/2) -1] ) / 2.0
 
     # cluster distribution
     cluster_dict = {}
@@ -159,7 +159,7 @@ def get_cluster_information(clusters, classes):
     min_cluster_size = min(cluster_distribution)
     max_cluster_size = max(cluster_distribution)
     mean_cluster_size = sum(cluster_distribution) / float(len(cluster_distribution))
-    median_cluster_size = cluster_distribution[ int(len(cluster_distribution)/2) ] if len(cluster_distribution) % 2 == 1 else sum( cluster_distribution[ int(len(cluster_distribution)/2) ] + cluster_distribution[ int(len(cluster_distribution)/2) -1] ) / 2.0
+    median_cluster_size = cluster_distribution[ int(len(cluster_distribution)/2) ] if len(cluster_distribution) % 2 == 1 else ( cluster_distribution[ int(len(cluster_distribution)/2) ] + cluster_distribution[ int(len(cluster_distribution)/2) -1] ) / 2.0
 
     unaligned_but_nontrivially_clustered = set(clusters.keys()) - singleton_clusters - set(classes.keys())
 
