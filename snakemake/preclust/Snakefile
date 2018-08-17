@@ -167,7 +167,7 @@ TARGET_FILES["cluster"] = isoseq3_files
 
 #EVALUATION REAL
 
-eval_real_files = expand(config["ROOT_OUT"] + "/evaluation/{dataset}/{tool}_table.tsv", dataset = config["DATASET"], tool = ["isoseq3"]) 
+eval_real_files = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{tool}_table.tsv", dataset = config["DATASET"], tool = ["isoseq3"]) 
 
 TARGET_FILES["evaluation"] = eval_real_files #+ eval_sim_files
 
