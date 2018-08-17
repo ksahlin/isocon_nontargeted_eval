@@ -167,9 +167,9 @@ TARGET_FILES["cluster"] = isoseq3_files
 
 #EVALUATION REAL
 
-eval_real_files = expand(config["ROOT_OUT"] + "cluster/evaluation/{dataset}/{tool}_table.tsv", dataset = config["DATASET"], tool = ["qt_clust", "isoseq3"]) 
+eval_real_files = expand(config["ROOT_OUT"] + "/evaluation/{dataset}/{tool}_table.tsv", dataset = config["DATASET"], tool = ["isoseq3"]) 
 
-TARGET_FILES["eval"] = eval_real_files #+ eval_sim_files
+TARGET_FILES["evaluation"] = eval_real_files #+ eval_sim_files
 
 
 #EVALUATION SIMULATED
@@ -263,7 +263,7 @@ rule minimap2_align:
     output: alignment = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{dataset}.sam"
     
     run:
-        shell("/usr/bin/time -v  minimap2 -ax splice -uf -C5 {input.ref} {input.reads} >  {output.alignment} ")
+        shell("/usr/bin/time -v  minimap2 -t 8 -ax splice -uf -C5 {input.ref} {input.reads} >  {output.alignment} ")
 
 
 rule file_convert_isoseq3_clusters:
@@ -281,11 +281,12 @@ rule v_measure:
         isoseq3_predicted  = rules.file_convert_isoseq3_clusters.output.clusters,
         # qt_clust_predicted = rules.qt_clust.output.clusters
     output: 
-        isoseq3_res = config["ROOT_OUT"] + "evaluation/{dataset}/isoseq3.results"
-        # qt_clust_res = config["ROOT_OUT"] + "evaluation/{dataset}/qt_clust.results"
+        isoseq3_res = config["ROOT_OUT"] + "evaluation/{dataset}/isoseq3_table.tsv"
+        # qt_clust_res = config["ROOT_OUT"] + "evaluation/{dataset}/qt_clust.tsv"
 
     run:
         script_path = config["SCRIPT_FOLDER"]
+        mkdir_p(config["ROOT_OUT"] + "evaluation/{0}/".format(wildcards.dataset))
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {input.true}  --outfile {output.isoseq3_res}")
         # shell("python compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {input.true}  --outfolder {output.qt_clust_res}")
 
