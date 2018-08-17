@@ -289,6 +289,9 @@ rule v_measure:
     run:
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["ROOT_OUT"] + "evaluation/{0}/".format(wildcards.dataset))
+        shell("which python")
+        shell("python --version")
+        shell("pip list")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {input.true}  --outfile {output.isoseq3_res}")
         # shell("python compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {input.true}  --outfolder {output.qt_clust_res}")
 
