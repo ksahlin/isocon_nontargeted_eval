@@ -163,15 +163,17 @@ TARGET_FILES['preprocess'] = subreads_files(config["REAL_DATASET"]) + ccs_files(
 #CLUSTER
 
 isoseq3_real_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.{suffix}", dataset = config["REAL_DATASET"], suffix = ["bam", "cluster", "flnc.bam"]) 
-isoseq3_sim_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.{suffix}", dataset = config["SIM_DATASET"], suffix = ["bam", "cluster", "flnc.bam"]) 
+isoseq3_sim_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{dataset}_{nr_reads}/unpolished.{suffix}", dataset = config["SIM_DATASET"], nr_reads =config["NR_SIM_READS"], suffix = ["bam", "cluster", "flnc.bam"]) 
 # qt_qlust_files =
 TARGET_FILES["cluster"] = isoseq3_real_files + isoseq3_sim_files
 
 
-#EVALUATION REAL
+#EVALUATION
 
 eval_real_files = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{tool}_table.tsv", dataset = config["REAL_DATASET"], tool = ["isoseq3"]) 
-TARGET_FILES["evaluation"] = eval_real_files #+ eval_sim_files
+eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{dataset}_{nr_reads}/{tool}_table.tsv", dataset = config["SIM_DATASET"],  nr_reads = config["NR_SIM_READS"], tool = ["isoseq3"]) 
+
+TARGET_FILES["evaluation"] = eval_real_files + eval_sim_files
 
 
 # SIMULATE
