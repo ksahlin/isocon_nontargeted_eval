@@ -260,10 +260,12 @@ rule isoseq3:
 rule minimap2_align:
     input:  reads = rules.isoseq3.output.flnc,
             ref = config["MMI"]
-    output: alignment = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{dataset}.sam"
+    output: fastq = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{dataset}.fastq"
+            alignment = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{dataset}.sam"
     
     run:
-        shell("/usr/bin/time -v  minimap2 -t 8 -ax splice -uf -C5 {input.ref} {input.reads} >  {output.alignment} ")
+        shell("bamtools convert -format fastq -in {input.reads} -out {output.fastq} ")
+        shell("/usr/bin/time -v  minimap2 -t 8 -ax splice -uf -C5 {input.ref} {output.fastq} >  {output.alignment} ")
 
 
 rule file_convert_isoseq3_clusters:
