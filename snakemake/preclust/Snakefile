@@ -163,9 +163,11 @@ TARGET_FILES['preprocess'] = subreads_files(config["REAL_DATASET"]) + ccs_files(
 #CLUSTER
 
 isoseq3_real_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.{suffix}", dataset = config["REAL_DATASET"], suffix = ["bam", "cluster", "flnc.bam"]) 
-isoseq3_sim_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{dataset}_{nr_reads}/unpolished.{suffix}", dataset = config["SIM_DATASET"], nr_reads =config["NR_SIM_READS"], suffix = ["bam", "cluster", "flnc.bam"]) 
 # qt_qlust_files =
-TARGET_FILES["cluster"] = isoseq3_real_files + isoseq3_sim_files
+TARGET_FILES["cluster"] = isoseq3_real_files 
+
+isoseq3_sim_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{dataset}_{nr_reads}/unpolished.{suffix}", dataset = config["SIM_DATASET"], nr_reads =config["NR_SIM_READS"], suffix = ["bam", "cluster", "flnc.bam"]) 
+TARGET_FILES["cluster_sim"] = isoseq3_sim_files
 
 
 #EVALUATION
@@ -198,6 +200,9 @@ rule preprocess:
 
 rule cluster:
         input: TARGET_FILES["cluster"]
+
+rule cluster_sim:
+        input: TARGET_FILES["cluster_sim"]
 
 rule evaluation:
         input: TARGET_FILES["evaluation"]
