@@ -123,16 +123,46 @@ def compute_V_measure(clusters, classes):
     homog_score = homogeneity_score(class_list, cluster_list)
     print("V:", v_score, "Completeness:", compl_score, "Homogeneity:", homog_score)
     print("Nr reads clustered but unaligned (i.e., no class and excluded from V-veasure): ", clustered_but_unaligned)
+    return v_score, compl_score, homog_score, clustered_but_unaligned
 
 
 def get_cluster_information(clusters, classes):
-    cl_dict = {}
-    for read_acc, cl_id in clusters.items():
-        if cl_id not in cl_dict:
-            cl_dict[cl_id] = [read_acc]
+
+
+    # class distribution
+    class_dict = {}
+    for read_acc, class_id in classes.items():
+        if class_id not in class_dict:
+            class_dict[class_id] = [read_acc]
         else:
-            cl_dict[cl_id].append(read_acc)
-    not_clustered = set([acc_list[0] for cl_id, acc_list in cl_dict.items() if len(acc_list) == 1 ])
+            class_dict[class_id].append(read_acc)
+
+    total_nr_classes = len(class_dict)
+    class_distribution = sorted([len(cl) for cl in class_dict.values()])
+    singleton_classes = set([acc_list[0] for cl_id, acc_list in class_dict.items() if len(acc_list) == 1 ])
+    min_class_size = min(class_distribution)
+    max_class_size = max(class_distribution)
+    mean_class_size = sum(class_distribution) / float(len(class_distribution))
+    median_class_size = class_distribution[ int(len(class_distribution)/2) ] if len(class_distribution) % 2 == 1 else sum( class_distribution[ int(len(class_distribution)/2) ] + class_distribution[ int(len(class_distribution)/2) -1] ) / 2.0
+
+    # cluster distribution
+    cluster_dict = {}
+    for read_acc, cl_id in clusters.items():
+        if cl_id not in cluster_dict:
+            cluster_dict[cl_id] = [read_acc]
+        else:
+            cluster_dict[cl_id].append(read_acc)
+
+    total_nr_clusters = len(cluster_dict) 
+    cluster_distribution = sorted([len(cl) for cl in cluster_dict.values()])
+    singleton_clusters = set([acc_list[0] for cl_id, acc_list in cluster_dict.items() if len(acc_list) == 1 ])
+    min_cluster_size = min(cluster_distribution)
+    max_cluster_size = max(cluster_distribution)
+    mean_cluster_size = sum(cluster_distribution) / float(len(cluster_distribution))
+    median_cluster_size = cluster_distribution[ int(len(cluster_distribution)/2) ] if len(cluster_distribution) % 2 == 1 else sum( cluster_distribution[ int(len(cluster_distribution)/2) ] + cluster_distribution[ int(len(cluster_distribution)/2) -1] ) / 2.0
+
+    unaligned_but_nontrivially_clustered = set(clusters.keys()) - singleton_clusters - set(classes.keys())
+
     # not_considered = set([read for read in classes if read not in clusters ])
 
     not_clustered_classes = defaultdict(int)
@@ -144,7 +174,7 @@ def get_cluster_information(clusters, classes):
         else:
             class_id = "unaligned"
         
-        if read in not_clustered:
+        if read in singleton_clusters:
             not_clustered_classes[class_id] += 1
             reads_not_clustered[class_id].append(read)
         else:
@@ -160,7 +190,10 @@ def get_cluster_information(clusters, classes):
     print("UNCLUSTERED:", "Tot classes:", len(not_clustered_classes), sorted(not_clustered_classes.items(), key=lambda x: x[1], reverse=True))
     print("CLUSTERED:", "Tot classes:", len(clustered_classes), sorted(clustered_classes.items(), key=lambda x: x[1], reverse=True))
     print("MIXED:", "Tot classes containing both:", len( set(clustered_classes.keys()) & set(not_clustered_classes.keys())))
-    print("Total number of classes (unique gene ID):", len(set(classes.values())))
+    print("Total number of classes (unique gene ID):", total_nr_classes)
+    return total_nr_classes, len(singleton_classes), min_class_size, max_class_size, mean_class_size, median_class_size, total_nr_clusters, len(singleton_clusters), min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, len(unaligned_but_nontrivially_clustered) 
+
+
 
 def main(args):
 
@@ -172,18 +205,27 @@ def main(args):
         ref_file = pysam.AlignmentFile(args.classes, "rb", check_sq=False)
         classes  = parse_true_clusters(ref_file)
 
-    value = compute_V_measure(clusters, classes)
-    get_cluster_information(clusters, classes)
+    v_score, compl_score, homog_score, clustered_but_unaligned = compute_V_measure(clusters, classes)
+    total_nr_classes, singleton_classes, min_class_size, max_class_size, mean_class_size, median_class_size, total_nr_clusters, singleton_clusters, min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, unaligned_but_nontrivially_clustered  = get_cluster_information(clusters, classes)
+
+
+    outfile = open(args.outfile, "w")
+    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\n".format("v_score", "compl_score", "homog_score", "clustered_but_unaligned", \
+                                                                 "total_nr_clusters", "singleton_clusters", "min_cluster_size", "max_cluster_size", "mean_cluster_size", "median_cluster_size", "unaligned_but_nontrivially_clustered",\
+                                                                  "total_nr_classes", "singleton_classes", "min_class_size", "max_class_size", "mean_class_size", "median_class_size"))
+    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\n".format(v_score, compl_score, homog_score, clustered_but_unaligned, \
+                                                                total_nr_clusters, singleton_clusters, min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, unaligned_but_nontrivially_clustered,\
+                                                                total_nr_classes, singleton_classes, min_class_size, max_class_size, mean_class_size, median_class_size))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Align predicted transcripts to transcripts in ensembl reference data base.")
     parser.add_argument('--clusters', type=str, help='Inferred clusters (tsv file)')
     parser.add_argument('--classes', type=str, help='A sorted and indexed bam file.')
     parser.add_argument('--simulated', action="store_true", help='Simulated data, we can simply read correct classes from the ref field.')
-    parser.add_argument('--outfolder', type=str, help='Output path of results')
+    parser.add_argument('--outfile', type=str, help='Output file with results')
     args = parser.parse_args()
 
-    if not os.path.exists(args.outfolder):
-        os.makedirs(args.outfolder)
+    # if not os.path.exists(args.outfolder):
+    #     os.makedirs(args.outfolder)
 
     main(args)

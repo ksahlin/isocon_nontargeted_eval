@@ -127,7 +127,7 @@ def clean_dir(folder):
 
 ############## TARGET FILES ####################
 
-# preprocess
+# PREPROCESS
 TARGET_FILES = {}
 
 def subreads_files(datasets):
@@ -159,11 +159,22 @@ def lima_files(datasets):
 
 TARGET_FILES['preprocess'] = subreads_files(config["DATASET"]) + ccs_files(config["DATASET"]) + lima_files(config["DATASET"])
 
-#cluster
+#CLUSTER
 
 isoseq3_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.{suffix}", dataset = config["DATASET"], suffix = ["bam", "cluster", "flnc.bam"]) 
 # qt_qlust_files =
 TARGET_FILES["cluster"] = isoseq3_files
+
+#EVALUATION REAL
+
+eval_real_files = expand(config["ROOT_OUT"] + "cluster/evaluation/{dataset}/{tool}_table.tsv", dataset = config["DATASET"], tool = ["qt_clust", "isoseq3"]) 
+
+TARGET_FILES["eval"] = eval_real_files #+ eval_sim_files
+
+
+#EVALUATION SIMULATED
+
+
 
 # rule all:
 #     input:  TARGET_FILES["preprocess"], TARGET_FILES["simulation"], TARGET_FILES["cluster"], TARGET_FILES["evaluation"]
@@ -176,6 +187,9 @@ rule preprocess:
 
 rule cluster:
         input: TARGET_FILES["cluster"]
+
+rule evaluation:
+        input: TARGET_FILES["evaluation"]
 
 #####################################################
 
@@ -243,8 +257,37 @@ rule isoseq3:
 #         shell("{time} /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/preclust3.py --t 8 --flnc {input.flnc} --ccs {input.ccs}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
+rule minimap2_align:
+    input:  reads = rules.isoseq3.output.flnc,
+            ref = config["MMI"]
+    output: alignment = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{dataset}.sam"
+    
+    run:
+        shell("/usr/bin/time -v  minimap2 -ax splice -uf -C5 {input.ref} {input.reads} >  {output.alignment} ")
 
 
+rule file_convert_isoseq3_clusters:
+    input: clusters = rules.isoseq3.output.clusters
+    output: clusters = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.mod_format.cluster",
+    run:
+        script_path = config["SCRIPT_FOLDER"]
+        shell("python {script_path}/modify_cluter_format.py {input.clusters} {output.clusters} ")
+
+# rule file_convert_qt_clust_clusters:
+
+rule v_measure:
+    input: 
+        true  = rules.minimap2_align.output.alignment,
+        isoseq3_predicted  = rules.file_convert_isoseq3_clusters.output.clusters,
+        # qt_clust_predicted = rules.qt_clust.output.clusters
+    output: 
+        isoseq3_res = config["ROOT_OUT"] + "evaluation/{dataset}/isoseq3.results"
+        # qt_clust_res = config["ROOT_OUT"] + "evaluation/{dataset}/qt_clust.results"
+
+    run:
+        script_path = config["SCRIPT_FOLDER"]
+        shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {input.true}  --outfile {output.isoseq3_res}")
+        # shell("python compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {input.true}  --outfolder {output.qt_clust_res}")
 
 
 # rule minimap2:
