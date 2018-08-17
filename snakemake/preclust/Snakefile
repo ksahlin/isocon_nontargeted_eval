@@ -171,9 +171,12 @@ TARGET_FILES["cluster"] = isoseq3_real_files + isoseq3_sim_files
 #EVALUATION
 
 eval_real_files = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{tool}_table.tsv", dataset = config["REAL_DATASET"], tool = ["isoseq3"]) 
-eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{dataset}_{nr_reads}/{tool}_table.tsv", dataset = config["SIM_DATASET"],  nr_reads = config["NR_SIM_READS"], tool = ["isoseq3"]) 
+TARGET_FILES["evaluation"] = eval_real_files 
 
-TARGET_FILES["evaluation"] = eval_real_files + eval_sim_files
+#EVALUATION SIMULATED
+
+eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{dataset}_{nr_reads}/{tool}_table.tsv", dataset = config["SIM_DATASET"],  nr_reads = config["NR_SIM_READS"], tool = ["isoseq3"]) 
+TARGET_FILES["evaluation_sim"] = eval_sim_files
 
 
 # SIMULATE
@@ -198,6 +201,9 @@ rule cluster:
 
 rule evaluation:
         input: TARGET_FILES["evaluation"]
+
+rule evaluation_sim:
+        input: TARGET_FILES["evaluation_sim"]
 
 rule simulation:
         input: TARGET_FILES["simulation"]
