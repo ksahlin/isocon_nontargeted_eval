@@ -343,7 +343,7 @@ rule file_convert_isoseq3_real_clusters:
 
 rule file_convert_isoseq3_sim_clusters:
     input: clusters = rules.isoseq3_sim.output.clusters
-    output: clusters = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.mod_format.cluster",
+    output: clusters = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}_{nr_reads}/unpolished.mod_format.cluster",
     run:
         script_path = config["SCRIPT_FOLDER"]
         shell("python {script_path}/modify_cluster_format.py {input.clusters} {output.clusters} ")
