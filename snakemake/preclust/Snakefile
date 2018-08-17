@@ -300,8 +300,8 @@ rule isoseq3_sim:
     run:
         shell("source activate isoseq3")
         time = config["GNUTIME"]
-        mkdir_p(config["ROOT_OUT"] + "time_and_mem/isoseq3/{0}/".format(wildcards.dataset) )
-        mkdir_p(config["ROOT_OUT"] + "cluster/isoseq3/{0}/".format(wildcards.dataset) )
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/isoseq3/{0}_{1}/".format(wildcards.dataset, wildcards.nr_reads) )
+        mkdir_p(config["ROOT_OUT"] + "cluster/isoseq3/{0}_{1}/".format(wildcards.dataset, wildcards.nr_reads) )
         shell("{time} isoseq3 cluster --num-threads 8 {input.ccs} {output.consensus} --verbose 2>&1 | tee {output.time_and_mem} ")
 
 # rule qt_clust:
@@ -384,7 +384,7 @@ rule v_measure_sim:
 
     run:
         script_path = config["SCRIPT_FOLDER"]
-        mkdir_p(config["ROOT_OUT"] + "evaluation/{0}/".format(wildcards.dataset))
+        mkdir_p(config["ROOT_OUT"] + "evaluation/{0}_{1}/".format(wildcards.dataset, wildcards.nr_reads))
         shell("source activate isoseq3")
         shell("which python")
         shell("python --version")
