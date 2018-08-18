@@ -275,6 +275,9 @@ rule simulate_dataset:
         index = config["ROOT_OUT"] + "ccs/{sim_dataset}_{nr_reads}/ccs.bam.pbi"
     run:
         shell("source activate simlord")
+        shell("which python")
+        shell("python --version")
+        shell("pip list")
         # refs = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/data/ENSEMBLE_simulated/ensembl_coding_seqs.fa"
         # sample_readlengths = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/cluster/isoseq3/RC0_1cell_2017/unpolished.flnc.fastq"
         intermediate_reads = config["ROOT_OUT"] + "ccs/{0}_{1}/ccs.sam".format(wildcards.sim_dataset, wildcards.nr_reads)
@@ -283,9 +286,7 @@ rule simulate_dataset:
         intermediate_bam = config["ROOT_OUT"] + "ccs/{0}_{1}/ccs_tmp.bam".format(wildcards.sim_dataset, wildcards.nr_reads)
         shell("samtools view -b {intermediate_reads} > {intermediate_bam}")
         script_path = config["SCRIPT_FOLDER"] 
-        shell("which python")
-        shell("python --version")
-        shell("pip list")
+
 
         shell("python {script_path}/add_read_tags_to_bam.py --inbam {intermediate_bam}  --outbam {output.reads}")
         shell("pbindex {output.reads}")
@@ -389,7 +390,7 @@ rule v_measure_sim:
         shell("which python")
         shell("python --version")
         shell("pip list")
-        shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {input.true}  --outfile {output.isoseq3_res}")
+        shell("python {script_path}/compute_cluster_quality.py --simulated --clusters {input.isoseq3_predicted} --classes {input.true}  --outfile {output.isoseq3_res}")
 
 
 
