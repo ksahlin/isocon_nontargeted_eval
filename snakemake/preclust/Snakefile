@@ -166,7 +166,7 @@ isoseq3_real_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpo
 # qt_qlust_files =
 TARGET_FILES["cluster"] = isoseq3_real_files 
 
-isoseq3_sim_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{sim_dataset}_{nr_reads}/unpolished.{suffix}", sim_dataset = config["SIM_DATASET"], nr_reads =config["NR_SIM_READS"], suffix = ["bam", "cluster", "flnc.bam"]) 
+isoseq3_sim_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{sim_dataset}/{nr_reads}/unpolished.{suffix}", sim_dataset = config["SIM_DATASET"], nr_reads =config["NR_SIM_READS"], suffix = ["bam", "cluster", "flnc.bam"]) 
 TARGET_FILES["cluster_sim"] = isoseq3_sim_files
 
 
@@ -177,12 +177,12 @@ TARGET_FILES["evaluation"] = eval_real_files
 
 #EVALUATION SIMULATED
 
-eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{sim_dataset}_{nr_reads}/{tool}_table.tsv", sim_dataset = config["SIM_DATASET"],  nr_reads = config["NR_SIM_READS"], tool = ["isoseq3"]) 
+eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/{tool}_table.tsv", sim_dataset = config["SIM_DATASET"],  nr_reads = config["NR_SIM_READS"], tool = ["isoseq3"]) 
 TARGET_FILES["evaluation_sim"] = eval_sim_files
 
 
 # SIMULATE
-simulate_files = expand(config["ROOT_OUT"] + "ccs/{sim_dataset}_{nr_reads}/ccs.bam" , sim_dataset = config["SIM_DATASET"], nr_reads =config["NR_SIM_READS"] , tool = ["isoseq3"]) 
+simulate_files = expand(config["ROOT_OUT"] + "ccs/{sim_dataset}/{nr_reads}/ccs.bam" , sim_dataset = config["SIM_DATASET"], nr_reads =config["NR_SIM_READS"] , tool = ["isoseq3"]) 
 TARGET_FILES["simulation"] = simulate_files 
 
 #EVALUATION SIMULATED
@@ -271,8 +271,8 @@ rule simulate_dataset:
         sample_readlengths  = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/cluster/isoseq3/RC0_1cell_2017/unpolished.flnc.fastq",
         # qt_clust_predicted = rules.qt_clust.output.clusters
     output: 
-        reads = config["ROOT_OUT"] + "ccs/{sim_dataset}_{nr_reads}/ccs.bam",
-        index = config["ROOT_OUT"] + "ccs/{sim_dataset}_{nr_reads}/ccs.bam.pbi"
+        reads = config["ROOT_OUT"] + "ccs/{sim_dataset}/{nr_reads}/ccs.bam",
+        index = config["ROOT_OUT"] + "ccs/{sim_dataset}/{nr_reads}/ccs.bam.pbi"
     run:
         shell("source activate simlord")
         shell("which python")
@@ -280,11 +280,11 @@ rule simulate_dataset:
         shell("pip list")
         # refs = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/data/ENSEMBLE_simulated/ensembl_coding_seqs.fa"
         # sample_readlengths = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/cluster/isoseq3/RC0_1cell_2017/unpolished.flnc.fastq"
-        intermediate_reads = config["ROOT_OUT"] + "ccs/{0}_{1}/ccs.sam".format(wildcards.sim_dataset, wildcards.nr_reads)
+        intermediate_reads = config["ROOT_OUT"] + "ccs/{0}/{1}/ccs".format(wildcards.sim_dataset, wildcards.nr_reads)
         shell("simlord --uniform-chromosome-probability --read-reference {input.refs} --sample-readlength-from-fastq {input.sample_readlengths}  -n {wildcards.nr_reads}  {intermediate_reads}")
 
-        intermediate_bam = config["ROOT_OUT"] + "ccs/{0}_{1}/ccs_tmp.bam".format(wildcards.sim_dataset, wildcards.nr_reads)
-        shell("samtools view -b {intermediate_reads} > {intermediate_bam}")
+        intermediate_bam = config["ROOT_OUT"] + "ccs/{0}/{1}/ccs_tmp.bam".format(wildcards.sim_dataset, wildcards.nr_reads)
+        shell("samtools view -b {intermediate_reads}.fastq.sam > {intermediate_bam}")
         script_path = config["SCRIPT_FOLDER"] 
 
 
@@ -294,10 +294,10 @@ rule simulate_dataset:
 
 rule isoseq3_sim:
     input:  ccs = rules.simulate_dataset.output.reads
-    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/isoseq3/{sim_dataset}_{nr_reads}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/isoseq3/{sim_dataset}_{nr_reads}/unpolished.cluster",
-            flnc = config["ROOT_OUT"] + "cluster/isoseq3/{sim_dataset}_{nr_reads}/unpolished.flnc.bam",
-            consensus = config["ROOT_OUT"] + "cluster/isoseq3/{sim_dataset}_{nr_reads}/unpolished.bam"
+    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/isoseq3/{sim_dataset}/{nr_reads}/runtime.stdout",
+            clusters = config["ROOT_OUT"] + "cluster/isoseq3/{sim_dataset}/{nr_reads}/unpolished.cluster",
+            flnc = config["ROOT_OUT"] + "cluster/isoseq3/{sim_dataset}/{nr_reads}/unpolished.flnc.bam",
+            consensus = config["ROOT_OUT"] + "cluster/isoseq3/{sim_dataset}/{nr_reads}/unpolished.bam"
     run:
         shell("source activate isoseq3")
         time = config["GNUTIME"]
@@ -332,8 +332,8 @@ rule minimap2_align_real:
 rule minimap2_align_sim:
     input:  reads = rules.simulate_dataset.output.reads,
             ref = config["MMI"]
-    output: fastq = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{sim_dataset}_{nr_reads}.fastq",
-            alignment = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{sim_dataset}_{nr_reads}.sam"
+    output: fastq = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{sim_dataset}/{nr_reads}.fastq",
+            alignment = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{sim_dataset}/{nr_reads}.sam"
     
     run:
         shell("bamtools convert -format fastq -in {input.reads} -out {output.fastq} ")
@@ -349,7 +349,7 @@ rule file_convert_isoseq3_real_clusters:
 
 rule file_convert_isoseq3_sim_clusters:
     input: clusters = rules.isoseq3_sim.output.clusters
-    output: clusters = config["ROOT_OUT"] + "cluster/isoseq3/{sim_dataset}_{nr_reads}/unpolished.mod_format.cluster",
+    output: clusters = config["ROOT_OUT"] + "cluster/isoseq3/{sim_dataset}/{nr_reads}/unpolished.mod_format.cluster",
     run:
         script_path = config["SCRIPT_FOLDER"]
         shell("python {script_path}/modify_cluster_format.py {input.clusters} {output.clusters} ")
@@ -380,7 +380,7 @@ rule v_measure_sim:
         isoseq3_predicted  = rules.file_convert_isoseq3_sim_clusters.output.clusters,
         # qt_clust_predicted = rules.qt_clust.output.clusters
     output: 
-        isoseq3_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}_{nr_reads}/isoseq3_table.tsv"
+        isoseq3_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/isoseq3_table.tsv"
         # qt_clust_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/qt_clust.tsv"
 
     run:
