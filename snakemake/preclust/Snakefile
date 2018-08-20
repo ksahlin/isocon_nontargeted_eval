@@ -124,6 +124,10 @@ def clean_dir(folder):
 #######################################
 
 
+wildcard_constraints:
+    dataset="[^/]+",
+    sim_dataset="[^/]+",
+    nr_reads="[^/]+"
 
 ############## TARGET FILES ####################
 
