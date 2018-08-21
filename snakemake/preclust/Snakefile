@@ -394,7 +394,7 @@ rule v_measure_sim:
         shell("which python")
         shell("python --version")
         shell("pip list")
-        shell("python {script_path}/compute_cluster_quality.py --simulated --clusters {input.isoseq3_predicted} --classes {input.true}  --outfile {output.isoseq3_res}")
+        shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {input.true}  --outfile {output.isoseq3_res}")
 
 
 
