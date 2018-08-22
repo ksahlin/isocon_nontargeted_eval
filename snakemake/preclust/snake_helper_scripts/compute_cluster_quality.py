@@ -32,9 +32,12 @@ def parse_true_clusters(ref_file):
     prev_ref_stop = -1
     prev_read_id = ""
     unique_reads = set()
+    unclassified = 0
     for read in ref_file.fetch(until_eof=True):
         unique_reads.add(read.query_name)
-        if read.is_secondary or read.is_unmapped or read.is_supplementary: # deal with supplementary alignments!!
+        if read.is_unmapped:
+            unclassified += 1
+        if read.is_secondary or read.is_supplementary: # deal with supplementary alignments!!
             continue
         # print(read.query_name, read.flag)
         assert prev_read_id != read.query_name
@@ -76,7 +79,7 @@ def parse_true_clusters(ref_file):
     print()
     print(alignment_counter)
     print()
-    return classes, len(unique_reads)
+    return classes, len(unique_reads), unclassified
 
 
 def parse_true_clusters_simulated(ref_file):
@@ -206,19 +209,19 @@ def main(args):
         tot_nr_reads = len(classes) # by simulation we know classes of all reads, they are therefore the same number.
     else:
         ref_file = pysam.AlignmentFile(args.classes, "rb", check_sq=False)
-        classes, tot_nr_reads  = parse_true_clusters(ref_file)
+        classes, tot_nr_reads, unclassified  = parse_true_clusters(ref_file)
 
     v_score, compl_score, homog_score, clustered_but_unaligned = compute_V_measure(clusters, classes)
     total_nr_classes, singleton_classes, min_class_size, max_class_size, mean_class_size, median_class_size, total_nr_clusters, singleton_clusters, min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, unaligned_but_nontrivially_clustered  = get_cluster_information(clusters, classes)
     tot_nr_reads_included_inclustering = len(clusters)
 
     outfile = open(args.outfile, "w")
-    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}\n".format("v_score", "compl_score", "homog_score", "clustered_but_unaligned", \
+    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}\t{19}\n".format("v_score", "compl_score", "homog_score", "clustered_but_unaligned", \
                                                                  "total_nr_clusters", "singleton_clusters", "min_cluster_size", "max_cluster_size", "mean_cluster_size", "median_cluster_size", "unaligned_but_nontrivially_clustered",\
-                                                                  "total_nr_classes", "singleton_classes", "min_class_size", "max_class_size", "mean_class_size", "median_class_size", "tot_nr_reads", "tot_nr_reads_included_inclustering"))
-    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}\n".format(v_score, compl_score, homog_score, clustered_but_unaligned, \
+                                                                  "total_nr_classes", "singleton_classes", "min_class_size", "max_class_size", "mean_class_size", "median_class_size", "tot_nr_reads", "tot_nr_reads_included_inclustering", "unclassified"))
+    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}\t{19}\n".format(v_score, compl_score, homog_score, clustered_but_unaligned, \
                                                                 total_nr_clusters, singleton_clusters, min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, unaligned_but_nontrivially_clustered,\
-                                                                total_nr_classes, singleton_classes, min_class_size, max_class_size, mean_class_size, median_class_size, tot_nr_reads, tot_nr_reads_included_inclustering))
+                                                                total_nr_classes, singleton_classes, min_class_size, max_class_size, mean_class_size, median_class_size, tot_nr_reads, tot_nr_reads_included_inclustering, unclassified))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Align predicted transcripts to transcripts in ensembl reference data base.")

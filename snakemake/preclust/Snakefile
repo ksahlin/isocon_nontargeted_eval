@@ -370,13 +370,19 @@ rule v_measure_real:
         # qt_clust_res = config["ROOT_OUT"] + "evaluation/{dataset}/qt_clust.tsv"
 
     run:
+        bam = "{0}.bam".format(input.true)
+        script("samtools view -b {input.true} > {bam}")
+        sorted_bam = "{0}_sorted.bam".format(input.true)
+        script("samtools sort {bam} > {sorted_bam}")
+        script("samtools index {sorted_bam}")
+        
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["ROOT_OUT"] + "evaluation/{0}/".format(wildcards.dataset))
         shell("source activate isoseq3")
         shell("which python")
         shell("python --version")
         shell("pip list")
-        shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {input.true}  --outfile {output.isoseq3_res}")
+        shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {sorted_bam}  --outfile {output.isoseq3_res}")
 
 rule v_measure_sim:
     input: 
@@ -388,13 +394,19 @@ rule v_measure_sim:
         # qt_clust_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/qt_clust.tsv"
 
     run:
+        bam = "{0}.bam".format(input.true)
+        script("samtools view -b {input.true} > {bam}")
+        sorted_bam = "{0}_sorted.bam".format(input.true)
+        script("samtools sort {bam} > {sorted_bam}")
+        script("samtools index {sorted_bam}")
+
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["ROOT_OUT"] + "evaluation/{0}_{1}/".format(wildcards.sim_dataset, wildcards.nr_reads))
         shell("source activate isoseq3")
         shell("which python")
         shell("python --version")
         shell("pip list")
-        shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {input.true}  --outfile {output.isoseq3_res}")
+        shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {sorted_bam}  --outfile {output.isoseq3_res}")
 
 
 
