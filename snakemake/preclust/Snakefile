@@ -371,11 +371,11 @@ rule v_measure_real:
 
     run:
         bam = "{0}.bam".format(input.true)
-        script("samtools view -b {input.true} > {bam}")
+        shell("samtools view -b {input.true} > {bam}")
         sorted_bam = "{0}_sorted.bam".format(input.true)
-        script("samtools sort {bam} > {sorted_bam}")
-        script("samtools index {sorted_bam}")
-        
+        shell("samtools sort {bam} > {sorted_bam}")
+        shell("samtools index {sorted_bam}")
+
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["ROOT_OUT"] + "evaluation/{0}/".format(wildcards.dataset))
         shell("source activate isoseq3")
@@ -395,10 +395,10 @@ rule v_measure_sim:
 
     run:
         bam = "{0}.bam".format(input.true)
-        script("samtools view -b {input.true} > {bam}")
+        shell("samtools view -b {input.true} > {bam}")
         sorted_bam = "{0}_sorted.bam".format(input.true)
-        script("samtools sort {bam} > {sorted_bam}")
-        script("samtools index {sorted_bam}")
+        shell("samtools sort {bam} > {sorted_bam}")
+        shell("samtools index {sorted_bam}")
 
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["ROOT_OUT"] + "evaluation/{0}_{1}/".format(wildcards.sim_dataset, wildcards.nr_reads))
