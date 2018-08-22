@@ -37,6 +37,7 @@ def parse_true_clusters(ref_file):
         unique_reads.add(read.query_name)
         if read.is_unmapped:
             unclassified += 1
+            continue
         if read.is_secondary or read.is_supplementary: # deal with supplementary alignments!!
             continue
         # print(read.query_name, read.flag)
