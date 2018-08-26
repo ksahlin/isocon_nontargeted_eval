@@ -334,8 +334,8 @@ rule qt_clust_sim:
             clusters = config["ROOT_OUT"] + "cluster/qt_clust/{sim_dataset}/{nr_reads}/pre_clusters.csv"
     run:
         time = config["GNUTIME"]
-        mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/{1}/".format(wildcards.dataset, wildcards.nr_reads) )
-        outfolder = config["ROOT_OUT"] + "cluster/qt_clust/{0}/{1}/".format(wildcards.dataset, wildcards.nr_reads)
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/{1}/".format(wildcards.sim_dataset, wildcards.nr_reads) )
+        outfolder = config["ROOT_OUT"] + "cluster/qt_clust/{0}/{1}/".format(wildcards.sim_dataset, wildcards.nr_reads)
 
         mkdir_p(outfolder)
         # python qt_qlust.py --flnc ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --ccs ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --outfolder ~/tmp/qt_clust_chr22_100k/ --t 4
