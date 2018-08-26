@@ -387,7 +387,7 @@ rule v_measure_real:
         isoseq3_predicted  = rules.file_convert_isoseq3_real_clusters.output.clusters,
         qt_clust_predicted = rules.qt_clust_real.output.clusters
     output: 
-        isoseq3_res = config["ROOT_OUT"] + "evaluation/{dataset}/isoseq3_table.tsv"
+        isoseq3_res = config["ROOT_OUT"] + "evaluation/{dataset}/isoseq3_table.tsv",
         qt_clust_res = config["ROOT_OUT"] + "evaluation/{dataset}/qt_clust_table.tsv"
 
     run:
@@ -412,7 +412,7 @@ rule v_measure_sim:
         isoseq3_predicted  = rules.file_convert_isoseq3_sim_clusters.output.clusters,
         qt_clust_predicted = rules.qt_clust_sim.output.clusters
     output: 
-        isoseq3_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/isoseq3_table.tsv"
+        isoseq3_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/isoseq3_table.tsv",
         qt_clust_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/qt_clust_table.tsv"
 
     run:
