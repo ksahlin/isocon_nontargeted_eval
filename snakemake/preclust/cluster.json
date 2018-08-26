@@ -12,9 +12,9 @@
 
     },
 
-    "qt_clust" : 
+    "qt_clust_real" : 
     {
-        "jobname" : "qt_clust",
+        "jobname" : "qt_clust_real",
         "ntasks" : "8",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
@@ -23,6 +23,16 @@
         "exclude" : "nn[0-1]"
     },
 
+    "qt_clust_sim" : 
+    {
+        "jobname" : "qt_clust_sim",
+        "ntasks" : "8",
+        "Nodes" : 1,
+        "runtime" : "7-00:00:00",
+        "mail" : "ksahlin@kth.se",
+        "mail_type" : "FAIL",
+        "exclude" : "nn[0-1]"
+    },
 
     "isoseq3_real" : 
     {
@@ -56,7 +66,7 @@
         "mail_type" : "FAIL",
         "exclude" : "c[4,6-7,8-16]"
     },
-    
+
     "minimap2_align_sim" : 
     {
         "jobname" : "minimap2_align_sim",

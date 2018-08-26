@@ -176,17 +176,17 @@ TARGET_FILES["cluster_sim"] = isoseq3_sim_files
 
 #EVALUATION
 
-eval_real_files = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{tool}_table.tsv", dataset = config["REAL_DATASET"], tool = ["isoseq3"]) 
+eval_real_files = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{tool}_table.tsv", dataset = config["REAL_DATASET"], tool = ["isoseq3", "qt_clust"]) 
 TARGET_FILES["evaluation"] = eval_real_files 
 
 #EVALUATION SIMULATED
 
-eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/{tool}_table.tsv", sim_dataset = config["SIM_DATASET"],  nr_reads = config["NR_SIM_READS"], tool = ["isoseq3"]) 
+eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/{tool}_table.tsv", sim_dataset = config["SIM_DATASET"],  nr_reads = config["NR_SIM_READS"], tool = ["isoseq3", "qt_clust"]) 
 TARGET_FILES["evaluation_sim"] = eval_sim_files
 
 
 # SIMULATE
-simulate_files = expand(config["ROOT_OUT"] + "ccs/{sim_dataset}/{nr_reads}/ccs.bam" , sim_dataset = config["SIM_DATASET"], nr_reads =config["NR_SIM_READS"] , tool = ["isoseq3"]) 
+simulate_files = expand(config["ROOT_OUT"] + "ccs/{sim_dataset}/{nr_reads}/ccs.bam" , sim_dataset = config["SIM_DATASET"], nr_reads =config["NR_SIM_READS"]) 
 TARGET_FILES["simulation"] = simulate_files 
 
 #EVALUATION SIMULATED
@@ -268,6 +268,21 @@ rule isoseq3_real:
         mkdir_p(config["ROOT_OUT"] + "cluster/isoseq3/{0}/".format(wildcards.dataset) )
         shell("{time} isoseq3 cluster --num-threads 8 {input.ccs} {output.consensus} --verbose 2>&1 | tee {output.time_and_mem} ")
 
+rule qt_clust_real:
+    input:  flnc = rules.isoseq3_real.output.flnc,
+            ccs = rules.merge_demultiplexed_files.output.outfile
+    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{dataset}/runtime.stdout",
+            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{dataset}/pre_clusters.csv"
+    run:
+        time = config["GNUTIME"]
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/".format(wildcards.dataset) )
+        outfolder = config["ROOT_OUT"] + "cluster/qt_clust/{0}/".format(wildcards.dataset)
+
+        mkdir_p(outfolder)
+        # python qt_qlust.py --flnc ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --ccs ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --outfolder ~/tmp/qt_clust_chr22_100k/ --t 4
+        # time python  preclust3.py  --reads ~/Documents/data/iso-Seq/alzheimer/isoseq_flnc_300k.fastq  --outfolder ~/tmp/precluster3/alz_400kreads_debug_time_t4 --t 4
+        shell("{time} /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust.py --t 8 --flnc {input.flnc} --ccs {input.ccs}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+
 
 rule simulate_dataset:
     input: 
@@ -276,6 +291,7 @@ rule simulate_dataset:
         # qt_clust_predicted = rules.qt_clust.output.clusters
     output: 
         reads = config["ROOT_OUT"] + "ccs/{sim_dataset}/{nr_reads}/ccs.bam",
+        fastq = config["ROOT_OUT"] + "ccs/{sim_dataset}/{nr_reads}/ccs.fastq",
         index = config["ROOT_OUT"] + "ccs/{sim_dataset}/{nr_reads}/ccs.bam.pbi"
     run:
         shell("source activate simlord")
@@ -309,18 +325,23 @@ rule isoseq3_sim:
         mkdir_p(config["ROOT_OUT"] + "cluster/isoseq3/{0}_{1}/".format(wildcards.sim_dataset, wildcards.nr_reads) )
         shell("{time} isoseq3 cluster --num-threads 8 {input.ccs} {output.consensus} --verbose 2>&1 | tee {output.time_and_mem} ")
 
-# rule qt_clust:
-#     input:  flnc = rules.isoseq3.output.flnc,
-#             ccs  = rules.merge_demultiplexed_files.output.outfile
-#     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{dataset}/runtime.stdout",
-#             clusters = config["ROOT_OUT"] + "cluster/qt_clust/{dataset}/pre_clusters.csv",
-#     run:
-#         time = config["GNUTIME"]
-#         mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/".format(wildcards.dataset) )
-#         outfolder = config["ROOT_OUT"] + "cluster/qt_clust/{0}/".format(wildcards.dataset)
 
-#         mkdir_p(config["ROOT_OUT"] + "cluster/qt_clust/{0}/".format(wildcards.dataset) )
-#         shell("{time} /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/preclust3.py --t 8 --flnc {input.flnc} --ccs {input.ccs}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+
+rule qt_clust_sim:
+    input:  flnc = rules.simulate_dataset.output.reads,
+            ccs = rules.simulate_dataset.output.reads
+    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{sim_dataset}/{nr_reads}/runtime.stdout",
+            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{sim_dataset}/{nr_reads}/pre_clusters.csv"
+    run:
+        time = config["GNUTIME"]
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/{1}/".format(wildcards.dataset, wildcards.nr_reads) )
+        outfolder = config["ROOT_OUT"] + "cluster/qt_clust/{0}/{1}/".format(wildcards.dataset, wildcards.nr_reads)
+
+        mkdir_p(outfolder)
+        # python qt_qlust.py --flnc ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --ccs ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --outfolder ~/tmp/qt_clust_chr22_100k/ --t 4
+        # time python  preclust3.py  --reads ~/Documents/data/iso-Seq/alzheimer/isoseq_flnc_300k.fastq  --outfolder ~/tmp/precluster3/alz_400kreads_debug_time_t4 --t 4
+        shell("{time} /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust.py --t 8 --flnc {input.flnc} --ccs {input.ccs}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+
 
 
 rule minimap2_align_real:
@@ -364,10 +385,10 @@ rule v_measure_real:
     input: 
         true  = rules.minimap2_align_real.output.alignment,
         isoseq3_predicted  = rules.file_convert_isoseq3_real_clusters.output.clusters,
-        # qt_clust_predicted = rules.qt_clust.output.clusters
+        qt_clust_predicted = rules.qt_clust_real.output.clusters
     output: 
         isoseq3_res = config["ROOT_OUT"] + "evaluation/{dataset}/isoseq3_table.tsv"
-        # qt_clust_res = config["ROOT_OUT"] + "evaluation/{dataset}/qt_clust.tsv"
+        qt_clust_res = config["ROOT_OUT"] + "evaluation/{dataset}/qt_clust_table.tsv"
 
     run:
         bam = "{0}.bam".format(input.true)
@@ -383,15 +404,16 @@ rule v_measure_real:
         shell("python --version")
         shell("pip list")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {sorted_bam}  --outfile {output.isoseq3_res}")
+        shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
 
 rule v_measure_sim:
     input: 
         true  = rules.minimap2_align_sim.output.alignment,
         isoseq3_predicted  = rules.file_convert_isoseq3_sim_clusters.output.clusters,
-        # qt_clust_predicted = rules.qt_clust.output.clusters
+        qt_clust_predicted = rules.qt_clust_sim.output.clusters
     output: 
         isoseq3_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/isoseq3_table.tsv"
-        # qt_clust_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/qt_clust.tsv"
+        qt_clust_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/qt_clust_table.tsv"
 
     run:
         bam = "{0}.bam".format(input.true)
@@ -407,6 +429,7 @@ rule v_measure_sim:
         shell("python --version")
         shell("pip list")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {sorted_bam}  --outfile {output.isoseq3_res}")
+        shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
 
 
 
