@@ -20,7 +20,7 @@
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
-        "exclude" : "nn[0-1]"
+        "exclude" : "c[4,6-7,8-16]"
     },
 
     "qt_clust_sim" : 
@@ -31,7 +31,7 @@
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
-        "exclude" : "nn[0-1]"
+        "exclude" : "c[4,6-7,8-16]"
     },
 
     "isoseq3_real" : 
@@ -86,7 +86,7 @@
         "runtime" : "4-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
-        "exclude" : "nn0"
+        "exclude" : "c[4,6-7,8-16]"
     },
     "bax2bam" : 
     {
@@ -96,6 +96,6 @@
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
-        "exclude" : "nn[0-1]"
+        "exclude" : "c[4,6-7,8-16]"
     }
 }
