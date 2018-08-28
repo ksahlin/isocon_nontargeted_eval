@@ -19,6 +19,7 @@ def parse_inferred_clusters_tsv(tsv_file, args):
         clusters[read_acc] = int(cluster_id)
     return clusters
 
+
 def parse_true_clusters(ref_file):
     classes = defaultdict(dict)
     class_index = 1
@@ -109,11 +110,10 @@ def parse_true_clusters_simulated(ref_file):
 #     print(v_score, compl_score, homog_score)
 
 
-# CONSIDER ONLY READS THAT HAVE BEEN PROCESSED
 def compute_V_measure(clusters, classes):
     class_list, cluster_list = [], []
     print(len(clusters), len(classes))
-    not_found_id = 1000000
+    # not_found_id = 1000000
     clustered_but_unaligned = 0
     for read in clusters:
         if read in classes:
@@ -123,14 +123,24 @@ def compute_V_measure(clusters, classes):
             # print("Read was clustered but unaligned:", read)
             clustered_but_unaligned +=1
 
+    # added the unprocessed reads to the measure
+    not_clustered = set(classes.keys()) - set(clusters.keys())
+    highest_cluster_id = max(clusters.values())
+    highest_cluster_id += 1
+    for read in not_clustered:
+        class_list.append( classes[read] )
+        cluster_list.append( highest_cluster_id )
+        highest_cluster_id += 1
 
     v_score = v_measure_score(class_list, cluster_list)
     compl_score = completeness_score(class_list, cluster_list)
     homog_score = homogeneity_score(class_list, cluster_list)
+    print("Not inluded in clustering but aligned:", len(not_clustered))
     print("V:", v_score, "Completeness:", compl_score, "Homogeneity:", homog_score)
     print("Nr reads clustered but unaligned (i.e., no class and excluded from V-veasure): ", clustered_but_unaligned)
     return v_score, compl_score, homog_score, clustered_but_unaligned
 
+# def singleton_stats():
 
 def get_cluster_information(clusters, classes):
 
