@@ -29,8 +29,8 @@ def parse_true_clusters(ref_file):
     
     prev_chrom = -1
     curr_class_id = -1
-    prev_ref_start = -1
-    prev_ref_stop = -1
+    prev_class_start = -1
+    prev_class_stop = -1
     prev_read_id = ""
     unique_reads = set()
     unclassified = 0
@@ -49,17 +49,22 @@ def parse_true_clusters(ref_file):
             curr_class_id += 1
             classes[read.query_name] = curr_class_id
             prev_chrom = chrom
+            prev_class_start = read.reference_start
+            prev_class_stop = read.reference_end
+
         else:
             read_ref_start = read.reference_start
             read_ref_end = read.reference_end
-            if read_ref_start > prev_ref_stop:
+            if read_ref_start > prev_class_stop:
                 curr_class_id += 1
                 classes[read.query_name] = curr_class_id
+                prev_class_start = read.reference_start
+                prev_class_stop = read.reference_end
             else:
                 classes[read.query_name] = curr_class_id
             
-        prev_ref_start = read.reference_start
-        prev_ref_stop = read.reference_end
+
+        prev_class_stop = max(read.reference_end, prev_class_stop)
         prev_read_id = read.query_name
 
 
@@ -171,6 +176,11 @@ def get_cluster_information(clusters, classes):
 
     total_nr_clusters = len(cluster_dict) 
     cluster_distribution = sorted([len(cl) for cl in cluster_dict.values()])
+    
+    # in case unclustered reads are missing from output (as for isoseq3)
+    omitted_from_output_singletons = set(classes.keys()) - set(clusters.keys())
+    cluster_distribution = [1 for i in range(len(omitted_from_output_singletons))] + cluster_distribution
+
     singleton_clusters = set([acc_list[0] for cl_id, acc_list in cluster_dict.items() if len(acc_list) == 1 ])
     min_cluster_size = min(cluster_distribution)
     max_cluster_size = max(cluster_distribution)
