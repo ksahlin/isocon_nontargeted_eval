@@ -145,6 +145,45 @@ def compute_V_measure(clusters, classes):
     print("Nr reads clustered but unaligned (i.e., no class and excluded from V-veasure): ", clustered_but_unaligned)
     return v_score, compl_score, homog_score, clustered_but_unaligned
 
+
+
+def compute_V_measure_non_singletons(clusters, classes):
+    cluster_dict = {}
+    for read_acc, cl_id in clusters.items():
+        if cl_id not in cluster_dict:
+            cluster_dict[cl_id] = [read_acc]
+        else:
+            cluster_dict[cl_id].append(read_acc)
+
+    nontrivial_clustered_reads = []
+    for cl_id in cluster_dict:
+        if len(cluster_dict[cl_id]) <= 1:
+            continue
+        else:
+            for read in cluster_dict[cl_id]:
+                nontrivial_clustered_reads.append(read)
+
+    class_list, cluster_list = [], []
+    print(len(nontrivial_clustered_reads), len(clusters), len(classes))
+    # not_found_id = 1000000
+    clustered_but_unaligned = 0
+    for read in nontrivial_clustered_reads:
+        if read in classes:
+            class_list.append( classes[read] )
+            cluster_list.append( clusters[read] )
+        else:
+            # print("Read was clustered but unaligned:", read)
+            clustered_but_unaligned +=1
+
+
+    v_score = v_measure_score(class_list, cluster_list)
+    compl_score = completeness_score(class_list, cluster_list)
+    homog_score = homogeneity_score(class_list, cluster_list)
+    print("NONTRIVIAL CLUSTERS: Not inluded in clustering but aligned:", len(not_clustered))
+    print("NONTRIVIAL CLUSTERS: V:", v_score, "Completeness:", compl_score, "Homogeneity:", homog_score)
+    print("NONTRIVIAL CLUSTERS: Nr reads clustered but unaligned (i.e., no class and excluded from V-veasure): ", clustered_but_unaligned)
+    return v_score, compl_score, homog_score, clustered_but_unaligned
+
 # def singleton_stats():
 
 def get_cluster_information(clusters, classes):
@@ -233,16 +272,25 @@ def main(args):
         classes, tot_nr_reads, unclassified  = parse_true_clusters(ref_file)
 
     v_score, compl_score, homog_score, clustered_but_unaligned = compute_V_measure(clusters, classes)
+    NT_v_score, NT_compl_score, NT_homog_score, _ = compute_V_measure_non_singletons(clusters, classes)
     total_nr_classes, singleton_classes, min_class_size, max_class_size, mean_class_size, median_class_size, total_nr_clusters, singleton_clusters, min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, unaligned_but_nontrivially_clustered  = get_cluster_information(clusters, classes)
     tot_nr_reads_included_inclustering = len(clusters)
 
     outfile = open(args.outfile, "w")
-    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}\t{19}\n".format("v_score", "compl_score", "homog_score", "clustered_but_unaligned", \
-                                                                 "total_nr_clusters", "singleton_clusters", "min_cluster_size", "max_cluster_size", "mean_cluster_size", "median_cluster_size", "unaligned_but_nontrivially_clustered",\
-                                                                  "total_nr_classes", "singleton_classes", "min_class_size", "max_class_size", "mean_class_size", "median_class_size", "tot_nr_reads", "tot_nr_reads_included_inclustering", "unclassified"))
-    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\t{14}\t{15}\t{16}\t{17}\t{18}\t{19}\n".format(v_score, compl_score, homog_score, clustered_but_unaligned, \
-                                                                total_nr_clusters, singleton_clusters, min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, unaligned_but_nontrivially_clustered,\
-                                                                total_nr_classes, singleton_classes, min_class_size, max_class_size, mean_class_size, median_class_size, tot_nr_reads, tot_nr_reads_included_inclustering, unclassified))
+
+    outfile.write("CLASSES")
+    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n".format("total_nr_classes", "singleton_classes", "min_class_size", "max_class_size", "mean_class_size", "median_class_size", "tot_nr_reads", "unclassified"))
+
+    outfile.write("ALL CLUSTERS")
+    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\n".format("v_score", "compl_score", "homog_score", "clustered_but_unaligned", \
+                                                                 "total_nr_clusters", "singleton_clusters", "min_cluster_size", "max_cluster_size", "mean_cluster_size", "median_cluster_size", "unaligned_but_nontrivially_clustered"))
+    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\n".format(v_score, compl_score, homog_score, clustered_but_unaligned, \
+                                                                total_nr_clusters, singleton_clusters, min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, unaligned_but_nontrivially_clustered))
+
+    outfile.write("NONTRIVIAL CLUSTERS")
+    outfile.write("{0}\t{1}\t{2}\n".format("v_score", "compl_score", "homog_score"))
+    outfile.write("{0}\t{1}\t{2}\n".format(v_score, compl_score, homog_score))
+    outfile.close()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Align predicted transcripts to transcripts in ensembl reference data base.")
