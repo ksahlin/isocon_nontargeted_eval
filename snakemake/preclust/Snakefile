@@ -176,12 +176,12 @@ TARGET_FILES["cluster_sim"] = isoseq3_sim_files
 
 #EVALUATION
 
-eval_real_files = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{tool}_table.tsv", dataset = config["REAL_DATASET"], tool = ["isoseq3", "qt_clust"]) 
+eval_real_files = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{tool}_table.tsv", dataset = config["REAL_DATASET"], tool = ["isoseq3", "qt_clust", "carnac"]) 
 TARGET_FILES["evaluation"] = eval_real_files 
 
 #EVALUATION SIMULATED
 
-eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/{tool}_table.tsv", sim_dataset = config["SIM_DATASET"],  nr_reads = config["NR_SIM_READS"], tool = ["isoseq3", "qt_clust"]) 
+eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/{tool}_table.tsv", sim_dataset = config["SIM_DATASET"],  nr_reads = config["NR_SIM_READS"], tool = ["isoseq3", "qt_clust", "carnac"]) 
 TARGET_FILES["evaluation_sim"] = eval_sim_files
 
 
@@ -283,6 +283,31 @@ rule qt_clust_real:
         # time python  preclust3.py  --reads ~/Documents/data/iso-Seq/alzheimer/isoseq_flnc_300k.fastq  --outfolder ~/tmp/precluster3/alz_400kreads_debug_time_t4 --t 4
         shell("{time} python /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust/qt_clust.py --t 8 --flnc {input.flnc} --ccs {input.ccs}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
+rule carnac_real:
+    input:  flnc = rules.isoseq3_real.output.flnc,
+    output: time_and_mem_carnac = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{dataset}/runtime_carnac.stdout",
+            time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{dataset}/runtime_minimap.stdout",
+            clusters = config["ROOT_OUT"] + "cluster/carnac_lr/{dataset}/clusters.csv"
+    run:
+        time = config["GNUTIME"]
+        fasta_out = config["ROOT_OUT"] + "cluster/isoseq3/{0}/unpolished.flnc.fasta".format(wildcards.dataset)
+        shell("bamtools convert -format fasta -in {input.flnc} -out {fasta_out} ")
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/carnac_lr/{0}/".format(wildcards.dataset) )
+        outfolder = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/".format(wildcards.dataset)
+        mkdir_p(outfolder)
+        
+        minimap_out = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/minimap2.paf".format(wildcards.dataset)
+        shell("{time} minimap2 -t 8 -X {fasta_out} {fasta_out} > {minimap_out} 2> {output.time_and_mem_minimap}")
+
+        carnac_input = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/{1}/carnac_in.txt​".format(wildcards.dataset)
+        shell("python /galaxy/home/ksahlin/prefix/source/CARNAC/scripts/paf_to_CARNAC.py {minimap_out} {fasta_out}  {carnac_input}")
+
+        carnac_output = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/{1}/carnac_out.txt​".format(wildcards.dataset)        
+        shell("CARNAC-LR -f {carnac_input} -t 8 -o {carnac_output}")
+
+        script_path = config["SCRIPT_FOLDER"]        
+        shell("python {script_path}/carnac_modify_clusterformat.py --carnacfile {carnac_output} --flnc {fasta_out} --outfile {output.clusters} ")
+
 
 rule simulate_dataset:
     input: 
@@ -362,11 +387,9 @@ rule carnac_sim:
 
         carnac_output = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/{1}/carnac_out.txt​".format(wildcards.sim_dataset, wildcards.nr_reads)        
         shell("CARNAC-LR -f {carnac_input} -t 8 -o {carnac_output}")
-        
-        # shell("python /galaxy/home/ksahlin/prefix/source/CARNAC/scripts/CARNAC_to_fasta.py  /galaxy/home/ksahlin/prefix/tmp/carnac_lr_clusters.txt {input.flnc} ~/tmp/carnac_fastas/ 1​")
-        shell("python carnac_modify_clusterformat.py --carnacfile {carnac_output} --flnc {input.flnc} --outfile {output.clusters} ")
-        # shell("{time} python /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust/qt_clust.py --t 8 --flnc {input.flnc} --ccs {input.ccs}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
-
+    
+        script_path = config["SCRIPT_FOLDER"]        
+        shell("python {script_path}/carnac_modify_clusterformat.py --carnacfile {carnac_output} --flnc {input.flnc} --outfile {output.clusters} ")
 
 
 
@@ -411,10 +434,12 @@ rule v_measure_real:
     input: 
         true  = rules.minimap2_align_real.output.alignment,
         isoseq3_predicted  = rules.file_convert_isoseq3_real_clusters.output.clusters,
-        qt_clust_predicted = rules.qt_clust_real.output.clusters
+        qt_clust_predicted = rules.qt_clust_real.output.clusters,
+        carnac_predicted = rules.carnac_real.output.clusters
     output: 
         isoseq3_res = config["ROOT_OUT"] + "evaluation/{dataset}/isoseq3_table.tsv",
-        qt_clust_res = config["ROOT_OUT"] + "evaluation/{dataset}/qt_clust_table.tsv"
+        qt_clust_res = config["ROOT_OUT"] + "evaluation/{dataset}/qt_clust_table.tsv",
+        carnac_res = config["ROOT_OUT"] + "evaluation/{dataset}/carnac_table.tsv"
 
     run:
         bam = "{0}.bam".format(input.true)
@@ -431,6 +456,8 @@ rule v_measure_real:
         shell("pip list")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {sorted_bam}  --outfile {output.isoseq3_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
+        shell("python {script_path}/compute_cluster_quality.py --clusters {input.carnac_predicted} --classes {sorted_bam}  --outfile {output.carnac_res}")
+
 
 rule v_measure_sim:
     input: 
