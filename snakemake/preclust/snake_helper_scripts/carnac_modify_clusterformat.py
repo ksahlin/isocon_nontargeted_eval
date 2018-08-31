@@ -50,7 +50,7 @@ def parse_inferred_carnac_clusters(carnacfile):
 def main(args):
 
     clusters = parse_inferred_carnac_clusters(args.carnacfile)
-    reads = [acc for (acc, seq, qual) in  fastq_parser.readfq(open(params.flnc, 'r'))]
+    reads = [acc for (acc, seq, qual) in readfq(open(params.flnc, 'r'))]
 
     out_file = open(args.outfile, "w")
     for cl_id in clusters:
