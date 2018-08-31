@@ -436,7 +436,7 @@ rule v_measure_sim:
     input: 
         true  = rules.minimap2_align_sim.output.alignment,
         isoseq3_predicted  = rules.file_convert_isoseq3_sim_clusters.output.clusters,
-        qt_clust_predicted = rules.qt_clust_sim.output.clusters
+        qt_clust_predicted = rules.qt_clust_sim.output.clusters,
         carnac_predicted = rules.carnac_sim.output.clusters
 
     output: 
