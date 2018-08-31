@@ -179,7 +179,6 @@ def compute_V_measure_non_singletons(clusters, classes):
     v_score = v_measure_score(class_list, cluster_list)
     compl_score = completeness_score(class_list, cluster_list)
     homog_score = homogeneity_score(class_list, cluster_list)
-    print("NONTRIVIAL CLUSTERS: Not inluded in clustering but aligned:", len(not_clustered))
     print("NONTRIVIAL CLUSTERS: V:", v_score, "Completeness:", compl_score, "Homogeneity:", homog_score)
     print("NONTRIVIAL CLUSTERS: Nr reads clustered but unaligned (i.e., no class and excluded from V-veasure): ", clustered_but_unaligned)
     return v_score, compl_score, homog_score, clustered_but_unaligned
