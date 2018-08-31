@@ -43,7 +43,7 @@ def parse_inferred_carnac_clusters(carnacfile):
         read_indices = line.strip().split()
         clusters[i] = []
         for read_index in read_indices:
-            clusters[i].append(read_index)
+            clusters[i].append(int(read_index))
 
     return clusters
 
@@ -55,7 +55,8 @@ def main(args):
     out_file = open(args.outfile, "w")
     for cl_id in clusters:
         for read_id in clusters[cl_id]:
-            out_file.write("{0}\t{1}\n".format(cl_id, read_id))
+            read_acc = reads[read_id]
+            out_file.write("{0}\t{1}\n".format(cl_id, read_acc))
 
     out_file.close()
 
