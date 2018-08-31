@@ -364,7 +364,7 @@ rule carnac_sim:
         shell("CARNAC-LR -f {carnac_input} -t 8 -o {carnac_output}")
         
         # shell("python /galaxy/home/ksahlin/prefix/source/CARNAC/scripts/CARNAC_to_fasta.py  /galaxy/home/ksahlin/prefix/tmp/carnac_lr_clusters.txt {input.flnc} ~/tmp/carnac_fastas/ 1​")
-        shell("python carnac_modify_clusterformat.py --carnacfile {carnac_output} --flnc {input.flnc} --outfile {clusters} ")
+        shell("python carnac_modify_clusterformat.py --carnacfile {carnac_output} --flnc {input.flnc} --outfile {output.clusters} ")
         # shell("{time} python /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust/qt_clust.py --t 8 --flnc {input.flnc} --ccs {input.ccs}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
