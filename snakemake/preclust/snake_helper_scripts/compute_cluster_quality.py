@@ -277,18 +277,19 @@ def main(args):
 
     outfile = open(args.outfile, "w")
 
-    outfile.write("CLASSES")
+    outfile.write("CLASSES\n")
     outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n".format("total_nr_classes", "singleton_classes", "min_class_size", "max_class_size", "mean_class_size", "median_class_size", "tot_nr_reads", "unclassified"))
+    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n".format(total_nr_classes, singleton_classes, min_class_size, max_class_size, mean_class_size, median_class_size, tot_nr_reads, unclassified))
 
-    outfile.write("ALL CLUSTERS")
+    outfile.write("ALL CLUSTERS\n")
     outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\n".format("v_score", "compl_score", "homog_score", "clustered_but_unaligned", \
                                                                  "total_nr_clusters", "singleton_clusters", "min_cluster_size", "max_cluster_size", "mean_cluster_size", "median_cluster_size", "unaligned_but_nontrivially_clustered"))
     outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\n".format(v_score, compl_score, homog_score, clustered_but_unaligned, \
                                                                 total_nr_clusters, singleton_clusters, min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, unaligned_but_nontrivially_clustered))
 
-    outfile.write("NONTRIVIAL CLUSTERS")
+    outfile.write("NONTRIVIAL CLUSTERS\n")
     outfile.write("{0}\t{1}\t{2}\n".format("v_score", "compl_score", "homog_score"))
-    outfile.write("{0}\t{1}\t{2}\n".format(v_score, compl_score, homog_score))
+    outfile.write("{0}\t{1}\t{2}\n".format(NT_v_score, NT_compl_score, NT_homog_score))
     outfile.close()
 
 if __name__ == '__main__':

@@ -292,6 +292,10 @@ rule carnac_real:
         time = config["GNUTIME"]
         fasta_out = config["ROOT_OUT"] + "cluster/isoseq3/{0}/unpolished.flnc.fasta".format(wildcards.dataset)
         shell("bamtools convert -format fasta -in {input.flnc} -out {fasta_out} ")
+        
+        fasta_flattened_out = config["ROOT_OUT"] + "cluster/isoseq3/{0}/unpolished_flattened.flnc.fasta".format(wildcards.dataset)
+        shell("python /galaxy/home/ksahlin/local_python_modules/bin/flatten_fasta.py {fasta_out} {fasta_flattened_out}")
+        
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/carnac_lr/{0}/".format(wildcards.dataset) )
         outfolder = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/".format(wildcards.dataset)
         mkdir_p(outfolder)
