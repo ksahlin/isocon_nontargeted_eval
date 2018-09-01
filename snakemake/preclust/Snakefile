@@ -286,7 +286,7 @@ rule qt_clust_real:
 rule carnac_real:
     input:  flnc = rules.isoseq3_real.output.flnc,
     output: time_and_mem_carnac = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{dataset}/runtime_carnac.stdout",
-            time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{dataset}/runtime_minimap.stdout",
+            # time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{dataset}/runtime_minimap.stdout",
             clusters = config["ROOT_OUT"] + "cluster/carnac_lr/{dataset}/clusters.csv"
     run:
         time = config["GNUTIME"]
@@ -301,7 +301,8 @@ rule carnac_real:
         mkdir_p(outfolder)
         
         minimap_out = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/minimap2.paf".format(wildcards.dataset)
-        shell("{time} minimap2 -t 8 -X {fasta_flattened_out} {fasta_flattened_out} > {minimap_out} 2> {output.time_and_mem_minimap}")
+        time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{0}/runtime_minimap.stdout".format(wildcards.dataset)
+        shell("{time} minimap2 -t 8 -X {fasta_flattened_out} {fasta_flattened_out} > {minimap_out} 2> {time_and_mem_minimap}")
 
         carnac_input = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/carnac_in.txt​".format(wildcards.dataset)
         shell("python /galaxy/home/ksahlin/prefix/source/CARNAC/scripts/paf_to_CARNAC.py {minimap_out} {fasta_flattened_out}  {carnac_input}")
@@ -312,10 +313,11 @@ rule carnac_real:
         script_path = config["SCRIPT_FOLDER"]        
         shell("python {script_path}/carnac_modify_clusterformat.py --carnacfile {carnac_output} --flnc {fasta_flattened_out} --outfile {output.clusters} ")
 
+
+
 # rule easy_cluster_real:
 #     input:  flnc = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished_flattened.flnc.fasta",
 #     output: time_and_mem_carnac = config["ROOT_OUT"] + "time_and_mem/easy_cluster/{dataset}/runtime_carnac.stdout",
-#             time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/easy_cluster/{dataset}/runtime_minimap.stdout",
 #             clusters = config["ROOT_OUT"] + "cluster/easy_cluster/{dataset}/clusters.csv"
 #     run:
 #         time = config["GNUTIME"]
@@ -323,9 +325,10 @@ rule carnac_real:
 #         mkdir_p(config["ROOT_OUT"] + "time_and_mem/easy_cluster/{0}/".format(wildcards.dataset) )
 #         outfolder = config["ROOT_OUT"] + "cluster/easy_cluster/{0}/".format(wildcards.dataset)
 #         mkdir_p(outfolder)
-        
-#         easy_cluster_output = config["ROOT_OUT"] + "cluster/easy_cluster/{0}/easy_cluster_out.txt​".format(wildcards.dataset)        
-#         shell("mmseqs easy-cluster --threads 8 {input.flnc}  {easy_cluster_output}")
+
+#         easy_cluster_output = config["ROOT_OUT"] + "cluster/easy_cluster/{0}/easy_cluster_out.txt​".format(wildcards.dataset)
+#         tmp_dir = config["ROOT_OUT"] + "cluster/easy_cluster/{0}/easy_cluster_tmpdir​".format(wildcards.dataset)
+#         shell("mmseqs easy-cluster --threads 8 {input.flnc} {easy_cluster_output} {tmp_dir}")
 
 
 
@@ -391,7 +394,7 @@ rule qt_clust_sim:
 rule carnac_sim:
     input:  flnc = rules.simulate_dataset.output.fastq,
     output: time_and_mem_carnac = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{sim_dataset}/{nr_reads}/runtime_carnac.stdout",
-            time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{sim_dataset}/{nr_reads}/runtime_minimap.stdout",
+            # time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{sim_dataset}/{nr_reads}/runtime_minimap.stdout",
             clusters = config["ROOT_OUT"] + "cluster/carnac_lr/{sim_dataset}/{nr_reads}/clusters.csv"
     run:
         time = config["GNUTIME"]
@@ -400,7 +403,9 @@ rule carnac_sim:
         mkdir_p(outfolder)
         
         minimap_out = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/{1}/minimap2.paf".format(wildcards.sim_dataset, wildcards.nr_reads)
-        shell("{time} minimap2 -t 8 -X {input.flnc} {input.flnc} > {minimap_out} 2> {output.time_and_mem_minimap}")
+        time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{0}/{1}/runtime_minimap.stdout".format(wildcards.sim_dataset, wildcards.nr_reads)
+
+        shell("{time} minimap2 -t 8 -X {input.flnc} {input.flnc} > {minimap_out} 2> {time_and_mem_minimap}")
 
         carnac_input = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/{1}/carnac_in.txt​".format(wildcards.sim_dataset, wildcards.nr_reads)
         shell("python /galaxy/home/ksahlin/prefix/source/CARNAC/scripts/paf_to_CARNAC.py {minimap_out} {input.flnc}  {carnac_input}")
