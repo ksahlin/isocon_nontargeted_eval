@@ -330,6 +330,25 @@ rule carnac_real:
 #         tmp_dir = config["ROOT_OUT"] + "cluster/easy_cluster/{0}/easy_cluster_tmpdir​".format(wildcards.dataset)
 #         shell("mmseqs easy-cluster --threads 8 {input.flnc} {easy_cluster_output} {tmp_dir}")
 
+rule linclust_real:
+    input:  flnc = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished_flattened.flnc.fasta",
+    output: time_and_mem_linclust = config["ROOT_OUT"] + "time_and_mem/linclust/{dataset}/runtime_linclust.stdout",
+            time_and_mem_createdb = config["ROOT_OUT"] + "time_and_mem/linclust/{dataset}/runtime_createdb.stdout",
+            clusters = config["ROOT_OUT"] + "cluster/linclust/{dataset}/clusters.tsv"
+    run:
+        time = config["GNUTIME"]
+        
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/linclust/{0}/".format(wildcards.dataset) )
+        outfolder = config["ROOT_OUT"] + "cluster/linclust/{0}/".format(wildcards.dataset)
+        mkdir_p(outfolder)
+        db_file = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_db".format(wildcards.dataset)
+        shell("mmseqs createdb {input.flnc} {db_file}")
+        
+        tmp_dir = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_tmpdir​".format(wildcards.dataset)
+        linclust_output = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_out.db​".format(wildcards.dataset)
+        shell("mmseqs linclust --threads 8 {db_file} {linclust_output} {tmp_dir}")
+        shell("mmseqs createtsv {db_file} {linclust_output} {clusters}")
+
 
 
 rule simulate_dataset:
