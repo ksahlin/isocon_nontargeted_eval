@@ -329,7 +329,7 @@ rule linclust_real:
 
         linclust_output = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_out.txt".format(wildcards.dataset)
         tmp_dir = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_tmpdir​".format(wildcards.dataset)
-        shell("{time} mmseqs easy-linclust --threads 8 {input.flnc} {linclust_output} {tmp_dir} 2> {time_and_mem_linclust}")
+        shell("{time} mmseqs easy-linclust --threads 8 {input.flnc} {linclust_output} {tmp_dir} 2> {output.time_and_mem_linclust}")
 
         script_path = config["SCRIPT_FOLDER"]        
         shell("python {script_path}/modify_cluster_format_linclust.py {linclust_output}_cluster.tsv {output.clusters} ")
@@ -436,7 +436,7 @@ rule linclust_sim:
 
         linclust_output = config["ROOT_OUT"] + "cluster/linclust/{0}/{1}/linclust_out".format(wildcards.sim_dataset, wildcards.nr_reads)
         tmp_dir = config["ROOT_OUT"] + "cluster/linclust/{0}/{1}/linclust_tmpdir​".format(wildcards.sim_dataset, wildcards.nr_reads)
-        shell("{time} mmseqs easy-linclust --threads 8 {input.flnc} {linclust_output} {tmp_dir} 2> {time_and_mem_linclust}")
+        shell("{time} mmseqs easy-linclust --threads 8 {input.flnc} {linclust_output} {tmp_dir} 2> {output.time_and_mem_linclust}")
 
         script_path = config["SCRIPT_FOLDER"]        
         shell("python {script_path}/modify_cluster_format_linclust.py {linclust_output}_cluster.tsv {output.clusters} ")
