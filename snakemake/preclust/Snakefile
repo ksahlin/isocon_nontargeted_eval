@@ -176,12 +176,12 @@ TARGET_FILES["cluster_sim"] = isoseq3_sim_files
 
 #EVALUATION
 
-eval_real_files = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{tool}_table.tsv", dataset = config["REAL_DATASET"], tool = ["isoseq3", "qt_clust", "carnac"]) 
+eval_real_files = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{tool}_table.tsv", dataset = config["REAL_DATASET"], tool = ["isoseq3", "qt_clust", "carnac_lr", "linclust"]) 
 TARGET_FILES["evaluation"] = eval_real_files 
 
 #EVALUATION SIMULATED
 
-eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/{tool}_table.tsv", sim_dataset = config["SIM_DATASET"],  nr_reads = config["NR_SIM_READS"], tool = ["isoseq3", "qt_clust", "carnac"]) 
+eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/{tool}_table.tsv", sim_dataset = config["SIM_DATASET"],  nr_reads = config["NR_SIM_READS"], tool = ["isoseq3", "qt_clust", "carnac_lr", "linclust"]) 
 TARGET_FILES["evaluation_sim"] = eval_sim_files
 
 
@@ -302,38 +302,23 @@ rule carnac_real:
         
         minimap_out = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/minimap2.paf".format(wildcards.dataset)
         time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{0}/runtime_minimap.stdout".format(wildcards.dataset)
-        shell("{time} minimap2 -t 8 -X {fasta_flattened_out} {fasta_flattened_out} > {minimap_out} 2> {time_and_mem_minimap}")
+        shell("{time} minimap -Sw2 -L100 -t8 {fasta_flattened_out} {fasta_flattened_out} > {minimap_out} 2> {time_and_mem_minimap}")
+        # shell("{time} minimap2 -t 8 -X {fasta_flattened_out} {fasta_flattened_out} > {minimap_out} 2> {time_and_mem_minimap}")
 
         carnac_input = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/carnac_in.txt​".format(wildcards.dataset)
         shell("python /galaxy/home/ksahlin/prefix/source/CARNAC/scripts/paf_to_CARNAC.py {minimap_out} {fasta_flattened_out}  {carnac_input}")
 
         carnac_output = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/carnac_out.txt​".format(wildcards.dataset)        
-        shell("CARNAC-LR -f {carnac_input} -t 8 -o {carnac_output} 2> {output.time_and_mem_carnac}")
+        shell("{time} CARNAC-LR -f {carnac_input} -t 8 -o {carnac_output} 2> {output.time_and_mem_carnac}")
 
         script_path = config["SCRIPT_FOLDER"]        
         shell("python {script_path}/carnac_modify_clusterformat.py --carnacfile {carnac_output} --flnc {fasta_flattened_out} --outfile {output.clusters} ")
 
 
 
-# rule easy_cluster_real:
-#     input:  flnc = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished_flattened.flnc.fasta",
-#     output: time_and_mem_carnac = config["ROOT_OUT"] + "time_and_mem/easy_cluster/{dataset}/runtime_carnac.stdout",
-#             clusters = config["ROOT_OUT"] + "cluster/easy_cluster/{dataset}/clusters.csv"
-#     run:
-#         time = config["GNUTIME"]
-        
-#         mkdir_p(config["ROOT_OUT"] + "time_and_mem/easy_cluster/{0}/".format(wildcards.dataset) )
-#         outfolder = config["ROOT_OUT"] + "cluster/easy_cluster/{0}/".format(wildcards.dataset)
-#         mkdir_p(outfolder)
-
-#         easy_cluster_output = config["ROOT_OUT"] + "cluster/easy_cluster/{0}/easy_cluster_out.txt​".format(wildcards.dataset)
-#         tmp_dir = config["ROOT_OUT"] + "cluster/easy_cluster/{0}/easy_cluster_tmpdir​".format(wildcards.dataset)
-#         shell("mmseqs easy-cluster --threads 8 {input.flnc} {easy_cluster_output} {tmp_dir}")
-
 rule linclust_real:
     input:  flnc = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished_flattened.flnc.fasta",
     output: time_and_mem_linclust = config["ROOT_OUT"] + "time_and_mem/linclust/{dataset}/runtime_linclust.stdout",
-            time_and_mem_createdb = config["ROOT_OUT"] + "time_and_mem/linclust/{dataset}/runtime_createdb.stdout",
             clusters = config["ROOT_OUT"] + "cluster/linclust/{dataset}/clusters.tsv"
     run:
         time = config["GNUTIME"]
@@ -341,13 +326,15 @@ rule linclust_real:
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/linclust/{0}/".format(wildcards.dataset) )
         outfolder = config["ROOT_OUT"] + "cluster/linclust/{0}/".format(wildcards.dataset)
         mkdir_p(outfolder)
-        db_file = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_db".format(wildcards.dataset)
-        shell("mmseqs createdb {input.flnc} {db_file}")
-        
+
+        linclust_output = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_out.txt".format(wildcards.dataset)
         tmp_dir = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_tmpdir​".format(wildcards.dataset)
-        linclust_output = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_out.db​".format(wildcards.dataset)
-        shell("mmseqs linclust --threads 8 {db_file} {linclust_output} {tmp_dir}")
-        shell("mmseqs createtsv {db_file} {linclust_output} {clusters}")
+        shell("{time} mmseqs easy-linclust --threads 8 {input.flnc} {linclust_output} {tmp_dir} 2> {time_and_mem_linclust}")
+
+        script_path = config["SCRIPT_FOLDER"]        
+        shell("python {script_path}/modify_cluster_format_linclust.py {linclust_output}_cluster.tsv {output.clusters} ")
+
+
 
 
 
@@ -436,6 +423,24 @@ rule carnac_sim:
         shell("python {script_path}/carnac_modify_clusterformat.py --carnacfile {carnac_output} --flnc {input.flnc} --outfile {output.clusters} ")
 
 
+rule linclust_sim:
+    input:  flnc = config["ROOT_OUT"] + "ccs/{sim_dataset}/{nr_reads}/ccs.fasta",
+    output: time_and_mem_linclust = config["ROOT_OUT"] + "time_and_mem/linclust/{sim_dataset}/{nr_reads}/runtime_linclust.stdout",
+            clusters = config["ROOT_OUT"] + "cluster/linclust/{sim_dataset}/{nr_reads}/clusters.tsv"
+    run:
+        time = config["GNUTIME"]
+        
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/linclust/{0}/{1}/".format(wildcards.sim_dataset, wildcards.nr_reads) )
+        outfolder = config["ROOT_OUT"] + "cluster/linclust/{0}/{1}/".format(wildcards.sim_dataset, wildcards.nr_reads)
+        mkdir_p(outfolder)
+
+        linclust_output = config["ROOT_OUT"] + "cluster/linclust/{0}/{1}/linclust_out".format(wildcards.sim_dataset, wildcards.nr_reads)
+        tmp_dir = config["ROOT_OUT"] + "cluster/linclust/{0}/{1}/linclust_tmpdir​".format(wildcards.sim_dataset, wildcards.nr_reads)
+        shell("{time} mmseqs easy-linclust --threads 8 {input.flnc} {linclust_output} {tmp_dir} 2> {time_and_mem_linclust}")
+
+        script_path = config["SCRIPT_FOLDER"]        
+        shell("python {script_path}/modify_cluster_format_linclust.py {linclust_output}_cluster.tsv {output.clusters} ")
+
 
 rule minimap2_align_real:
     input:  reads = rules.isoseq3_real.output.flnc,
@@ -479,11 +484,14 @@ rule v_measure_real:
         true  = rules.minimap2_align_real.output.alignment,
         isoseq3_predicted  = rules.file_convert_isoseq3_real_clusters.output.clusters,
         qt_clust_predicted = rules.qt_clust_real.output.clusters,
-        carnac_predicted = rules.carnac_real.output.clusters
+        carnac_predicted = rules.carnac_real.output.clusters,
+        linclust_predicted = rules.linclust_real.output.clusters
+
     output: 
         isoseq3_res = config["ROOT_OUT"] + "evaluation/{dataset}/isoseq3_table.tsv",
         qt_clust_res = config["ROOT_OUT"] + "evaluation/{dataset}/qt_clust_table.tsv",
-        carnac_res = config["ROOT_OUT"] + "evaluation/{dataset}/carnac_table.tsv"
+        carnac_res = config["ROOT_OUT"] + "evaluation/{dataset}/carnac_table.tsv",
+        linclust_res = config["ROOT_OUT"] + "evaluation/{dataset}/linclust_table.tsv"
 
     run:
         bam = "{0}.bam".format(input.true)
@@ -501,6 +509,7 @@ rule v_measure_real:
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {sorted_bam}  --outfile {output.isoseq3_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.carnac_predicted} --classes {sorted_bam}  --outfile {output.carnac_res}")
+        shell("python {script_path}/compute_cluster_quality.py --clusters {input.linclust_predicted} --classes {sorted_bam}  --outfile {output.linclust_res}")
 
 
 rule v_measure_sim:
@@ -508,12 +517,14 @@ rule v_measure_sim:
         true  = rules.minimap2_align_sim.output.alignment,
         isoseq3_predicted  = rules.file_convert_isoseq3_sim_clusters.output.clusters,
         qt_clust_predicted = rules.qt_clust_sim.output.clusters,
-        carnac_predicted = rules.carnac_sim.output.clusters
+        carnac_predicted = rules.carnac_sim.output.clusters,
+        linclust_predicted = rules.linclust_sim.output.clusters
 
     output: 
         isoseq3_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/isoseq3_table.tsv",
         qt_clust_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/qt_clust_table.tsv",
-        carnac_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/carnac_table.tsv"
+        carnac_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/carnac_table.tsv",
+        linclust_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/linclust_table.tsv"
 
     run:
         bam = "{0}.bam".format(input.true)
@@ -531,6 +542,7 @@ rule v_measure_sim:
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {sorted_bam}  --outfile {output.isoseq3_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.carnac_predicted} --classes {sorted_bam}  --outfile {output.carnac_res}")
+        shell("python {script_path}/compute_cluster_quality.py --clusters {input.linclust_predicted} --classes {sorted_bam}  --outfile {output.linclust_res}")
 
 
 
