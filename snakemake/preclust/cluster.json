@@ -33,9 +33,9 @@
         "mail_type" : "FAIL",
         "exclude" : "c[4,6-7,8-16]"
     },
-    "linclust_read" : 
+    "linclust_real" : 
     {
-        "jobname" : "linclust_read",
+        "jobname" : "linclust_real",
         "ntasks" : "64",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
