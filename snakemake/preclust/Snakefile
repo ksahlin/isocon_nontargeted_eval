@@ -490,7 +490,7 @@ rule v_measure_real:
     output: 
         isoseq3_res = config["ROOT_OUT"] + "evaluation/{dataset}/isoseq3_table.tsv",
         qt_clust_res = config["ROOT_OUT"] + "evaluation/{dataset}/qt_clust_table.tsv",
-        carnac_res = config["ROOT_OUT"] + "evaluation/{dataset}/carnac_table.tsv",
+        carnac_res = config["ROOT_OUT"] + "evaluation/{dataset}/carnac_lr_table.tsv",
         linclust_res = config["ROOT_OUT"] + "evaluation/{dataset}/linclust_table.tsv"
 
     run:
@@ -523,7 +523,7 @@ rule v_measure_sim:
     output: 
         isoseq3_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/isoseq3_table.tsv",
         qt_clust_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/qt_clust_table.tsv",
-        carnac_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/carnac_table.tsv",
+        carnac_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/carnac_lr_table.tsv",
         linclust_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/linclust_table.tsv"
 
     run:
