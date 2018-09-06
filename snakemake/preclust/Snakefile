@@ -484,13 +484,13 @@ rule v_measure_real:
         true  = rules.minimap2_align_real.output.alignment,
         isoseq3_predicted  = rules.file_convert_isoseq3_real_clusters.output.clusters,
         qt_clust_predicted = rules.qt_clust_real.output.clusters,
-        carnac_predicted = rules.carnac_real.output.clusters,
+        # carnac_predicted = rules.carnac_real.output.clusters,
         linclust_predicted = rules.linclust_real.output.clusters
 
     output: 
         isoseq3_res = config["ROOT_OUT"] + "evaluation/{dataset}/isoseq3_table.tsv",
         qt_clust_res = config["ROOT_OUT"] + "evaluation/{dataset}/qt_clust_table.tsv",
-        carnac_res = config["ROOT_OUT"] + "evaluation/{dataset}/carnac_lr_table.tsv",
+        # carnac_res = config["ROOT_OUT"] + "evaluation/{dataset}/carnac_lr_table.tsv",
         linclust_res = config["ROOT_OUT"] + "evaluation/{dataset}/linclust_table.tsv"
 
     run:
@@ -508,8 +508,10 @@ rule v_measure_real:
         shell("pip list")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {sorted_bam}  --outfile {output.isoseq3_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
-        shell("python {script_path}/compute_cluster_quality.py --clusters {input.carnac_predicted} --classes {sorted_bam}  --outfile {output.carnac_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.linclust_predicted} --classes {sorted_bam}  --outfile {output.linclust_res}")
+
+        # carnac_res =config["ROOT_OUT"] + "cluster/carnac_lr/{dataset}/clusters.csv"
+        # shell("python {script_path}/compute_cluster_quality.py --clusters {input.carnac_predicted} --classes {sorted_bam}  --outfile {output.carnac_res}")
 
 
 rule v_measure_sim:
