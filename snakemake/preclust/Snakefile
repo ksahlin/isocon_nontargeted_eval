@@ -1,6 +1,6 @@
 """
     snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile experimental_experiments.json --latency-wait 100 --verbose -n
-    snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile experimental_experiments.json --latency-wait 100 --verbose --forcerun v_measure_sim v_measure_real evaluation_sim evaluation -n --reason
+    snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile experimental_experiments.json --latency-wait 100 --verbose --forcerun linclust_sim linclust_real v_measure_sim v_measure_real evaluation_sim evaluation -n --reason
     snakemake  --configfile experimental_experiments.json --latency-wait 100 --verbose -n
     snakemake --configfile experimental_experiments.json --latency-wait 100 --verbose --rerun-incomplete quality -n 
     snakemake --rulegraph --configfile experiments.json | dot -Tpng > figures/ruledag.png
@@ -437,21 +437,26 @@ rule linclust_sim:
 
         linclust_output = config["ROOT_OUT"] + "cluster/linclust/{0}/{1}/linclust_out".format(wildcards.sim_dataset, wildcards.nr_reads)
         tmp_dir = config["ROOT_OUT"] + "cluster/linclust/{0}/{1}/linclust_tmpdir​".format(wildcards.sim_dataset, wildcards.nr_reads)
-        shell("{time} mmseqs easy-linclust --threads 8 {input.flnc} {linclust_output} {tmp_dir} 2> {output.time_and_mem_linclust}")
+        shell("{time} mmseqs easy-linclust --seq-id-mode 1 --cov-mode 1 --threads 8 {input.flnc} {linclust_output} {tmp_dir} 2> {output.time_and_mem_linclust}")
 
         script_path = config["SCRIPT_FOLDER"]        
         shell("python {script_path}/modify_cluster_format_linclust.py {linclust_output}_cluster.tsv {output.clusters} ")
 
 
 rule minimap2_align_real:
-    input:  reads = rules.isoseq3_real.output.flnc,
-            ref = config["MMI"]
+    input:  reads = rules.isoseq3_real.output.flnc
     output: fastq = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{dataset}.fastq",
             alignment = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{dataset}.sam"
     
     run:
         shell("bamtools convert -format fastq -in {input.reads} -out {output.fastq} ")
-        shell("/usr/bin/time -v  minimap2 -t 8 -ax splice -uf -C5 {input.ref} {output.fastq} >  {output.alignment} ")
+
+        if wildcards.dataset in set(["Hummingbird", "Zebrafinch"]):
+            ref = config[wildcards.dataset]["ref"]
+            shell("/usr/bin/time -v  minimap2 -t 8 -ax splice -uf -C5 {ref} {output.fastq} >  {output.alignment} ")            
+        else:
+            ref = config["MMI"]
+            shell("/usr/bin/time -v  minimap2 -t 8 -ax splice -uf -C5 {ref} {output.fastq} >  {output.alignment} ")
 
 rule minimap2_align_sim:
     input:  reads = rules.simulate_dataset.output.reads,
