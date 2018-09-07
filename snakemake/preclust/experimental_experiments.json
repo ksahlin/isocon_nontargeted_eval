@@ -1,6 +1,6 @@
 {
 
-    "REAL_DATASET" : ["Alzheimer_IsoSeq_2016", "RC0_1cell_2017"],
+    "REAL_DATASET" : ["Alzheimer_IsoSeq_2016", "RC0_1cell_2017", "Hummingbird", "Zebrafinch"],
     "SIM_DATASET" : ["ENSEMBL"],
     "NR_SIM_READS" : ["100000", "500000", "1000000"],
 
@@ -46,6 +46,16 @@
                     "m150202_111824_42141_c100692750070000001823137202231582"]},
 
     "RC0_1cell_2017": {"movies": ["m54086_170204_081430"] },
+
+    "Hummingbird": {"movies" : ["primer1.m54006_170729_232022",
+                            "primer1.m54026_170727_103805",
+                            "primer1.m54200_170721_210832",
+                            "primer1.m54200_170722_173443"]},
+
+    "Zebrafinch": {"movies" : ["primer0.m54006_170729_232022",
+                            "primer0.m54026_170727_103805",
+                            "primer0.m54200_170721_210832",
+                            "primer0.m54200_170722_173443"]},   
 
     "DATA" : "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/data/",
     "ROOT_OUT" : "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/",
