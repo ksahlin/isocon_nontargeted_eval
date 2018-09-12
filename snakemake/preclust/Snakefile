@@ -261,13 +261,21 @@ rule isoseq3_real:
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/isoseq3/{dataset}/runtime.stdout",
             clusters = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.cluster",
             flnc = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.flnc.bam",
-            consensus = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.bam"
+            consensus = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.bam",
+            fasta_flattened_out = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished_flattened.flnc.fasta"
     run:
         shell("source activate isoseq3")
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/isoseq3/{0}/".format(wildcards.dataset) )
         mkdir_p(config["ROOT_OUT"] + "cluster/isoseq3/{0}/".format(wildcards.dataset) )
         shell("{time} isoseq3 cluster --num-threads 8 {input.ccs} {output.consensus} --verbose 2>&1 | tee {output.time_and_mem} ")
+
+        fasta_out = config["ROOT_OUT"] + "cluster/isoseq3/{0}/unpolished.flnc.fasta".format(wildcards.dataset)
+        flnc_in = config["ROOT_OUT"] + "cluster/isoseq3/{0}/unpolished.flnc.bam".format(wildcards.dataset)
+        shell("bamtools convert -format fasta -in {flnc_in} -out {fasta_out} ")
+        
+        fasta_flattened_out = config["ROOT_OUT"] + "cluster/isoseq3/{0}/unpolished_flattened.flnc.fasta".format(wildcards.dataset)
+        shell("python /galaxy/home/ksahlin/local_python_modules/bin/flatten_fasta.py {fasta_out} {fasta_flattened_out}")
 
 rule qt_clust_real:
     input:  flnc = rules.isoseq3_real.output.flnc,
@@ -285,40 +293,34 @@ rule qt_clust_real:
         shell("{time} python /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust/qt_clust.py --t 8 --flnc {input.flnc} --ccs {input.ccs}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 rule carnac_real:
-    input:  flnc = rules.isoseq3_real.output.flnc,
+    input:  flnc_fasta = rules.isoseq3_real.output.fasta_flattened_out,
     output: time_and_mem_carnac = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{dataset}/runtime_carnac.stdout",
             # time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{dataset}/runtime_minimap.stdout",
             clusters = config["ROOT_OUT"] + "cluster/carnac_lr/{dataset}/clusters.csv"
     run:
-        time = config["GNUTIME"]
-        fasta_out = config["ROOT_OUT"] + "cluster/isoseq3/{0}/unpolished.flnc.fasta".format(wildcards.dataset)
-        shell("bamtools convert -format fasta -in {input.flnc} -out {fasta_out} ")
-        
-        fasta_flattened_out = config["ROOT_OUT"] + "cluster/isoseq3/{0}/unpolished_flattened.flnc.fasta".format(wildcards.dataset)
-        shell("python /galaxy/home/ksahlin/local_python_modules/bin/flatten_fasta.py {fasta_out} {fasta_flattened_out}")
-        
+        time = config["GNUTIME"]        
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/carnac_lr/{0}/".format(wildcards.dataset) )
         outfolder = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/".format(wildcards.dataset)
         mkdir_p(outfolder)
         
         minimap_out = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/minimap2.paf".format(wildcards.dataset)
         time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{0}/runtime_minimap.stdout".format(wildcards.dataset)
-        shell("{time} minimap -Sw2 -L100 -t8 {fasta_flattened_out} {fasta_flattened_out} > {minimap_out} 2> {time_and_mem_minimap}")
-        # shell("{time} minimap2 -t 8 -X {fasta_flattened_out} {fasta_flattened_out} > {minimap_out} 2> {time_and_mem_minimap}")
+        shell("{time} minimap -Sw2 -L100 -t8 {input.flnc_fasta} {input.flnc_fasta} > {minimap_out} 2> {time_and_mem_minimap}")
+        # shell("{time} minimap2 -t 8 -X {input.flnc_fasta} {input.flnc_fasta} > {minimap_out} 2> {time_and_mem_minimap}")
 
         carnac_input = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/carnac_in.txt​".format(wildcards.dataset)
-        shell("python /galaxy/home/ksahlin/prefix/source/CARNAC/scripts/paf_to_CARNAC.py {minimap_out} {fasta_flattened_out}  {carnac_input}")
+        shell("python /galaxy/home/ksahlin/prefix/source/CARNAC/scripts/paf_to_CARNAC.py {minimap_out} {input.flnc_fasta}  {carnac_input}")
 
         carnac_output = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/carnac_out.txt​".format(wildcards.dataset)        
         shell("{time} CARNAC-LR -f {carnac_input} -t 8 -o {carnac_output} 2> {output.time_and_mem_carnac}")
 
         script_path = config["SCRIPT_FOLDER"]        
-        shell("python {script_path}/carnac_modify_clusterformat.py --carnacfile {carnac_output} --flnc {fasta_flattened_out} --outfile {output.clusters} ")
+        shell("python {script_path}/carnac_modify_clusterformat.py --carnacfile {carnac_output} --flnc {input.flnc_fasta} --outfile {output.clusters} ")
 
 
 
 rule linclust_real:
-    input:  flnc = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished_flattened.flnc.fasta",
+    input:  flnc_fasta = rules.isoseq3_real.output.fasta_flattened_out,
     output: time_and_mem_linclust = config["ROOT_OUT"] + "time_and_mem/linclust/{dataset}/runtime_linclust.stdout",
             clusters = config["ROOT_OUT"] + "cluster/linclust/{dataset}/clusters.tsv"
     run:
@@ -330,7 +332,7 @@ rule linclust_real:
 
         linclust_output = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_out.txt".format(wildcards.dataset)
         tmp_dir = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_tmpdir​".format(wildcards.dataset)
-        shell("{time} mmseqs easy-linclust --seq-id-mode 1 --cov-mode 1 --threads 8 {input.flnc} {linclust_output} {tmp_dir} 2> {output.time_and_mem_linclust}")
+        shell("{time} mmseqs easy-linclust --seq-id-mode 1 --cov-mode 1 --threads 8 {input.flnc_fasta} {linclust_output} {tmp_dir} 2> {output.time_and_mem_linclust}")
 
         script_path = config["SCRIPT_FOLDER"]        
         shell("python {script_path}/modify_cluster_format_linclust.py {linclust_output}_cluster.tsv {output.clusters} ")
