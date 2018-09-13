@@ -281,8 +281,8 @@ def main(args):
 
     #reads, unaligned, classes, singleton, min,max, mean,median
 
-    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n".format("tot_nr_reads", "unclassified", "total_nr_classes", "singleton_classes", "max_class_size", "mean_class_size", "median_class_size"))
-    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n".format(tot_nr_reads, unclassified, total_nr_classes, singleton_classes, max_class_size, round(mean_class_size, 0), median_class_size))
+    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\n".format("tot_nr_reads", "unclassified", "total_nr_classes", "singleton_classes", "max_class_size", "mean_class_size", "median_class_size"))
+    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\n".format(tot_nr_reads, unclassified, total_nr_classes, singleton_classes, max_class_size, round(mean_class_size, 0), median_class_size))
 
 
     # Reads_nontrivially_clustered_(%), Singletons_(%), Reads_Nontrivially_clustered_but_unaligned, V, c,h ,V_nt, c_nt,h_nt,  non_singleton_clusters, min, max, median, mean
@@ -297,9 +297,9 @@ def main(args):
 
 
     outfile.write("CLUSTERS\n")
-    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\n".format("Reads_nontrivially_clustered_percent", "Singletons_percent", "Reads_Nontrivially_clustered_but_unaligned", \
+    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\n".format("Reads_nontrivially_clustered_percent", "Singletons_percent", "Reads_Nontrivially_clustered_but_unaligned", \
                                                                                     "V", "c","h", "V_nt", "c_nt", "h_nt", "non_singleton_clusters", "max_", "median", "mean" ))
-    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\n".format(Reads_nontrivially_clustered_percent, Singletons_percent, Reads_Nontrivially_clustered_but_unaligned, \
+    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\n".format(Reads_nontrivially_clustered_percent, Singletons_percent, Reads_Nontrivially_clustered_but_unaligned, \
                                                                                     V, c,h, V_nt, c_nt,h_nt, non_singleton_clusters, max_, median, mean))
 
 
