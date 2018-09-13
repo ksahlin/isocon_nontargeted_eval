@@ -281,26 +281,26 @@ def main(args):
 
     #reads, unaligned, classes, singleton, min,max, mean,median
 
-    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n".format("tot_nr_reads", "unclassified", "total_nr_classes", "singleton_classes", "min_class_size", "max_class_size", "mean_class_size", "median_class_size"))
-    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n".format(tot_nr_reads, unclassified, total_nr_classes, singleton_classes, min_class_size, max_class_size, mean_class_size, median_class_size))
+    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n".format("tot_nr_reads", "unclassified", "total_nr_classes", "singleton_classes", "max_class_size", "mean_class_size", "median_class_size"))
+    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n".format(tot_nr_reads, unclassified, total_nr_classes, singleton_classes, max_class_size, round(mean_class_size, 0), median_class_size))
 
 
     # Reads_nontrivially_clustered_(%), Singletons_(%), Reads_Nontrivially_clustered_but_unaligned, V, c,h ,V_nt, c_nt,h_nt,  non_singleton_clusters, min, max, median, mean
 
-    Reads_nontrivially_clustered_percent = round(1.0 - float(singleton_clusters)/tot_nr_reads, 2)
-    Singletons_percent = round(1.0 - Reads_nontrivially_clustered_percent)
+    Reads_nontrivially_clustered_percent = round( 100*(float(tot_nr_reads - singleton_clusters)/tot_nr_reads), 1)
+    Singletons_percent = round( 100*(float(singleton_clusters)/tot_nr_reads), 1) # round(1.0 - Reads_nontrivially_clustered_percent, 2)
     Reads_Nontrivially_clustered_but_unaligned = unaligned_but_nontrivially_clustered
-    V, c,h = v_score, compl_score, homog_score
-    V_nt, c_nt, h_nt = NT_v_score, NT_compl_score, NT_homog_score
+    V, c,h = round(v_score, 3), round(compl_score, 3), round(homog_score, 3)
+    V_nt, c_nt, h_nt = round(NT_v_score, 3), round(NT_compl_score, 3), round(NT_homog_score, 3)
     non_singleton_clusters = total_nr_clusters - singleton_clusters
-    min_, max_, median, mean = min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size
+    min_, max_, median, mean = min_cluster_size, max_cluster_size, round(mean_cluster_size,0), round(median_cluster_size,0)
 
 
     outfile.write("CLUSTERS\n")
     outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\n".format("Reads_nontrivially_clustered_percent", "Singletons_percent", "Reads_Nontrivially_clustered_but_unaligned", \
-                                                                                    "V", "c","h", "V_nt", "c_nt", "h_nt", "non_singleton_clusters", "min_", "max_", "median", "mean" ))
+                                                                                    "V", "c","h", "V_nt", "c_nt", "h_nt", "non_singleton_clusters", "max_", "median", "mean" ))
     outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\t{13}\n".format(Reads_nontrivially_clustered_percent, Singletons_percent, Reads_Nontrivially_clustered_but_unaligned, \
-                                                                                    V, c,h, V_nt, c_nt,h_nt, non_singleton_clusters, min_, max_, median, mean))
+                                                                                    V, c,h, V_nt, c_nt,h_nt, non_singleton_clusters, max_, median, mean))
 
 
     # outfile.write("ALL CLUSTERS\n")
