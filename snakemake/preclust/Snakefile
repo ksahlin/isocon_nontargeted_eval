@@ -565,7 +565,7 @@ rule v_measure_sim:
 
 rule make_eval_table:
     input: real_files = expand(rules.v_measure_real.output, dataset = config["ISOSEQ_DATASET"]),
-           sim_files = expand(rules.v_measure_sim.output, dataset = config["SIM_DATASET"], nr_reads = config["NR_SIM_READS"])
+           sim_files = expand(rules.v_measure_sim.output, sim_dataset = config["SIM_DATASET"], nr_reads = config["NR_SIM_READS"])
     # input: isoseq3_res = rules.v_measure_sim.output.isoseq3_res,
     #         qt_clust_res = rules.v_measure_sim.output.qt_clust_res,
     #         carnac_res = rules.v_measure_sim.output.carnac_res,
