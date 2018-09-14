@@ -583,10 +583,13 @@ rule make_eval_table:
         # print(type(input.real_files), input.real_files)
         for file_name in input.real_files:
             file_ = open(file_name, "r")
-            toolname = os.path.basename(file_).split("_")[0]
+            toolname = os.path.basename(file_name).split("_")[0]
             line = file_.readlines()[-1]
             out_table.write("{0},{1},{2}\n".format(wildcards.dataset, toolname, line.strip()))
-        for file_ in input.sim_files:
+
+        for file_name in input.sim_files:
+            file_ = open(file_name, "r")
+            toolname = os.path.basename(file_name).split("_")[0]
             line = file_.readlines()[-1]
             out_table.write("{0},{1},{2}\n".format(wildcards.dataset, toolname, line.strip()))
 
