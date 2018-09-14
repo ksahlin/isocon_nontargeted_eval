@@ -580,6 +580,7 @@ rule make_eval_table:
     run:
 
         out_table = open(output.eval_table, 'w')
+        print(type(input.real_files), input.real_files)
         for file_ in open(input.real_files, "r"):
             toolname = os.path.basename(file_).split("_")[0]
             line = file_.readlines()[-1]
