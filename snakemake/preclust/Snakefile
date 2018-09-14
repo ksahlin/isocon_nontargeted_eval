@@ -584,6 +584,7 @@ rule make_eval_table:
         for file_name in input.real_files:
             file_ = open(file_name, "r")
             toolname = os.path.basename(file_name).split("_")[0]
+            print(file_name, file_name.split("/"))
             dataset = file_name.split("/")[-2]
             line = file_.readlines()[-1]
             out_table.write("{0},{1},{2}\n".format(dataset, toolname, line.strip()))
@@ -591,6 +592,7 @@ rule make_eval_table:
         for file_name in input.sim_files:
             file_ = open(file_name, "r")
             toolname = os.path.basename(file_name).split("_")[0]
+            print(file_name, file_name.split("/"))
             sim_dataset = file_name.split("/")[-3] + file_name.split("/")[-2]
             line = file_.readlines()[-1]
             out_table.write("{0},{1},{2}\n".format(sim_dataset, toolname, line.strip()))
