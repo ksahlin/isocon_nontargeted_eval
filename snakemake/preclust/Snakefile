@@ -162,14 +162,14 @@ def lima_files(datasets):
 # lima_files = lambda wildcards: expand(config["DATA"] + "{dataset}/lima/{movie}.lima.bam", dataset = config["DATASET"], movie = config[wildcards.dataset]["movies"])
 
 
-TARGET_FILES['preprocess'] = subreads_files(config["REAL_DATASET"]) + ccs_files(config["REAL_DATASET"]) + lima_files(config["REAL_DATASET"])
+TARGET_FILES['preprocess'] = subreads_files(config["ISOSEQ_DATASET"]) + ccs_files(config["ISOSEQ_DATASET"]) + lima_files(config["ISOSEQ_DATASET"])
 
 
 #CLUSTER
 
-isoseq3_real_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.{suffix}", dataset = config["REAL_DATASET"], suffix = ["bam", "cluster", "flnc.bam"]) 
+isoseq3_isoseq_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.{suffix}", dataset = config["ISOSEQ_DATASET"], suffix = ["bam", "cluster", "flnc.bam"]) 
 # qt_qlust_files =
-TARGET_FILES["cluster"] = isoseq3_real_files 
+TARGET_FILES["cluster"] = isoseq3_isoseq_files 
 
 isoseq3_sim_files = expand(config["ROOT_OUT"] + "cluster/isoseq3/{sim_dataset}/{nr_reads}/unpolished.{suffix}", sim_dataset = config["SIM_DATASET"], nr_reads =config["NR_SIM_READS"], suffix = ["bam", "cluster", "flnc.bam"]) 
 TARGET_FILES["cluster_sim"] = isoseq3_sim_files
@@ -177,8 +177,8 @@ TARGET_FILES["cluster_sim"] = isoseq3_sim_files
 
 #EVALUATION
 
-eval_real_files = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{tool}_table.tsv", dataset = config["REAL_DATASET"], tool = ["isoseq3", "qt_clust", "carnac_lr", "linclust"]) 
-TARGET_FILES["evaluation"] = eval_real_files 
+eval_isoseq_files = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{tool}_table.tsv", dataset = config["ISOSEQ_DATASET"], tool = ["isoseq3", "qt_clust", "carnac_lr", "linclust"]) 
+TARGET_FILES["evaluation"] = eval_isoseq_files
 
 #EVALUATION SIMULATED
 
@@ -244,7 +244,7 @@ rule lima:
     run:
         shell("source activate isoseq3")
         out = config["DATA"] + "{0}/lima/{1}.demux.bam".format(wildcards.dataset, wildcards.movie)
-        shell("lima {input.ccs_reads} {input.primers} {out} --isoseq --no-pbi")
+        shell("lima {input.ccs_reads} {input.primers} {out} --isoseq --no-pbi --dump-clips")
 
 
 rule merge_demultiplexed_files:
