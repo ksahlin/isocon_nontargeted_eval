@@ -1,6 +1,7 @@
 {
 
-    "REAL_DATASET" : ["Alzheimer_IsoSeq_2016", "RC0_1cell_2017", "Hummingbird", "Zebrafinch"],
+    "ISOSEQ_DATASET" : ["Alzheimer_IsoSeq_2016", "RC0_1cell_2017", "Hummingbird", "Zebrafinch"],
+    "ONT_DATASET" : ["Bham_run1_pass"],    
     "SIM_DATASET" : ["ENSEMBL"],
     "NR_SIM_READS" : ["100000", "500000", "1000000"],
 

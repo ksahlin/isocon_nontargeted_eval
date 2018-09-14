@@ -562,38 +562,35 @@ rule v_measure_sim:
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.linclust_predicted} --classes {sorted_bam}  --outfile {output.linclust_res}")
 
 
+# rule make_eval_table:
+#     input: real_files = expand(rules.v_measure_real.output, dataset = config["ISOSEQ_DATASET"]),
+#            sim_files = expand(rules.v_measure_sim.output, dataset = config["SIM_DATASET"], nr_reads = config["NR_SIM_READS"])
+#     # input: isoseq3_res = rules.v_measure_sim.output.isoseq3_res,
+#     #         qt_clust_res = rules.v_measure_sim.output.qt_clust_res,
+#     #         carnac_res = rules.v_measure_sim.output.carnac_res,
+#     #         linclust_res = rules.v_measure_sim.output.linclust_res,
+#     #         isoseq3_res = rules.v_measure_real.output.isoseq3_res,
+#     #         qt_clust_res = rules.v_measure_real.output.qt_clust_res,
+#     #         carnac_res = rules.v_measure_real.output.carnac_res,
+#     #         linclust_res = rules.v_measure_real.output.linclust_res
+#     output:
+#         eval_table:
 
-
-# rule compute_clustering_metrics:
-#     input: flnc = config["ROOT"]+"results/{EXPERIMENT_ID}/targeted/FLNC/{polish}_isoform_hits_{database}_hq.tsv", # rules.isoform_align_flnc.output.flnc_tsv,
-#             isocon_hq = config["ROOT"]+"results/{EXPERIMENT_ID}/targeted/ISOCON/{polish}_isoform_hits_{database}_hq.tsv",
-#             # isocon_lq = config["ROOT"]+"results/{EXPERIMENT_ID}/targeted/ISOCON/{polish}_isoform_hits_{database}_lq.tsv",
-#             ice_hq = config["ROOT"]+"results/{EXPERIMENT_ID}/targeted/ICE_QUAL/unpolished_isoform_hits_{database}_hq.tsv",
-#             # ice_hq = config["ROOT"]+"results/{EXPERIMENT_ID}/targeted/ICE_QUAL/{polish}_isoform_hits_{database}_hq.tsv",
-#             # ice_lq = config["ROOT"]+"results/{EXPERIMENT_ID}/targeted/ICE_QUAL/{polish}_isoform_hits_{database}_lq.tsv"
-#             proovread = config["ROOT"]+"results/{EXPERIMENT_ID}/targeted/PROOVREAD/{polish}_isoform_hits_{database}_hq.tsv"
-#     output: isoforms_in_database_hq_plot = config["ROOT_OUT"]+"/results/{EXPERIMENT_ID}/targeted/{polish}_detected_in_{database}_hq.png",
-#             # isoforms_in_database_hq_and_lq_plot = config["ROOT_OUT"]+"/results/{EXPERIMENT_ID}/targeted/{polish}_detected_in_{database}_lq_and_hq.png",
-#             venn_diagram_hq = config["ROOT_OUT"]+"/results/{EXPERIMENT_ID}/targeted/{polish}_detected_in_{database}_hq_venn.png",
-#             # venn_diagram_hq_and_lq = config["ROOT_OUT"]+"/results/{EXPERIMENT_ID}/targeted/{polish}_detected_in_{database}_lq_and_hq_venn.png"
 #     run:
-#         # python ../analysis/isoform_level/plot_isoform_hits.py --flnc ~/tmp/ISOFORM_ANALYSIS/07_22_17_CCS_POLISHED/pred_to_ref_best_alignments.tsv  --isocon ~/tmp/ISOFORM_ANALYSIS/07_22_17_ISOCON_polished_ccs/pred_to_ref_best_alignments.tsv --ice ~/tmp/ISOFORM_ANALYSIS/07_22_17_ICE_Q_polished_ccs/pred_to_ref_best_alignments.tsv  --outfolder ~/tmp/ISOFORM_ANALYSIS/results/identity_temp
-#         # python perfect_matches_set_intersection.py ~/tmp/ISOFORM_ANALYSIS/results_all_high_qual_and_low_qual/identity_only_perfect_matches/hit_to_db.tsv  ~/tmp/ISOFORM_ANALYSIS/results_all_high_qual_and_low_qual/identity_only_perfect_matches/venn_diagram
-        
-#         script_folder = config["SCRIPT_FOLDER"]
-#         db_transcripts = config[wildcards.database]
-#         shell("python {script_folder}/plot_isoform_hits.py --flnc {input.flnc} --isocon {input.isocon_hq} --proovread {input.proovread} --ice {input.ice_hq} --database {db_transcripts} --outprefix {output.isoforms_in_database_hq_plot} ")
-#         # shell("python {script_folder}/plot_isoform_hits.py --flnc {input.flnc} --isocon {input.isocon_hq} {input.isocon_lq} --ice {input.ice_hq} {input.ice_lq} --outprefix {output.isoforms_in_database_hq_and_lq_plot} ")
-#         shell("python {script_folder}/perfect_matches_set_intersection.py {output.isoforms_in_database_hq_plot}_hit_to_db.tsv {output.venn_diagram_hq}")
-#         # shell("python {script_folder}/perfect_matches_set_intersection.py {output.isoforms_in_database_hq_and_lq_plot}_hit_to_db.tsv {output.venn_diagram_hq_and_lq}")
+
+#         out_table = open(output.eval_table, 'w')
+#         for file_ in input.real_files:
+#             toolname = os.path.basename(file_).split("_")[0]
+#             line = file_.readlines()[-1]
+#             out_table.write("{0},{1}\n".format(toolname, line.strip()))
+#         for file_ in input.sim_files:
+#             line = file_.readlines()[-1]
+#             out_table.write("{0},{1}\n".format(toolname, line.strip()))
+
+#         out_table.close()
 
 
-# rule plot_number_passes:
-#     input: ccs_bam = rules.ccs.output.ccs_bam
-#     output: nr_passes_plot = config["ROOT"]+"results/{EXPERIMENT_ID}/{experiment}/{batch_size}_{polish}/nr_passes_plot.pdf"
-#     run:
-#         script_folder = config["SCRIPT_FOLDER"]
-#         shell("python3 {script_folder}/nr_passes_plot.py  --bamfile {input.ccs_bam}  --outfile {output.nr_passes_plot}")
-#     # python nr_passes_plot.py --bamfile ~/tmp/CCSTune/barcode_1-2kb_polished.ccs.bam --outfile ~/tmp/tpm_passes.pdf
+
+
 
 
