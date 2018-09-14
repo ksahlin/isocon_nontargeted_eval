@@ -212,12 +212,12 @@ def get_cluster_information(clusters, classes):
         else:
             cluster_dict[cl_id].append(read_acc)
 
-    total_nr_clusters = len(cluster_dict) 
     cluster_distribution = sorted([len(cl) for cl in cluster_dict.values()])
     
     # in case unclustered reads are missing from output (as for isoseq3)
     omitted_from_output_singletons = set(classes.keys()) - set(clusters.keys())
     cluster_distribution = [1 for i in range(len(omitted_from_output_singletons))] + cluster_distribution
+    total_nr_clusters = len(cluster_distribution) 
 
     singleton_clusters = set([acc_list[0] for cl_id, acc_list in cluster_dict.items() if len(acc_list) == 1 ])
     min_cluster_size = min(cluster_distribution)
@@ -281,8 +281,8 @@ def main(args):
 
     #reads, unaligned, classes, singleton, min,max, mean,median
 
-    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\n".format("tot_nr_reads", "unclassified", "total_nr_classes", "singleton_classes", "max_class_size", "mean_class_size", "median_class_size"))
-    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\n".format(tot_nr_reads, unclassified, total_nr_classes, singleton_classes, max_class_size, round(mean_class_size, 0), median_class_size))
+    outfile.write("{0},{1},{2},{3},{4},{5},{6}\n".format("tot_nr_reads", "unclassified", "total_nr_classes", "singleton_classes", "max_class_size", "mean_class_size", "median_class_size"))
+    outfile.write("{0},{1},{2},{3},{4},{5},{6}\n".format(tot_nr_reads, unclassified, total_nr_classes, singleton_classes, max_class_size, round(mean_class_size, 0), median_class_size))
 
 
     # Reads_nontrivially_clustered_(%), Singletons_(%), Reads_Nontrivially_clustered_but_unaligned, V, c,h ,V_nt, c_nt,h_nt,  non_singleton_clusters, min, max, median, mean
@@ -297,14 +297,14 @@ def main(args):
 
 
     outfile.write("CLUSTERS\n")
-    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\n".format("Reads_nontrivially_clustered_percent", "Singletons_percent", "Reads_Nontrivially_clustered_but_unaligned", \
+    outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12}\n".format("Reads_nontrivially_clustered_percent", "Singletons_percent", "Reads_Nontrivially_clustered_but_unaligned", \
                                                                                     "V", "c","h", "V_nt", "c_nt", "h_nt", "non_singleton_clusters", "max_", "median", "mean" ))
-    outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\t{11}\t{12}\n".format(Reads_nontrivially_clustered_percent, Singletons_percent, Reads_Nontrivially_clustered_but_unaligned, \
+    outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12}\n".format(Reads_nontrivially_clustered_percent, Singletons_percent, Reads_Nontrivially_clustered_but_unaligned, \
                                                                                     V, c,h, V_nt, c_nt,h_nt, non_singleton_clusters, max_, median, mean))
 
 
     # outfile.write("ALL CLUSTERS\n")
-    # outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\n".format("v_score", "compl_score", "homog_score", "clustered_but_unaligned", \
+    # outfile.write("{0},{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\n".format("v_score", "compl_score", "homog_score", "clustered_but_unaligned", \
     #                                                              "total_nr_clusters", "singleton_clusters", "min_cluster_size", "max_cluster_size", "mean_cluster_size", "median_cluster_size", "unaligned_but_nontrivially_clustered"))
     # outfile.write("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\t{9}\t{10}\n".format(v_score, compl_score, homog_score, clustered_but_unaligned, \
     #                                                             total_nr_clusters, singleton_clusters, min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, unaligned_but_nontrivially_clustered))
