@@ -575,7 +575,7 @@ rule make_eval_table:
     #         carnac_res = rules.v_measure_real.output.carnac_res,
     #         linclust_res = rules.v_measure_real.output.linclust_res
     output:
-        eval_table: config["ROOT_OUT"] + "evaluation/all_datasets_eval_table.tsv"
+        eval_table = config["ROOT_OUT"] + "evaluation/all_datasets_eval_table.tsv"
 
     run:
 
