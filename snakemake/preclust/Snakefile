@@ -580,8 +580,9 @@ rule make_eval_table:
     run:
 
         out_table = open(output.eval_table, 'w')
-        print(type(input.real_files), input.real_files)
-        for file_ in open(input.real_files, "r"):
+        # print(type(input.real_files), input.real_files)
+        for file_name in input.real_files:
+            file_ = open(file_name, "r"):
             toolname = os.path.basename(file_).split("_")[0]
             line = file_.readlines()[-1]
             out_table.write("{0},{1},{2}\n".format(wildcards.dataset, toolname, line.strip()))
