@@ -126,7 +126,7 @@ def clean_dir(folder):
 
 
 wildcard_constraints:
-    dataset="[^/]+|^((?!ont).)*$",
+    dataset="[^/]+",
     ont_dataset="[^/]+",
     sim_dataset="[^/]+",
     nr_reads="[^/]+"
@@ -187,7 +187,7 @@ eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads
 TARGET_FILES["evaluation_sim"] = eval_sim_files
 
 # EVALUATION ONT
-eval_ont_files = expand(config["ROOT_OUT"] + "evaluation/ont/{ont_dataset}/{tool}_table.tsv", ont_dataset = config["ONT_DATASET"], tool = ["qt_clust", "carnac_lr", "linclust"]) 
+eval_ont_files = expand(config["ROOT_OUT"] + "evaluation/{ont_dataset}/ont/{tool}_table.tsv", ont_dataset = config["ONT_DATASET"], tool = ["qt_clust", "carnac_lr", "linclust"]) 
 TARGET_FILES["evaluation_ont"] = eval_ont_files
 
 
@@ -460,37 +460,37 @@ rule linclust_sim:
 
 
 rule qt_clust_ont:
-    input:  fastq = config["ROOT_OUT"] + "ont/{ont_dataset}/ont.fastq"
-    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/ont/{ont_dataset}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/qt_clust/ont/{ont_dataset}/pre_clusters.csv"
+    input:  fastq = config["ROOT_OUT"] + "{ont_dataset}/ont/ont.fastq"
+    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{ont_dataset}/ont/runtime.stdout",
+            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{ont_dataset}/ont/pre_clusters.csv"
     run:
         time = config["GNUTIME"]
-        mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/ont/{0}/".format(wildcards.ont_dataset) )
-        outfolder = config["ROOT_OUT"] + "cluster/qt_clust/ont/{0}/".format(wildcards.ont_dataset)
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/ont/".format(wildcards.ont_dataset) )
+        outfolder = config["ROOT_OUT"] + "cluster/qt_clust/{0}/ont/".format(wildcards.ont_dataset)
         mkdir_p(outfolder)
         shell("{time} python /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust/qt_clust.py --t 8 --fastq {input.fastq}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
 rule carnac_ont:
-    input:  flnc_fasta = config["ROOT_OUT"] + "ont/{ont_dataset}/ont.fasta"
-    output: time_and_mem_carnac = config["ROOT_OUT"] + "time_and_mem/carnac_lr/ont/{ont_dataset}/runtime_carnac.stdout",
+    input:  flnc_fasta = config["ROOT_OUT"] + "{ont_dataset}/ont/ont.fasta"
+    output: time_and_mem_carnac = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{ont_dataset}/ont/runtime_carnac.stdout",
             # time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{ont_dataset}/runtime_minimap.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/carnac_lr/ont/{ont_dataset}/clusters.csv"
+            clusters = config["ROOT_OUT"] + "cluster/carnac_lr/{ont_dataset}/ont/clusters.csv"
     run:
         time = config["GNUTIME"]        
-        mkdir_p(config["ROOT_OUT"] + "time_and_mem/carnac_lr/ont/{0}/".format(wildcards.ont_dataset) )
-        outfolder = config["ROOT_OUT"] + "cluster/carnac_lr/ont/{0}/".format(wildcards.ont_dataset)
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/carnac_lr/{0}/ont/".format(wildcards.ont_dataset) )
+        outfolder = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/ont/".format(wildcards.ont_dataset)
         mkdir_p(outfolder)
         
-        minimap_out = config["ROOT_OUT"] + "cluster/carnac_lr/ont/{0}/minimap2.paf".format(wildcards.ont_dataset)
-        time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/ont/{0}/runtime_minimap.stdout".format(wildcards.ont_dataset)
+        minimap_out = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/ont/minimap2.paf".format(wildcards.ont_dataset)
+        time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{0}/ont/runtime_minimap.stdout".format(wildcards.ont_dataset)
         shell("{time} minimap -Sw2 -L100 -t8 {input.flnc_fasta} {input.flnc_fasta} > {minimap_out} 2> {time_and_mem_minimap}")
         # shell("{time} minimap2 -t 8 -X {input.flnc_fasta} {input.flnc_fasta} > {minimap_out} 2> {time_and_mem_minimap}")
 
-        carnac_input = config["ROOT_OUT"] + "cluster/carnac_lr/ont/{0}/carnac_in.txt​".format(wildcards.ont_dataset)
+        carnac_input = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/ont/carnac_in.txt​".format(wildcards.ont_dataset)
         shell("python /galaxy/home/ksahlin/prefix/source/CARNAC/scripts/paf_to_CARNAC.py {minimap_out} {input.flnc_fasta}  {carnac_input}")
 
-        carnac_output = config["ROOT_OUT"] + "cluster/carnac_lr/ont/{0}/carnac_out.txt​".format(wildcards.ont_dataset)        
+        carnac_output = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/ont/carnac_out.txt​".format(wildcards.ont_dataset)        
         shell("{time} CARNAC-LR -f {carnac_input} -t 8 -o {carnac_output} 2> {output.time_and_mem_carnac}")
 
         script_path = config["SCRIPT_FOLDER"]        
@@ -498,18 +498,18 @@ rule carnac_ont:
 
 
 rule linclust_ont:
-    input:  fasta = config["ROOT_OUT"] + "ont/{ont_dataset}/ont.fasta"
-    output: time_and_mem_linclust = config["ROOT_OUT"] + "time_and_mem/linclust/ont/{ont_dataset}/runtime_linclust.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/linclust/ont/{ont_dataset}/clusters.tsv"
+    input:  fasta = config["ROOT_OUT"] + "{ont_dataset}/ont/ont.fasta"
+    output: time_and_mem_linclust = config["ROOT_OUT"] + "time_and_mem/linclust/{ont_dataset}/ont/runtime_linclust.stdout",
+            clusters = config["ROOT_OUT"] + "cluster/linclust/{ont_dataset}/ont/clusters.tsv"
     run:
         time = config["GNUTIME"]
         
-        mkdir_p(config["ROOT_OUT"] + "time_and_mem/linclust/{0}/".format(wildcards.ont_dataset) )
-        outfolder = config["ROOT_OUT"] + "cluster/linclust/{0}/".format(wildcards.ont_dataset)
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/linclust/{0}/ont/".format(wildcards.ont_dataset) )
+        outfolder = config["ROOT_OUT"] + "cluster/linclust/{0}/ont/".format(wildcards.ont_dataset)
         mkdir_p(outfolder)
 
-        linclust_output = config["ROOT_OUT"] + "cluster/linclust/ont/{0}/linclust_out".format(wildcards.ont_dataset)
-        tmp_dir = config["ROOT_OUT"] + "cluster/linclust/ont/{0}/linclust_tmpdir​".format(wildcards.ont_dataset)
+        linclust_output = config["ROOT_OUT"] + "cluster/linclust/{0}/ont/linclust_out".format(wildcards.ont_dataset)
+        tmp_dir = config["ROOT_OUT"] + "cluster/linclust/{0}/ont/linclust_tmpdir​".format(wildcards.ont_dataset)
         shell("{time} mmseqs easy-linclust --seq-id-mode 1 --cov-mode 1 --threads 8 {input.fasta} {linclust_output} {tmp_dir} 2> {output.time_and_mem_linclust}")
 
         script_path = config["SCRIPT_FOLDER"]        
@@ -517,8 +517,8 @@ rule linclust_ont:
 
 
 rule minimap2_align_ont:
-    input:  reads = config["ROOT_OUT"] + "ont/{ont_dataset}/ont.fastq"
-    output: alignment = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{ont_dataset}.sam"
+    input:  reads = config["ROOT_OUT"] + "{ont_dataset}/ont/ont.fastq"
+    output: alignment = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/ont/{ont_dataset}.sam"
     
     run:
         ref = config["MMI"]
@@ -574,9 +574,9 @@ rule v_measure_ont:
         linclust_predicted = rules.linclust_ont.output.clusters
 
     output: 
-        qt_clust_res = config["ROOT_OUT"] + "evaluation/ont/{ont_dataset}/qt_clust_table.tsv",
-        carnac_res = config["ROOT_OUT"] + "evaluation/ont/{ont_dataset}/carnac_lr_table.tsv",
-        linclust_res = config["ROOT_OUT"] + "evaluation/ont/{ont_dataset}/linclust_table.tsv"
+        qt_clust_res = config["ROOT_OUT"] + "evaluation/{ont_dataset}/ont/qt_clust_table.tsv",
+        carnac_res = config["ROOT_OUT"] + "evaluation/{ont_dataset}/ont/carnac_lr_table.tsv",
+        linclust_res = config["ROOT_OUT"] + "evaluation/{ont_dataset}/ont/linclust_table.tsv"
     run:
         bam = "{0}.bam".format(input.true)
         shell("samtools view -b {input.true} > {bam}")
@@ -585,7 +585,7 @@ rule v_measure_ont:
         shell("samtools index {sorted_bam}")
 
         script_path = config["SCRIPT_FOLDER"]
-        mkdir_p(config["ROOT_OUT"] + "evaluation/ont/{0}/".format(wildcards.ont_dataset))
+        mkdir_p(config["ROOT_OUT"] + "evaluation/{0}/ont/".format(wildcards.ont_dataset))
         shell("source activate isoseq3")
         shell("which python")
         shell("python --version")
