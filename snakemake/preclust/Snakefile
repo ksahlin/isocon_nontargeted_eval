@@ -126,7 +126,7 @@ def clean_dir(folder):
 
 
 wildcard_constraints:
-    dataset="[^/]+|^(ont)",
+    dataset="[^/]+|^((?!ont).)*$",
     ont_dataset="[^/]+",
     sim_dataset="[^/]+",
     nr_reads="[^/]+"
