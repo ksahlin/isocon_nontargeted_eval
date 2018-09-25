@@ -186,7 +186,7 @@ eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads
 TARGET_FILES["evaluation_sim"] = eval_sim_files
 
 # EVALUATION ONT
-eval_ont_files = expand(config["ROOT_OUT"] + "evaluation/{ont_dataset}/{tool}_table.tsv", ont_dataset = config["ONT_DATASET"], tool = ["qt_clust", "carnac_lr", "linclust"]) 
+eval_ont_files = expand(config["ROOT_OUT"] + "evaluation/ont/{ont_dataset}/{tool}_table.tsv", ont_dataset = config["ONT_DATASET"], tool = ["qt_clust", "carnac_lr", "linclust"]) 
 TARGET_FILES["evaluation_ont"] = eval_ont_files
 
 
@@ -674,7 +674,7 @@ rule v_measure_sim:
 rule make_eval_table:
     input: real_files = expand(rules.v_measure_real.output, dataset = config["ISOSEQ_DATASET"]),
            sim_files = expand(rules.v_measure_sim.output, sim_dataset = config["SIM_DATASET"], nr_reads = config["NR_SIM_READS"]),
-           ont_files = expand(rules.v_measure_ont.output, ont_dataset = config["ONT_DATASET"]),
+           ont_files = expand(rules.v_measure_ont.output, ont_dataset = config["ONT_DATASET"])
     # input: isoseq3_res = rules.v_measure_sim.output.isoseq3_res,
     #         qt_clust_res = rules.v_measure_sim.output.qt_clust_res,
     #         carnac_res = rules.v_measure_sim.output.carnac_res,
