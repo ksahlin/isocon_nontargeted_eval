@@ -186,7 +186,7 @@ eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads
 TARGET_FILES["evaluation_sim"] = eval_sim_files
 
 # EVALUATION ONT
-eval_ont_files = expand(config["ROOT_OUT"] + "evaluation/{ont_dataset}/{tool}_table.tsv", dataset = config["ONT_DATASET"], tool = ["qt_clust", "carnac_lr", "linclust"]) 
+eval_ont_files = expand(config["ROOT_OUT"] + "evaluation/{ont_dataset}/{tool}_table.tsv", ont_dataset = config["ONT_DATASET"], tool = ["qt_clust", "carnac_lr", "linclust"]) 
 TARGET_FILES["evaluation_ont"] = eval_ont_files
 
 
