@@ -460,7 +460,7 @@ rule linclust_sim:
 
 
 rule qt_clust_ont:
-    input:  fastq = config["ROOT_OUT"] + "{ont_dataset}/ont/ont.fastq"
+    input:  fastq = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{ont_dataset}/ont/runtime.stdout",
             clusters = config["ROOT_OUT"] + "cluster/qt_clust/{ont_dataset}/ont/pre_clusters.csv"
     run:
@@ -472,7 +472,7 @@ rule qt_clust_ont:
 
 
 rule carnac_ont:
-    input:  flnc_fasta = config["ROOT_OUT"] + "{ont_dataset}/ont/ont.fasta"
+    input:  flnc_fasta = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fasta"
     output: time_and_mem_carnac = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{ont_dataset}/ont/runtime_carnac.stdout",
             # time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{ont_dataset}/runtime_minimap.stdout",
             clusters = config["ROOT_OUT"] + "cluster/carnac_lr/{ont_dataset}/ont/clusters.csv"
@@ -498,7 +498,7 @@ rule carnac_ont:
 
 
 rule linclust_ont:
-    input:  fasta = config["ROOT_OUT"] + "{ont_dataset}/ont/ont.fasta"
+    input:  fasta = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fasta"
     output: time_and_mem_linclust = config["ROOT_OUT"] + "time_and_mem/linclust/{ont_dataset}/ont/runtime_linclust.stdout",
             clusters = config["ROOT_OUT"] + "cluster/linclust/{ont_dataset}/ont/clusters.tsv"
     run:
@@ -517,7 +517,7 @@ rule linclust_ont:
 
 
 rule minimap2_align_ont:
-    input:  reads = config["ROOT_OUT"] + "{ont_dataset}/ont/ont.fastq"
+    input:  reads = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
     output: alignment = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/ont/{ont_dataset}.sam"
     
     run:
