@@ -497,19 +497,19 @@ rule carnac_ont:
 
 
 rule linclust_ont:
-    input:  flnc = config["ROOT_OUT"] + "ont/{ont_dataset}/ont.fasta"
+    input:  fasta = config["ROOT_OUT"] + "ont/{ont_dataset}/ont.fasta"
     output: time_and_mem_linclust = config["ROOT_OUT"] + "time_and_mem/linclust/{ont_dataset}/runtime_linclust.stdout",
             clusters = config["ROOT_OUT"] + "cluster/linclust/{ont_dataset}/clusters.tsv"
     run:
         time = config["GNUTIME"]
         
-        mkdir_p(config["ROOT_OUT"] + "time_and_mem/linclust/{0}/{1}/".format(wildcards.ont_dataset, wildcards.nr_reads) )
-        outfolder = config["ROOT_OUT"] + "cluster/linclust/{0}/{1}/".format(wildcards.ont_dataset, wildcards.nr_reads)
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/linclust/{0}/".format(wildcards.ont_dataset) )
+        outfolder = config["ROOT_OUT"] + "cluster/linclust/{0}/".format(wildcards.ont_dataset)
         mkdir_p(outfolder)
 
         linclust_output = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_out".format(wildcards.ont_dataset)
         tmp_dir = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_tmpdir​".format(wildcards.ont_dataset)
-        shell("{time} mmseqs easy-linclust --seq-id-mode 1 --cov-mode 1 --threads 8 {input.flnc} {linclust_output} {tmp_dir} 2> {output.time_and_mem_linclust}")
+        shell("{time} mmseqs easy-linclust --seq-id-mode 1 --cov-mode 1 --threads 8 {input.fasta} {linclust_output} {tmp_dir} 2> {output.time_and_mem_linclust}")
 
         script_path = config["SCRIPT_FOLDER"]        
         shell("python {script_path}/modify_cluster_format_linclust.py {linclust_output}_cluster.tsv {output.clusters} ")
