@@ -573,9 +573,9 @@ rule v_measure_ont:
         linclust_predicted = rules.linclust_ont.output.clusters
 
     output: 
-        qt_clust_res = config["ROOT_OUT"] + "evaluation/{ont_dataset}/qt_clust_table.tsv",
-        carnac_res = config["ROOT_OUT"] + "evaluation/{ont_dataset}/carnac_lr_table.tsv",
-        linclust_res = config["ROOT_OUT"] + "evaluation/{ont_dataset}/linclust_table.tsv"
+        qt_clust_res = config["ROOT_OUT"] + "evaluation/ont/{ont_dataset}/qt_clust_table.tsv",
+        carnac_res = config["ROOT_OUT"] + "evaluation/ont/{ont_dataset}/carnac_lr_table.tsv",
+        linclust_res = config["ROOT_OUT"] + "evaluation/ont/{ont_dataset}/linclust_table.tsv"
     run:
         bam = "{0}.bam".format(input.true)
         shell("samtools view -b {input.true} > {bam}")
@@ -584,7 +584,7 @@ rule v_measure_ont:
         shell("samtools index {sorted_bam}")
 
         script_path = config["SCRIPT_FOLDER"]
-        mkdir_p(config["ROOT_OUT"] + "evaluation/{0}/".format(wildcards.ont_dataset))
+        mkdir_p(config["ROOT_OUT"] + "evaluation/ont/{0}/".format(wildcards.ont_dataset))
         shell("source activate isoseq3")
         shell("which python")
         shell("python --version")
