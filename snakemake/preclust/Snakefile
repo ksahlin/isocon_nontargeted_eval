@@ -221,7 +221,7 @@ rule evaluation:
 rule evaluation_sim:
         input: TARGET_FILES["evaluation_sim"]
 
-rule evaluation_sim:
+rule evaluation_ont:
         input: TARGET_FILES["evaluation_ont"]
 
 rule simulation:
