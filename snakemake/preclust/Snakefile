@@ -127,6 +127,7 @@ def clean_dir(folder):
 
 wildcard_constraints:
     dataset="[^/]+",
+    ont_dataset="[^/]+",
     sim_dataset="[^/]+",
     nr_reads="[^/]+"
 
@@ -673,8 +674,8 @@ rule v_measure_sim:
 
 rule make_eval_table:
     input: real_files = expand(rules.v_measure_real.output, dataset = config["ISOSEQ_DATASET"]),
-           sim_files = expand(rules.v_measure_sim.output, sim_dataset = config["SIM_DATASET"], nr_reads = config["NR_SIM_READS"])
-           # ont_files = expand(rules.v_measure_ont.output, ont_dataset = config["ONT_DATASET"])
+           sim_files = expand(rules.v_measure_sim.output, sim_dataset = config["SIM_DATASET"], nr_reads = config["NR_SIM_READS"]),
+           ont_files = expand(rules.v_measure_ont.output, ont_dataset = config["ONT_DATASET"])
     # input: isoseq3_res = rules.v_measure_sim.output.isoseq3_res,
     #         qt_clust_res = rules.v_measure_sim.output.qt_clust_res,
     #         carnac_res = rules.v_measure_sim.output.carnac_res,
@@ -706,13 +707,13 @@ rule make_eval_table:
             line = file_.readlines()[-1]
             out_table.write("{0},{1},{2}\n".format(sim_dataset, toolname, line.strip()))
 
-        # for file_name in input.ont_files:
-        #     file_ = open(file_name, "r")
-        #     toolname = os.path.basename(file_name).split("_")[0]
-        #     print(file_name, file_name.split("/"))
-        #     dataset = file_name.split("/")[-2]
-        #     line = file_.readlines()[-1]
-        #     out_table.write("{0},{1},{2}\n".format(dataset, toolname, line.strip()))
+        for file_name in input.ont_files:
+            file_ = open(file_name, "r")
+            toolname = os.path.basename(file_name).split("_")[0]
+            print(file_name, file_name.split("/"))
+            ont_dataset = file_name.split("/")[-2]
+            line = file_.readlines()[-1]
+            out_table.write("{0},{1},{2}\n".format(ont_dataset, toolname, line.strip()))
 
         out_table.close()
 
