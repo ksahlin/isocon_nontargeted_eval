@@ -97,6 +97,50 @@
         "exclude" : "c[4,6-7,8-16]"
     },
 
+    "linclust_ont" : 
+    {
+        "jobname" : "linclust_ont",
+        "ntasks" : "64",
+        "Nodes" : 1,
+        "runtime" : "7-00:00:00",
+        "mail" : "ksahlin@kth.se",
+        "mail_type" : "FAIL",
+        "exclude" : "c[4,6-7,8-16]"
+    },
+    "carnac_ont" : 
+    {
+        "jobname" : "carnac_ont",
+        "ntasks" : "64",
+        "Nodes" : 1,
+        "runtime" : "10-00:00:00",
+        "mail" : "ksahlin@kth.se",
+        "mail_type" : "FAIL",
+        "exclude" : "c[4,6-7,8-16]"
+    },
+
+    "qt_clust_ont" : 
+    {
+        "jobname" : "qt_clust_ont",
+        "ntasks" : "64",
+        "Nodes" : 1,
+        "runtime" : "7-00:00:00",
+        "mail" : "ksahlin@kth.se",
+        "mail_type" : "FAIL",
+        "exclude" : "c[4,6-7,8-16]"
+    },
+
+    "minimap2_align_ont" : 
+    {
+        "jobname" : "minimap2_align_ont",
+        "ntasks" : "64",
+        "Nodes" : 1,
+        "runtime" : "7-00:00:00",
+        "mail" : "ksahlin@kth.se",
+        "mail_type" : "FAIL",
+        "exclude" : "c[4,6-7,8-16]"
+    },
+
+
     "minimap2_align_real" : 
     {
         "jobname" : "minimap2_align_real",

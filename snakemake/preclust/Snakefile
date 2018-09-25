@@ -185,6 +185,11 @@ TARGET_FILES["evaluation"] = eval_isoseq_files
 eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/{tool}_table.tsv", sim_dataset = config["SIM_DATASET"],  nr_reads = config["NR_SIM_READS"], tool = ["isoseq3", "qt_clust", "carnac_lr", "linclust"]) 
 TARGET_FILES["evaluation_sim"] = eval_sim_files
 
+# EVALUATION ONT
+eval_isoseq_files = expand(config["ROOT_OUT"] + "evaluation/{ont_dataset}/{tool}_table.tsv", dataset = config["ONT_DATASET"], tool = ["qt_clust", "carnac_lr", "linclust"]) 
+TARGET_FILES["evaluation_ont"] = eval_isoseq_files
+
+
 
 # SIMULATE
 simulate_files = expand(config["ROOT_OUT"] + "ccs/{sim_dataset}/{nr_reads}/ccs.bam" , sim_dataset = config["SIM_DATASET"], nr_reads =config["NR_SIM_READS"]) 
@@ -215,6 +220,8 @@ rule evaluation:
 
 rule evaluation_sim:
         input: TARGET_FILES["evaluation_sim"]
+rule evaluation_sim:
+        input: TARGET_FILES["evaluation_ont]
 
 rule simulation:
         input: TARGET_FILES["simulation"]
@@ -450,6 +457,74 @@ rule linclust_sim:
         shell("python {script_path}/modify_cluster_format_linclust.py {linclust_output}_cluster.tsv {output.clusters} ")
 
 
+rule qt_clust_ont:
+    input:  fastq = = config["ROOT_OUT"] + "ont/{ont_dataset}/ont.fastq"
+    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{ont_dataset}/runtime.stdout",
+            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{ont_dataset}/pre_clusters.csv"
+    run:
+        time = config["GNUTIME"]
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/".format(wildcards.ont_dataset) )
+        outfolder = config["ROOT_OUT"] + "cluster/qt_clust/{0}/".format(wildcards.ont_dataset)
+        mkdir_p(outfolder)
+        shell("{time} python /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust/qt_clust.py --t 8 --fastq {input.fastq}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+
+
+rule carnac_ont:
+    input:  flnc_fasta = config["ROOT_OUT"] + "ont/{ont_dataset}/ont.fasta"
+    output: time_and_mem_carnac = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{ont_dataset}/runtime_carnac.stdout",
+            # time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{ont_dataset}/runtime_minimap.stdout",
+            clusters = config["ROOT_OUT"] + "cluster/carnac_lr/{ont_dataset}/clusters.csv"
+    run:
+        time = config["GNUTIME"]        
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/carnac_lr/{0}/".format(wildcards.ont_dataset) )
+        outfolder = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/".format(wildcards.ont_dataset)
+        mkdir_p(outfolder)
+        
+        minimap_out = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/minimap2.paf".format(wildcards.ont_dataset)
+        time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{0}/runtime_minimap.stdout".format(wildcards.ont_dataset)
+        shell("{time} minimap -Sw2 -L100 -t8 {input.flnc_fasta} {input.flnc_fasta} > {minimap_out} 2> {time_and_mem_minimap}")
+        # shell("{time} minimap2 -t 8 -X {input.flnc_fasta} {input.flnc_fasta} > {minimap_out} 2> {time_and_mem_minimap}")
+
+        carnac_input = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/carnac_in.txt​".format(wildcards.ont_dataset)
+        shell("python /galaxy/home/ksahlin/prefix/source/CARNAC/scripts/paf_to_CARNAC.py {minimap_out} {input.flnc_fasta}  {carnac_input}")
+
+        carnac_output = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/carnac_out.txt​".format(wildcards.ont_dataset)        
+        shell("{time} CARNAC-LR -f {carnac_input} -t 8 -o {carnac_output} 2> {output.time_and_mem_carnac}")
+
+        script_path = config["SCRIPT_FOLDER"]        
+        shell("python {script_path}/carnac_modify_clusterformat.py --carnacfile {carnac_output} --flnc {input.flnc_fasta} --outfile {output.clusters} ")
+
+
+rule linclust_ont:
+    input:  flnc = config["ROOT_OUT"] + "ont/{ont_dataset}/ont.fasta"
+    output: time_and_mem_linclust = config["ROOT_OUT"] + "time_and_mem/linclust/{ont_dataset}/runtime_linclust.stdout",
+            clusters = config["ROOT_OUT"] + "cluster/linclust/{ont_dataset}/clusters.tsv"
+    run:
+        time = config["GNUTIME"]
+        
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/linclust/{0}/{1}/".format(wildcards.ont_dataset, wildcards.nr_reads) )
+        outfolder = config["ROOT_OUT"] + "cluster/linclust/{0}/{1}/".format(wildcards.ont_dataset, wildcards.nr_reads)
+        mkdir_p(outfolder)
+
+        linclust_output = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_out".format(wildcards.ont_dataset)
+        tmp_dir = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_tmpdir​".format(wildcards.ont_dataset)
+        shell("{time} mmseqs easy-linclust --seq-id-mode 1 --cov-mode 1 --threads 8 {input.flnc} {linclust_output} {tmp_dir} 2> {output.time_and_mem_linclust}")
+
+        script_path = config["SCRIPT_FOLDER"]        
+        shell("python {script_path}/modify_cluster_format_linclust.py {linclust_output}_cluster.tsv {output.clusters} ")
+
+
+rule minimap2_align_ont:
+    input:  reads = config["ROOT_OUT"] + "/ont/{ont_dataset}/ont.fastq"
+    output: fastq = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{ont_dataset}.fastq",
+            alignment = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{ont_dataset}.sam"
+    
+    run:
+        shell("bamtools convert -format fastq -in {input.reads} -out {output.fastq} ")
+        ref = config["MMI"]
+        shell("/usr/bin/time -v  minimap2 -t 8 -ax splice -uf -k14 {ref} {output.fastq} >  {output.alignment} ")
+
+
 rule minimap2_align_real:
     input:  reads = rules.isoseq3_real.output.flnc
     output: fastq = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{dataset}.fastq",
@@ -490,7 +565,41 @@ rule file_convert_isoseq3_sim_clusters:
         script_path = config["SCRIPT_FOLDER"]
         shell("python {script_path}/modify_cluster_format.py {input.clusters} {output.clusters} ")
 
-# rule file_convert_qt_clust_clusters:
+
+rule v_measure_ont:
+    input: 
+        true  = rules.minimap2_align_ont.output.alignment,
+        qt_clust_predicted = rules.qt_clust_ont.output.clusters,
+        carnac_predicted = rules.carnac_ont.output.clusters,
+        linclust_predicted = rules.linclust_ont.output.clusters
+
+    output: 
+        qt_clust_res = config["ROOT_OUT"] + "evaluation/{ont_dataset}/qt_clust_table.tsv",
+        carnac_res = config["ROOT_OUT"] + "evaluation/{ont_dataset}/carnac_lr_table.tsv",
+        linclust_res = config["ROOT_OUT"] + "evaluation/{ont_dataset}/linclust_table.tsv"
+    run:
+        bam = "{0}.bam".format(input.true)
+        shell("samtools view -b {input.true} > {bam}")
+        sorted_bam = "{0}_sorted.bam".format(input.true)
+        shell("samtools sort {bam} > {sorted_bam}")
+        shell("samtools index {sorted_bam}")
+
+        script_path = config["SCRIPT_FOLDER"]
+        mkdir_p(config["ROOT_OUT"] + "evaluation/{0}/".format(wildcards.ont_dataset))
+        shell("source activate isoseq3")
+        shell("which python")
+        shell("python --version")
+        shell("pip list")
+        shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
+        shell("python {script_path}/compute_cluster_quality.py --clusters {input.linclust_predicted} --classes {sorted_bam}  --outfile {output.linclust_res}")
+        shell("python {script_path}/compute_cluster_quality.py --clusters {input.carnac_predicted} --classes {sorted_bam}  --outfile {output.carnac_res}")
+
+        # if wildcards.ont_dataset == "Alzheimer_IsoSeq_2016":
+        #     shell("touch {output.carnac_res}")
+        # else:
+        #     # carnac_res =config["ROOT_OUT"] + "cluster/carnac_lr/{ont_dataset}/clusters.csv"
+        #     shell("python {script_path}/compute_cluster_quality.py --clusters {input.carnac_predicted} --classes {sorted_bam}  --outfile {output.carnac_res}")
+
 
 rule v_measure_real:
     input: 
@@ -565,7 +674,8 @@ rule v_measure_sim:
 
 rule make_eval_table:
     input: real_files = expand(rules.v_measure_real.output, dataset = config["ISOSEQ_DATASET"]),
-           sim_files = expand(rules.v_measure_sim.output, sim_dataset = config["SIM_DATASET"], nr_reads = config["NR_SIM_READS"])
+           sim_files = expand(rules.v_measure_sim.output, sim_dataset = config["SIM_DATASET"], nr_reads = config["NR_SIM_READS"]),
+           ont_files = expand(rules.v_measure_ont.output, ont_dataset = config["ONT_DATASET"]),
     # input: isoseq3_res = rules.v_measure_sim.output.isoseq3_res,
     #         qt_clust_res = rules.v_measure_sim.output.qt_clust_res,
     #         carnac_res = rules.v_measure_sim.output.carnac_res,
@@ -596,6 +706,14 @@ rule make_eval_table:
             sim_dataset = file_name.split("/")[-3] + file_name.split("/")[-2]
             line = file_.readlines()[-1]
             out_table.write("{0},{1},{2}\n".format(sim_dataset, toolname, line.strip()))
+
+        for file_name in input.ont_files:
+            file_ = open(file_name, "r")
+            toolname = os.path.basename(file_name).split("_")[0]
+            print(file_name, file_name.split("/"))
+            dataset = file_name.split("/")[-2]
+            line = file_.readlines()[-1]
+            out_table.write("{0},{1},{2}\n".format(dataset, toolname, line.strip()))
 
         out_table.close()
 
