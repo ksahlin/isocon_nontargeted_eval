@@ -26,9 +26,9 @@ def plot_p_minimizer_shared(tsv_file, outfile):
         indata = pd.read_csv(tsv_file, sep="\t")
         fig, ax = plt.subplots()
         # fix data to the same error rate  e1 == e2!
-        indata = indata.loc[(indata['e1'] == indata['e2'])]
-        g = sns.factorplot(x="k", y="p", col="e1", row="w", col_order = [0.1, 0.05], row_order = [20, 50],
-                            hue="is_hpol", data=indata,
+        indata = indata.loc[(indata['error_rate'] == indata['error_rate2'])]
+        g = sns.factorplot(x="w", y="P_minimizer_shared", col="error_rate", row="k", col_order = [0.1, 0.05, 0.02], row_order = [10, 15, 20],
+                            hue="hash", data=indata,
                             size=3, aspect=1.6, palette="Set2",
                             dodge=True, cut=0, bw=.2) #kind="violin",
         
@@ -38,8 +38,8 @@ def plot_p_minimizer_shared(tsv_file, outfile):
         # g.set_titles(col_template="$\mu={col_name}$", row_template="{row_name}",  size=16)
         # g.set_yticklabels(["",0,0.2,0.4,0.6,0.8,1.0])
         # g.set(yscale="log")
-        g.set(xlim=(0, 6))
-        g.set(ylim=(0, 1))
+        # g.set(xlim=(0, 6))
+        # g.set(ylim=(0, 1))
         plt.savefig(outfile)
         plt.close()
 
