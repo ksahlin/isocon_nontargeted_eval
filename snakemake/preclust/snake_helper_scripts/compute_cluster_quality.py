@@ -13,6 +13,8 @@ def parse_inferred_clusters_tsv(tsv_file, args):
         cluster_id, read_acc = line.strip().split("\t")
         if args.simulated:
             read_acc = "_".join([item for item in read_acc.split("_")[:-1] ])
+        elif args.ont:
+            read_acc = read_acc.split("_runid")[0]
         else:
             read_acc = read_acc.split("_strand")[0] 
 
@@ -319,6 +321,7 @@ if __name__ == '__main__':
     parser.add_argument('--clusters', type=str, help='Inferred clusters (tsv file)')
     parser.add_argument('--classes', type=str, help='A sorted and indexed bam file.')
     parser.add_argument('--simulated', action="store_true", help='Simulated data, we can simply read correct classes from the ref field.')
+    parser.add_argument('--ont', action="store_true", help='ONT data, parsing accessions differently.')
     parser.add_argument('--outfile', type=str, help='Output file with results')
     args = parser.parse_args()
 
