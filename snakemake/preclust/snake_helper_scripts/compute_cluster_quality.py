@@ -257,7 +257,7 @@ def get_cluster_information(clusters, classes):
     print("CLUSTERED:", "Tot classes:", len(clustered_classes), sorted(clustered_classes.items(), key=lambda x: x[1], reverse=True))
     print("MIXED:", "Tot classes containing both:", len( set(clustered_classes.keys()) & set(not_clustered_classes.keys())))
     print("Total number of classes (unique gene ID):", total_nr_classes)
-    return total_nr_classes, len(singleton_classes), min_class_size, max_class_size, mean_class_size, median_class_size, total_nr_clusters, len(singleton_clusters) + len(omitted_from_output_singletons), min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, len(unaligned_but_nontrivially_clustered) 
+    return total_nr_classes - len(singleton_classes), len(singleton_classes), min_class_size, max_class_size, mean_class_size, median_class_size, total_nr_clusters, len(singleton_clusters) + len(omitted_from_output_singletons), min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, len(unaligned_but_nontrivially_clustered) 
 
 
 
@@ -274,7 +274,7 @@ def main(args):
 
     v_score, compl_score, homog_score, clustered_but_unaligned = compute_V_measure(clusters, classes)
     NT_v_score, NT_compl_score, NT_homog_score, _ = compute_V_measure_non_singletons(clusters, classes)
-    total_nr_classes, singleton_classes, min_class_size, max_class_size, mean_class_size, median_class_size, total_nr_clusters, singleton_clusters, min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, unaligned_but_nontrivially_clustered  = get_cluster_information(clusters, classes)
+    nr_non_singleton_classes, singleton_classes, min_class_size, max_class_size, mean_class_size, median_class_size, total_nr_clusters, singleton_clusters, min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, unaligned_but_nontrivially_clustered  = get_cluster_information(clusters, classes)
     tot_nr_reads_included_inclustering = len(clusters)
 
     outfile = open(args.outfile, "w")
@@ -283,8 +283,8 @@ def main(args):
 
     #reads, unaligned, classes, singleton, min,max, mean,median
 
-    outfile.write("{0},{1},{2},{3},{4},{5},{6}\n".format("tot_nr_reads", "unclassified", "total_nr_classes", "singleton_classes", "max_class_size", "mean_class_size", "median_class_size"))
-    outfile.write("{0},{1},{2},{3},{4},{5},{6}\n".format(tot_nr_reads, unclassified, total_nr_classes, singleton_classes, max_class_size, round(mean_class_size, 0), median_class_size))
+    outfile.write("{0},{1},{2},{3},{4},{5},{6}\n".format("tot_nr_reads", "unclassified", "nr_non_singleton_classes", "singleton_classes", "max_class_size", "mean_class_size", "median_class_size"))
+    outfile.write("{0},{1},{2},{3},{4},{5},{6}\n".format(tot_nr_reads, unclassified, nr_non_singleton_classes, singleton_classes, max_class_size, round(mean_class_size, 0), median_class_size))
 
 
     # Reads_nontrivially_clustered_(%), Singletons_(%), Reads_Nontrivially_clustered_but_unaligned, V, c,h ,V_nt, c_nt,h_nt,  non_singleton_clusters, min, max, median, mean
