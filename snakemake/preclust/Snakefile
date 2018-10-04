@@ -740,7 +740,7 @@ rule qt_clust_core_variability:
 rule v_measure_core_variability:
     input: 
         true  = rules.minimap2_align_real.output.alignment,
-        qt_clust_predicted = rules.qt_clust_real.output.clusters,
+        qt_clust_predicted = rules.qt_clust_core_variability.output.clusters,
 
     output: 
         qt_clust_res = config["ROOT_OUT"] + "evaluation_nr_cores/{dataset}/{nr_cores}/qt_clust_table.tsv"
