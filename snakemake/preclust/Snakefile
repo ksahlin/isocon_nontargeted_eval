@@ -637,7 +637,7 @@ rule v_measure_real:
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.linclust_predicted} --classes {sorted_bam}  --outfile {output.linclust_res}")
 
         if wildcards.dataset == "Alzheimer_IsoSeq_2016":
-            shell("echo "-,-,-,-,-,-,-,-,-,-,-,-,-,-" >  {output.carnac_res}")
+            shell("echo '-,-,-,-,-,-,-,-,-,-,-,-,-,-' >  {output.carnac_res}")
         else:
             # carnac_res =config["ROOT_OUT"] + "cluster/carnac_lr/{dataset}/clusters.csv"
             shell("python {script_path}/compute_cluster_quality.py --clusters {input.carnac_predicted} --classes {sorted_bam}  --outfile {output.carnac_res}")
