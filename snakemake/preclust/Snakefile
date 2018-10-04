@@ -726,8 +726,8 @@ rule make_eval_table:
 rule qt_clust_core_variability:
     input:  flnc = rules.isoseq3_real.output.flnc,
             ccs = rules.merge_demultiplexed_files.output.outfile
-    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{dataset}/{nr_cores}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{dataset}/{nr_cores}/pre_clusters.csv"
+    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem_nr_cores/qt_clust/{dataset}/{nr_cores}/runtime.stdout",
+            clusters = config["ROOT_OUT"] + "cluster_nr_cores/qt_clust/{dataset}/{nr_cores}/pre_clusters.csv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/{1}/".format(wildcards.dataset, wildcards.nr_cores) )
