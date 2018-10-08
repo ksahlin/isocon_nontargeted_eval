@@ -304,7 +304,7 @@ rule qt_clust_real:
         mkdir_p(outfolder)
         # python qt_qlust.py --flnc ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --ccs ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --outfolder ~/tmp/qt_clust_chr22_100k/ --t 4
         # time python  preclust3.py  --reads ~/Documents/data/iso-Seq/alzheimer/isoseq_flnc_300k.fastq  --outfolder ~/tmp/precluster3/alz_400kreads_debug_time_t4 --t 4
-        shell("{time} python /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust/qt_clust.py --t 8 --flnc {input.flnc} --ccs {input.ccs}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+        shell("{time} python /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust/qt_clust.py --t 1 --flnc {input.flnc} --ccs {input.ccs}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 rule carnac_real:
     input:  flnc_fasta = rules.isoseq3_real.output.fasta_flattened_out,
@@ -415,7 +415,7 @@ rule qt_clust_sim:
         mkdir_p(outfolder)
         # python qt_qlust.py --flnc ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --ccs ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --outfolder ~/tmp/qt_clust_chr22_100k/ --t 4
         # time python  preclust3.py  --reads ~/Documents/data/iso-Seq/alzheimer/isoseq_flnc_300k.fastq  --outfolder ~/tmp/precluster3/alz_400kreads_debug_time_t4 --t 4
-        shell("{time} python /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust/qt_clust.py --t 8 --flnc {input.flnc} --ccs {input.ccs}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+        shell("{time} python /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust/qt_clust.py --t 1 --flnc {input.flnc} --ccs {input.ccs}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
 rule carnac_sim:
@@ -472,7 +472,7 @@ rule qt_clust_ont:
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/ont/".format(wildcards.ont_dataset) )
         outfolder = config["ROOT_OUT"] + "cluster/qt_clust/{0}/ont/".format(wildcards.ont_dataset)
         mkdir_p(outfolder)
-        shell("{time} python /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust/qt_clust.py --t 8 --k 14 --w 30 --fastq {input.fastq}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+        shell("{time} python /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust/qt_clust.py --t 1  --fastq {input.fastq}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
 rule carnac_ont:
