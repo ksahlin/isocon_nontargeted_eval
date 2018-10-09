@@ -15,7 +15,7 @@
     "qt_clust_real" : 
     {
         "jobname" : "qt_clust_real",
-        "ntasks" : "64",
+        "ntasks" : "4",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -78,7 +78,7 @@
     "qt_clust_sim" : 
     {
         "jobname" : "qt_clust_sim",
-        "ntasks" : "64",
+        "ntasks" : "4",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -132,7 +132,7 @@
     "qt_clust_ont" : 
     {
         "jobname" : "qt_clust_ont",
-        "ntasks" : "64",
+        "ntasks" : "4",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
