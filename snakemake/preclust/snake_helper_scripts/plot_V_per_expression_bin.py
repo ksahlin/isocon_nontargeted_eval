@@ -196,7 +196,7 @@ def compute_V_measure_per_expression_bin(clusters, classes, tmp_file):
 
 def plot_V_per_expression_bin(csv_file, outfile):
     # sns.plt.clf()
-    with sns.plotting_context("paper", font_scale=1.8):
+    with sns.plotting_context("paper", font_scale=2.4):
         sns.set()
         indata = pd.read_csv(csv_file)
         g = sns.pointplot(x="class_size", y="measure", data=indata, hue="measure_type")
@@ -216,8 +216,9 @@ def plot_V_per_expression_bin(csv_file, outfile):
         g.set(ylim=(0, 1))
         plt.legend(loc='lower right')
         plt.tight_layout()
-        # g.set_ylabels("Performance")
-        # g.set_xlabels("Class size")
+        g.set_title('Clustering accuracy per class size')
+        g.set_ylabel("Performance")
+        g.set_xlabel("Class size")
         plt.savefig(outfile)
         plt.close()
 
