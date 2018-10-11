@@ -201,7 +201,7 @@ TARGET_FILES["simulation"] = simulate_files
 plot1_pb_file = expand(config["ROOT_OUT"] + "evaluation/{dataset}/V_per_class_size.pdf", dataset = config["ISOSEQ_DATASET"], tool = ["qt_clust"]) 
 plot1_ont_file = expand(config["ROOT_OUT"] + "evaluation/{dataset}/ont/V_per_class_size.pdf", dataset = config["ONT_DATASET"], tool = ["qt_clust"]) 
 plot1_sim_file = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{nr_reads}/V_per_class_size.pdf", dataset = config["SIM_DATASET"], tool = ["qt_clust"], nr_reads =config["NR_SIM_READS"]) 
-TARGET_FILES["evaluation"] = plot1_pb_file + plot1_ont_file + plot1_sim_file
+TARGET_FILES["plots"] = plot1_pb_file + plot1_ont_file + plot1_sim_file
 
 
 
