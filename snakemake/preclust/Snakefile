@@ -197,7 +197,11 @@ TARGET_FILES["evaluation_nr_cores"] = evaluation_nr_cores_files
 simulate_files = expand(config["ROOT_OUT"] + "ccs/{sim_dataset}/{nr_reads}/ccs.bam" , sim_dataset = config["SIM_DATASET"], nr_reads =config["NR_SIM_READS"]) 
 TARGET_FILES["simulation"] = simulate_files 
 
-#EVALUATION SIMULATED
+#PLOTS
+plot1_pb_file = expand(config["ROOT_OUT"] + "evaluation/{dataset}/V_per_class_size.pdf", dataset = config["ISOSEQ_DATASET"], tool = ["qt_clust"]) 
+plot1_ont_file = expand(config["ROOT_OUT"] + "evaluation/{dataset}/ont/V_per_class_size.pdf", dataset = config["ONT_DATASET"], tool = ["qt_clust"]) 
+plot1_sim_file = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{nr_reads}/V_per_class_size.pdf", dataset = config["SIM_DATASET"], tool = ["qt_clust"]) 
+TARGET_FILES["evaluation"] = plot1_pb_file + plot1_ont_file + plot1_sim_file
 
 
 
@@ -231,6 +235,9 @@ rule evaluation_nr_cores:
 
 rule simulation:
         input: TARGET_FILES["simulation"]
+
+rule plots:
+        input: TARGET_FILES["plots"]
 
 #####################################################
 
@@ -760,9 +767,59 @@ rule v_measure_core_variability:
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
 
 
-rule plot1:
-    input:
-    output:
+rule plot1_pb:
+    input: 
+        true  = rules.minimap2_align_real.output.alignment,
+        qt_clust_predicted = rules.qt_clust_real.output.clusters
+
+    output: 
+        qt_clust_res = config["ROOT_OUT"] + "evaluation/{dataset}/V_per_class_size.pdf",
+
     run:
-        shel("python plot_V_per_expression_bin.py --clusters ~/tmp/qt_clust_alz_300k_tmp1/pre_clusters.csv  --classes ~/tmp/alz_hg19_alignment_sorted.bam --outfile ~/tmp/qt_clust_alz_300k_tmp1/eval2.pdf")
+        bam = "{0}.bam".format(input.true)
+        shell("samtools view -b {input.true} > {bam}")
+        sorted_bam = "{0}_sorted.bam".format(input.true)
+        shell("samtools sort {bam} > {sorted_bam}")
+        shell("samtools index {sorted_bam}")
+
+        script_path = config["SCRIPT_FOLDER"]
+        shell("python {script_path}/plot_V_per_expression_bin.py --clusters {input.qt_clust_predicted}  --classes {sorted_bam} --outfile {output.qt_clust_res}")
+
+
+rule plot1_sim:
+    input: 
+        true  = rules.minimap2_align_sim.output.alignment,
+        qt_clust_predicted = rules.qt_clust_sim.output.clusters,
+
+    output: 
+        qt_clust_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/V_per_class_size.pdf"
+    run:
+        bam = "{0}.bam".format(input.true)
+        shell("samtools view -b {input.true} > {bam}")
+        sorted_bam = "{0}_sorted.bam".format(input.true)
+        shell("samtools sort {bam} > {sorted_bam}")
+        shell("samtools index {sorted_bam}")
+
+        script_path = config["SCRIPT_FOLDER"]
+        shell("python {script_path}/plot_V_per_expression_bin.py --clusters {input.qt_clust_predicted}  --classes {sorted_bam} --outfile {output.qt_clust_res}")
+
+
+rule plot1_ont:
+    input: 
+        true  = rules.minimap2_align_ont.output.alignment,
+        qt_clust_predicted = rules.qt_clust_ont.output.clusters
+    output: 
+        qt_clust_res = config["ROOT_OUT"] + "evaluation/{ont_dataset}/ont/V_per_class_size.pdf",
+
+    run:
+        bam = "{0}.bam".format(input.true)
+        shell("samtools view -b {input.true} > {bam}")
+        sorted_bam = "{0}_sorted.bam".format(input.true)
+        shell("samtools sort {bam} > {sorted_bam}")
+        shell("samtools index {sorted_bam}")
+
+        script_path = config["SCRIPT_FOLDER"]
+        shell("python {script_path}/plot_V_per_expression_bin.py --ont --clusters {input.qt_clust_predicted}  --classes {sorted_bam} --outfile {output.qt_clust_res}")
+
+
 

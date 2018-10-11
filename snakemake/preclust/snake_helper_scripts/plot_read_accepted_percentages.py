@@ -30,7 +30,7 @@ new_cl = plt.bar(r, orangeBars, bottom=[i+j for i,j in zip(greenBars, blueBars)]
  
 # Custom x axis
 plt.xticks(r, names,  rotation=90)
-plt.xlabel("Datset")
+plt.xlabel("Dataset")
 plt.ylabel("%Read assignment")
 
 # Add a legend
