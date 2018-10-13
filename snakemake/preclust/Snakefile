@@ -832,7 +832,7 @@ rule rand_index_pb:
     input: 
         true  = rules.minimap2_align_real.output.alignment,
         qt_clust_predicted = rules.qt_clust_real.output.clusters,
-        carnac_predicted = rules.carnac_sim.output.clusters,
+        carnac_predicted = rules.carnac_real.output.clusters,
         ccs_fastq = config["ROOT_OUT"] + "ccs/{dataset}/ccs.fastq"
     output: 
         rand_index_per_error_rate_qtclust = config["ROOT_OUT"] + "evaluation/{dataset}/rand_index_qt_clust.csv",
@@ -884,7 +884,7 @@ rule rand_index_ont:
     input: 
         true  = rules.minimap2_align_ont.output.alignment,
         qt_clust_predicted = rules.qt_clust_ont.output.clusters,
-        carnac_predicted = rules.carnac_sim.output.clusters,
+        carnac_predicted = rules.carnac_ont.output.clusters,
         ont_fastq = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
 
     output: 
