@@ -778,11 +778,11 @@ rule v_per_class_size_pb:
         qt_clust_res = config["ROOT_OUT"] + "evaluation/{dataset}/V_per_class_size.csv",
 
     run:
-        bam = "{0}.bam".format(input.true)
-        shell("samtools view -b {input.true} > {bam}")
+        # bam = "{0}.bam".format(input.true)
+        # shell("samtools view -b {input.true} > {bam}")
         sorted_bam = "{0}_sorted.bam".format(input.true)
-        shell("samtools sort {bam} > {sorted_bam}")
-        shell("samtools index {sorted_bam}")
+        # shell("samtools sort {bam} > {sorted_bam}")
+        # shell("samtools index {sorted_bam}")
 
         script_path = config["SCRIPT_FOLDER"]
         shell("python {script_path}/get_V_per_expression_bin.py --clusters {input.qt_clust_predicted}  --classes {sorted_bam} --outfile {output.qt_clust_res}")
@@ -796,11 +796,11 @@ rule v_per_class_size_sim:
     output: 
         qt_clust_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/V_per_class_size.csv"
     run:
-        bam = "{0}.bam".format(input.true)
-        shell("samtools view -b {input.true} > {bam}")
+        # bam = "{0}.bam".format(input.true)
+        # shell("samtools view -b {input.true} > {bam}")
         sorted_bam = "{0}_sorted.bam".format(input.true)
-        shell("samtools sort {bam} > {sorted_bam}")
-        shell("samtools index {sorted_bam}")
+        # shell("samtools sort {bam} > {sorted_bam}")
+        # shell("samtools index {sorted_bam}")
 
         script_path = config["SCRIPT_FOLDER"]
         shell("python {script_path}/get_V_per_expression_bin.py --clusters {input.qt_clust_predicted}  --classes {sorted_bam} --outfile {output.qt_clust_res}")
@@ -814,11 +814,11 @@ rule v_per_class_size_ont:
         qt_clust_res = config["ROOT_OUT"] + "evaluation/{ont_dataset}/ont/V_per_class_size.csv",
 
     run:
-        bam = "{0}.bam".format(input.true)
-        shell("samtools view -b {input.true} > {bam}")
+        # bam = "{0}.bam".format(input.true)
+        # shell("samtools view -b {input.true} > {bam}")
         sorted_bam = "{0}_sorted.bam".format(input.true)
-        shell("samtools sort {bam} > {sorted_bam}")
-        shell("samtools index {sorted_bam}")
+        # shell("samtools sort {bam} > {sorted_bam}")
+        # shell("samtools index {sorted_bam}")
 
         script_path = config["SCRIPT_FOLDER"]
         shell("python {script_path}/get_V_per_expression_bin.py --ont --clusters {input.qt_clust_predicted}  --classes {sorted_bam} --outfile {output.qt_clust_res}")
