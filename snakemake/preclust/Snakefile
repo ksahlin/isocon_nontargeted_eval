@@ -847,7 +847,7 @@ rule rand_index_pb:
             shell("touch {output.rand_index_per_error_rate_carnac}")
         else:
             shell("python {script_path}/get_rand_index_per_qual.py --read_quals {input.ccs_fastq} \
-                                                                --clusters {input.qt_clust_predicted}  --classes {sorted_bam} \
+                                                                --clusters {input.carnac_predicted}  --classes {sorted_bam} \
                                                                 --outfile {output.rand_index_per_error_rate_carnac} --dataset {wildcards.dataset} --tool CARNAC-LR")
 
 
@@ -876,7 +876,7 @@ rule rand_index_sim:
                                                                 --outfile {output.rand_index_per_error_rate_qtclust} --dataset {wildcards.sim_dataset}_{wildcards.nr_reads} --tool qtclust")
 
         shell("python {script_path}/get_rand_index_per_qual.py --read_quals {input.ccs_fastq} \
-                                                                --clusters {input.qt_clust_predicted}  --classes {sorted_bam} \
+                                                                --clusters {input.carnac_predicted}  --classes {sorted_bam} \
                                                                 --outfile {output.rand_index_per_error_rate_carnac} --dataset {wildcards.sim_dataset}_{wildcards.nr_reads} --tool CARNAC-LR")
 
 
@@ -897,7 +897,7 @@ rule rand_index_ont:
                                                                 --clusters {input.qt_clust_predicted}  --classes {sorted_bam} \
                                                                 --outfile {output.rand_index_per_error_rate_qtclust} --dataset {wildcards.ont_dataset} --tool qtclust")
         shell("python {script_path}/get_rand_index_per_qual.py --read_quals {input.ont_fastq} --ont\
-                                                                --clusters {input.qt_clust_predicted}  --classes {sorted_bam} \
+                                                                --clusters {input.carnac_predicted}  --classes {sorted_bam} \
                                                                 --outfile {output.rand_index_per_error_rate_carnac} --dataset {wildcards.ont_dataset} --tool CARNAC-LR")
 
 
