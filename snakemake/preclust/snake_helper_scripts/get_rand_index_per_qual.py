@@ -192,8 +192,8 @@ def compute_rand_index_per_error_rate(clusters, classes, read_qualities, outfile
             print()
             print(cluster_list)
             # take subsample only
-            class_list = class_list[:75000]
-            cluster_list = cluster_list[:75000]
+            class_list = class_list[:175000]
+            cluster_list = cluster_list[:175000]
 
         ARI = adjusted_rand_score(class_list, cluster_list)
         RI = rand_index_score(class_list, cluster_list)
