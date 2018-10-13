@@ -831,7 +831,7 @@ rule v_per_class_size_ont:
 rule rand_index_pb:
     input: 
         true  = rules.minimap2_align_real.output.alignment,
-        qt_clust_predicted = rules.qt_clust_real.output.clusters
+        qt_clust_predicted = rules.qt_clust_real.output.clusters,
         ccs_fastq = config["ROOT_OUT"] + "ccs/{dataset}/ccs.fastq"
     output: 
         rand_index_per_error_rate = config["ROOT_OUT"] + "evaluation/{dataset}/rand_index.csv",
@@ -864,7 +864,7 @@ rule rand_index_sim:
 rule rand_index_ont:
     input: 
         true  = rules.minimap2_align_ont.output.alignment,
-        qt_clust_predicted = rules.qt_clust_ont.output.clusters
+        qt_clust_predicted = rules.qt_clust_ont.output.clusters,
         ont_fastq = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
 
     output: 
