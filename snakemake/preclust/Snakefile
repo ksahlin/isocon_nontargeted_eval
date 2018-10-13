@@ -197,11 +197,13 @@ TARGET_FILES["evaluation_nr_cores"] = evaluation_nr_cores_files
 simulate_files = expand(config["ROOT_OUT"] + "ccs/{sim_dataset}/{nr_reads}/ccs.bam" , sim_dataset = config["SIM_DATASET"], nr_reads =config["NR_SIM_READS"]) 
 TARGET_FILES["simulation"] = simulate_files 
 
-#PLOTS
+
+#QTCLUST_EVAL
 csv_pb_file = expand(config["ROOT_OUT"] + "evaluation/{dataset}/V_per_class_size.csv", dataset = config["ISOSEQ_DATASET"], tool = ["qt_clust"]) 
 csv_ont_file = expand(config["ROOT_OUT"] + "evaluation/{dataset}/ont/V_per_class_size.csv", dataset = config["ONT_DATASET"], tool = ["qt_clust"]) 
 csv_sim_file = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{nr_reads}/V_per_class_size.csv", dataset = config["SIM_DATASET"], tool = ["qt_clust"], nr_reads =config["NR_SIM_READS"]) 
-TARGET_FILES["plots"] = csv_pb_file + csv_ont_file + csv_sim_file
+csv_rand_index_file = config["ROOT_OUT"] + "evaluation/all_datasets_rand_index_per_error_rate_table.tsv"
+TARGET_FILES["csv_for_plots"] = csv_pb_file + csv_ont_file + csv_sim_file + csv_rand_index_file
 
 
 
@@ -236,8 +238,8 @@ rule evaluation_nr_cores:
 rule simulation:
         input: TARGET_FILES["simulation"]
 
-rule plots:
-        input: TARGET_FILES["plots"]
+rule csv_for_plots:
+        input: TARGET_FILES["csv_for_plots"]
 
 #####################################################
 
@@ -767,7 +769,7 @@ rule v_measure_core_variability:
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
 
 
-rule plot1_pb:
+rule v_per_class_size_pb:
     input: 
         true  = rules.minimap2_align_real.output.alignment,
         qt_clust_predicted = rules.qt_clust_real.output.clusters
@@ -786,7 +788,7 @@ rule plot1_pb:
         shell("python {script_path}/get_V_per_expression_bin.py --clusters {input.qt_clust_predicted}  --classes {sorted_bam} --outfile {output.qt_clust_res}")
 
 
-rule plot1_sim:
+rule v_per_class_size_sim:
     input: 
         true  = rules.minimap2_align_sim.output.alignment,
         qt_clust_predicted = rules.qt_clust_sim.output.clusters,
@@ -804,7 +806,7 @@ rule plot1_sim:
         shell("python {script_path}/get_V_per_expression_bin.py --clusters {input.qt_clust_predicted}  --classes {sorted_bam} --outfile {output.qt_clust_res}")
 
 
-rule plot1_ont:
+rule v_per_class_size_ont:
     input: 
         true  = rules.minimap2_align_ont.output.alignment,
         qt_clust_predicted = rules.qt_clust_ont.output.clusters
@@ -820,6 +822,71 @@ rule plot1_ont:
 
         script_path = config["SCRIPT_FOLDER"]
         shell("python {script_path}/get_V_per_expression_bin.py --ont --clusters {input.qt_clust_predicted}  --classes {sorted_bam} --outfile {output.qt_clust_res}")
+
+
+
+
+
+
+rule rand_index_pb:
+    input: 
+        true  = rules.minimap2_align_real.output.alignment,
+        qt_clust_predicted = rules.qt_clust_real.output.clusters
+        ccs_fastq = config["ROOT_OUT"] + "ccs/{dataset}/ccs.fastq"
+    output: 
+        rand_index_per_error_rate = config["ROOT_OUT"] + "evaluation/{dataset}/rand_index.csv",
+
+    run:
+        sorted_bam = "{0}_sorted.bam".format(input.true)
+        shell("bamtools convert -format fastq -in {ccs.bam} -out {fastq_out}")
+        script_path = config["SCRIPT_FOLDER"]
+        shell("python {script_path}/get_rand_index_per_qual.py --read_quals {input.ccs_fastq} \
+                                                                --clusters {input.qt_clust_predicted}  --classes {sorted_bam} \
+                                                                --outfile {output.rand_index_per_error_rate} --dataset {wildcards.dataset}")
+
+
+rule rand_index_sim:
+    input: 
+        true  = rules.minimap2_align_sim.output.alignment,
+        qt_clust_predicted = rules.qt_clust_sim.output.clusters,
+        ccs_fastq = config["ROOT_OUT"] + "ccs/{sim_dataset}/{nr_reads}/ccs.fastq"
+
+    output: 
+        rand_index_per_error_rate = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/rand_index.csv",
+    run:
+        sorted_bam = "{0}_sorted.bam".format(input.true)
+        script_path = config["SCRIPT_FOLDER"]
+        shell("python {script_path}/get_rand_index_per_qual.py --read_quals {input.ccs_fastq} \
+                                                                --clusters {input.qt_clust_predicted}  --classes {sorted_bam} \
+                                                                --outfile {output.rand_index_per_error_rate} --dataset {wildcards.dataset}")
+
+
+rule rand_index_ont:
+    input: 
+        true  = rules.minimap2_align_ont.output.alignment,
+        qt_clust_predicted = rules.qt_clust_ont.output.clusters
+        ont_fastq = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
+
+    output: 
+        rand_index_per_error_rate = config["ROOT_OUT"] + "evaluation/{ont_dataset}/ont/rand_index.csv"
+    run:
+        sorted_bam = "{0}_sorted.bam".format(input.true)
+        script_path = config["SCRIPT_FOLDER"]
+        shell("python {script_path}/get_rand_index_per_qual.py --read_quals {input.ont_fastq} \
+                                                                --clusters {input.qt_clust_predicted}  --classes {sorted_bam} \
+                                                                --outfile {output.rand_index_per_error_rate} --dataset {wildcards.dataset}")
+
+
+rule make_rand_index_analysis_table:
+    input: real_files = expand(rules.rand_index_pb.output, dataset = config["ISOSEQ_DATASET"]),
+           sim_files = expand(rules.rand_index_sim.output, sim_dataset = config["SIM_DATASET"], nr_reads = config["NR_SIM_READS"]),
+           ont_files = expand(rules.rand_index_ont.output, ont_dataset = config["ONT_DATASET"])
+    output:
+        eval_table = config["ROOT_OUT"] + "evaluation/all_datasets_rand_index_per_error_rate_table.tsv"
+    run:
+        shell("> {output.eval_table}")
+        for file_name in input.real_files + input.sim_files + input.ont_files:
+            shell("cat {file_name} >> {output.eval_table}")
 
 
 
