@@ -27,30 +27,38 @@ def plot_rand_index_per_error_batch(csv_file, outfile):
         
         rc={'axes.labelsize': 16.0, 'font.size': 16.0, 'legend.fontsize': 10.0, 'axes.titlesize': 14, 'xtick.labelsize': 16.0, 'ytick.labelsize' : 16.0}
         sns.set(rc=rc)
-        indata = pd.read_csv(csv_file)
-        # ARI,error_rate,nr_samples
-        g = sns.pointplot(x="error_rate", y="ARI", hue="dataset", data=indata)
+        original_indata = pd.read_csv(csv_file)
+        indata = original_indata.dropna()
+        indata = indata.loc[indata['nr_samples'] > 1000]
 
-        
-        # g = sns.FacetGrid(indata, col="measure_type", size=3, aspect=1.6, col_order=["V-measure", "Completeness", "Homogeneity"], legend_out=True)
-        # (g.map(sns.pointplot, "class_size", "measure", "Dataset", hue_order=["ALZ_PB", "BHAM_ONT", "RC0_PB", "HUM_PB", "ZEB_PB", "ENS_PB_100k", "ENS_PB_500k", "ENS_PB_1M"], palette=sns.color_palette("Set1", 8)).despine(left=True).add_legend(title="DATASET", label_order=["ALZ_PB", "BHAM_ONT", "RC0_PB", "HUM_PB", "ZEB_PB", "ENS_PB_100k", "ENS_PB_500k", "ENS_PB_1M"]))
-        # g.set(ylim=(0.75, 1))
+        # plot comparing qtclust and CARNAC-LR
+        # indata = indata.loc[indata['dataset'] == "BHAM_ONT"]
+        # g = sns.pointplot(x="error_rate", y="FMI", hue="tool", data=indata)
+        # plt.xticks(rotation=90)
+        # plt.tight_layout()
+        # g.set_title('FMI on BHAM_ONT')
+        # plt.savefig(args.outfile)
+        # plt.close()
 
-        # resize figure box to -> put the legend out of the figure
-        # box = g.ax.get_position() # get position of figure
-        # g.ax.set_position([box.x0, box.y0, box.width * 0.85, box.height]) # resize position
-
-        # # Put a legend to the right side
-        # g.ax.legend(loc='center right', bbox_to_anchor=(1.25, 0.5), ncol=1)
-        
-        # plt.legend(loc='lower right')
+        # plot only investigating qtclust
+        indata = indata.loc[indata['tool'] == "QUBRIC"]
+        g = sns.pointplot(x="error_rate", y="FMI", hue="dataset", data=indata)
         plt.xticks(rotation=90)
         plt.tight_layout()
-        # g.set_title('Clustering accuracy per class size')
-        # g.set_ylabel("Performance")
-        # g.set_xlabel("Class size")
+        # g.set_title('FMI on BHAM_ONT')
         plt.savefig(args.outfile)
         plt.close()
+
+
+        # indata = indata.loc[indata['dataset'] == "Alzheimer_IsoSeq_2016"]
+
+        # ARI,error_rate,nr_samples
+        # g = sns.FacetGrid(indata, col="tool", size=3, aspect=1.6, col_order=["qtclust", "CARNAC-LR"], legend_out=True)
+        # (g.map(sns.pointplot, "error_rate", "ARI", "dataset", palette=sns.color_palette("Set1", 8)).despine(left=True).add_legend(title="DATASET"))
+
+        # g = sns.FacetGrid(indata, col="dataset", size=3, aspect=1.6, col_order=["Bham_run1_pass"], legend_out=True)
+        # (g.map(sns.pointplot, "error_rate", "FMI", "tool", palette=sns.color_palette("Set1", 8)).despine(left=True).add_legend(title="TOOL"))
+
 
 
 

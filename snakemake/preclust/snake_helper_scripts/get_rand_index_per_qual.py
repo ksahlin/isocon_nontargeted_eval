@@ -185,8 +185,15 @@ def compute_rand_index_per_error_rate(clusters, classes, read_qualities, outfile
     outfile = open(outfile_path, "w")
     outfile.write("ARI,RI,FMI,V,C,H,error_rate,nr_samples,dataset,tool\n")
     for e in batch_by_error_rate:
-        class_list= batch_by_error_rate[e]["class"]
+        class_list = batch_by_error_rate[e]["class"]
         cluster_list =  batch_by_error_rate[e]["cluster"]
+        if e == 0.0:
+            print(class_list)
+            print()
+            print(cluster_list)
+            # take subsample only
+            class_list = class_list[:75000]
+            cluster_list = cluster_list[:75000]
 
         ARI = adjusted_rand_score(class_list, cluster_list)
         RI = rand_index_score(class_list, cluster_list)
@@ -198,6 +205,7 @@ def compute_rand_index_per_error_rate(clusters, classes, read_qualities, outfile
 
         nr_samples = len(batch_by_error_rate[e]["class"])
         print(ARI, RI, e, nr_samples, FMI)
+
 
         outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}\n".format(ARI, RI, FMI, v_score, compl_score, homog_score, e, nr_samples, dataset, tool))
     outfile.close
