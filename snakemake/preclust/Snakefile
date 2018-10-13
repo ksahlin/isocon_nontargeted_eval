@@ -202,7 +202,7 @@ TARGET_FILES["simulation"] = simulate_files
 csv_pb_file = expand(config["ROOT_OUT"] + "evaluation/{dataset}/V_per_class_size.csv", dataset = config["ISOSEQ_DATASET"], tool = ["qt_clust"]) 
 csv_ont_file = expand(config["ROOT_OUT"] + "evaluation/{dataset}/ont/V_per_class_size.csv", dataset = config["ONT_DATASET"], tool = ["qt_clust"]) 
 csv_sim_file = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{nr_reads}/V_per_class_size.csv", dataset = config["SIM_DATASET"], tool = ["qt_clust"], nr_reads =config["NR_SIM_READS"]) 
-csv_rand_index_file = config["ROOT_OUT"] + "evaluation/all_datasets_rand_index_per_error_rate_table.tsv"
+csv_rand_index_file = [config["ROOT_OUT"] + "evaluation/all_datasets_rand_index_per_error_rate_table.tsv"]
 TARGET_FILES["csv_for_plots"] = csv_pb_file + csv_ont_file + csv_sim_file + csv_rand_index_file
 
 
