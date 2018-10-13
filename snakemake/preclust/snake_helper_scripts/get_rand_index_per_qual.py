@@ -27,7 +27,7 @@ from collections import defaultdict
 
 # from sklearn.metrics.cluster import v_measure_score, completeness_score, homogeneity_score
 from sklearn.metrics.cluster import adjusted_rand_score, v_measure_score, completeness_score, homogeneity_score
-from sklearn.metrics import fowlkes_mallows_score, adjusted_mutual_info_score
+from sklearn.metrics import fowlkes_mallows_score #, adjusted_mutual_info_score
 
 def parse_inferred_clusters_tsv(tsv_file, args):
     infile = open(tsv_file , "r")
@@ -183,7 +183,7 @@ def compute_rand_index_per_error_rate(clusters, classes, read_qualities, outfile
 
 
     outfile = open(outfile_path, "w")
-    outfile.write("AMI,ARI,RI,FMI,V,C,H,error_rate,nr_samples,dataset,tool\n")
+    outfile.write("ARI,RI,FMI,V,C,H,error_rate,nr_samples,dataset,tool\n")
     for e in batch_by_error_rate:
         class_list= batch_by_error_rate[e]["class"]
         cluster_list =  batch_by_error_rate[e]["cluster"]
@@ -191,7 +191,7 @@ def compute_rand_index_per_error_rate(clusters, classes, read_qualities, outfile
         ARI = adjusted_rand_score(class_list, cluster_list)
         RI = rand_index_score(class_list, cluster_list)
         FMI = fowlkes_mallows_score(class_list, cluster_list)
-        AMI = adjusted_mutual_info_score(class_list, cluster_list)
+        # AMI = adjusted_mutual_info_score(class_list, cluster_list)
         v_score = v_measure_score(class_list, cluster_list)
         compl_score = completeness_score(class_list, cluster_list)
         homog_score = homogeneity_score(class_list, cluster_list)
@@ -199,7 +199,7 @@ def compute_rand_index_per_error_rate(clusters, classes, read_qualities, outfile
         nr_samples = len(batch_by_error_rate[e]["class"])
         print(ARI, RI, e, nr_samples, FMI)
 
-        outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}\n".format(AMI, ARI, RI, FMI, v_score, compl_score, homog_score, e, nr_samples, dataset, tool))
+        outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}\n".format(ARI, RI, FMI, v_score, compl_score, homog_score, e, nr_samples, dataset, tool))
     outfile.close
 
 
