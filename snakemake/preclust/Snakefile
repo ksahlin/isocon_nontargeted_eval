@@ -832,48 +832,73 @@ rule rand_index_pb:
     input: 
         true  = rules.minimap2_align_real.output.alignment,
         qt_clust_predicted = rules.qt_clust_real.output.clusters,
+        carnac_predicted = rules.carnac_sim.output.clusters,
         ccs_fastq = config["ROOT_OUT"] + "ccs/{dataset}/ccs.fastq"
     output: 
-        rand_index_per_error_rate = config["ROOT_OUT"] + "evaluation/{dataset}/rand_index.csv",
+        rand_index_per_error_rate_qtclust = config["ROOT_OUT"] + "evaluation/{dataset}/rand_index_qt_clust.csv",
+        rand_index_per_error_rate_carnac = config["ROOT_OUT"] + "evaluation/{dataset}/rand_index_carnac.csv"
+
 
     run:
         sorted_bam = "{0}_sorted.bam".format(input.true)
         script_path = config["SCRIPT_FOLDER"]
+
+        if wildcards.dataset == "Alzheimer_IsoSeq_2016":
+            shell("touch {output.rand_index_per_error_rate_carnac}")
+        else:
+            shell("python {script_path}/get_rand_index_per_qual.py --read_quals {input.ccs_fastq} \
+                                                                --clusters {input.qt_clust_predicted}  --classes {sorted_bam} \
+                                                                --outfile {output.rand_index_per_error_rate_carnac} --dataset {wildcards.dataset} --tool CARNAC-LR")
+
+
+
         shell("python {script_path}/get_rand_index_per_qual.py --read_quals {input.ccs_fastq} \
                                                                 --clusters {input.qt_clust_predicted}  --classes {sorted_bam} \
-                                                                --outfile {output.rand_index_per_error_rate} --dataset {wildcards.dataset}")
+                                                                --outfile {output.rand_index_per_error_rate_qtclust} --dataset {wildcards.dataset} --tool qtclust")
+        
 
 
 rule rand_index_sim:
     input: 
         true  = rules.minimap2_align_sim.output.alignment,
         qt_clust_predicted = rules.qt_clust_sim.output.clusters,
+        carnac_predicted = rules.carnac_sim.output.clusters,
         ccs_fastq = config["ROOT_OUT"] + "ccs/{sim_dataset}/{nr_reads}/ccs.fastq"
 
     output: 
-        rand_index_per_error_rate = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/rand_index.csv",
+        rand_index_per_error_rate_qtclust = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/rand_index_qt_clust.csv",
+        rand_index_per_error_rate_carnac = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/rand_index_carnac.csv"
     run:
         sorted_bam = "{0}_sorted.bam".format(input.true)
         script_path = config["SCRIPT_FOLDER"]
         shell("python {script_path}/get_rand_index_per_qual.py --read_quals {input.ccs_fastq} \
                                                                 --clusters {input.qt_clust_predicted}  --classes {sorted_bam} \
-                                                                --outfile {output.rand_index_per_error_rate} --dataset {wildcards.sim_dataset}_{wildcards.nr_reads}")
+                                                                --outfile {output.rand_index_per_error_rate_qtclust} --dataset {wildcards.sim_dataset}_{wildcards.nr_reads} --tool qtclust")
+
+        shell("python {script_path}/get_rand_index_per_qual.py --read_quals {input.ccs_fastq} \
+                                                                --clusters {input.qt_clust_predicted}  --classes {sorted_bam} \
+                                                                --outfile {output.rand_index_per_error_rate_carnac} --dataset {wildcards.sim_dataset}_{wildcards.nr_reads} --tool CARNAC-LR")
 
 
 rule rand_index_ont:
     input: 
         true  = rules.minimap2_align_ont.output.alignment,
         qt_clust_predicted = rules.qt_clust_ont.output.clusters,
+        carnac_predicted = rules.carnac_sim.output.clusters,
         ont_fastq = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
 
     output: 
-        rand_index_per_error_rate = config["ROOT_OUT"] + "evaluation/{ont_dataset}/ont/rand_index.csv"
+        rand_index_per_error_rate_qtclust = config["ROOT_OUT"] + "evaluation/{ont_dataset}/ont/rand_index_qt_clust.csv",
+        rand_index_per_error_rate_carnac = config["ROOT_OUT"] + "evaluation/{ont_dataset}/ont/rand_index_carnac.csv"
     run:
         sorted_bam = "{0}_sorted.bam".format(input.true)
         script_path = config["SCRIPT_FOLDER"]
         shell("python {script_path}/get_rand_index_per_qual.py --read_quals {input.ont_fastq} --ont\
                                                                 --clusters {input.qt_clust_predicted}  --classes {sorted_bam} \
-                                                                --outfile {output.rand_index_per_error_rate} --dataset {wildcards.ont_dataset}")
+                                                                --outfile {output.rand_index_per_error_rate_qtclust} --dataset {wildcards.ont_dataset} --tool qtclust")
+        shell("python {script_path}/get_rand_index_per_qual.py --read_quals {input.ont_fastq} --ont\
+                                                                --clusters {input.qt_clust_predicted}  --classes {sorted_bam} \
+                                                                --outfile {output.rand_index_per_error_rate_carnac} --dataset {wildcards.ont_dataset} --tool CARNAC-LR")
 
 
 rule make_rand_index_analysis_table:

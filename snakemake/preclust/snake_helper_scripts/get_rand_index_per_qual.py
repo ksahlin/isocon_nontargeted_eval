@@ -27,6 +27,7 @@ from collections import defaultdict
 
 # from sklearn.metrics.cluster import v_measure_score, completeness_score, homogeneity_score
 from sklearn.metrics.cluster import adjusted_rand_score
+from sklearn.metrics import fowlkes_mallows_score
 
 def parse_inferred_clusters_tsv(tsv_file, args):
     infile = open(tsv_file , "r")
@@ -135,7 +136,7 @@ def rand_index_score(clusters, classes):
     return (tp + tn) / (tp + fp + fn + tn)
 
 
-def compute_rand_index_per_error_rate(clusters, classes, read_qualities, outfile_path, dataset):
+def compute_rand_index_per_error_rate(clusters, classes, read_qualities, outfile_path, dataset, tool):
     """
         split reads up into disjoint sets based on error error_rate
         compute the rand indec for each disjoint set of reads. 
@@ -169,14 +170,16 @@ def compute_rand_index_per_error_rate(clusters, classes, read_qualities, outfile
             batch_by_error_rate[eps_r]["cluster"].append(clusters[read_acc])
 
     outfile = open(outfile_path, "w")
-    outfile.write("ARI,RI,error_rate,nr_samples,dataset\n")
+    outfile.write("ARI,RI,error_rate,nr_samples,dataset,tool\n")
     for e in batch_by_error_rate:
         ARI = adjusted_rand_score(batch_by_error_rate[e]["class"], batch_by_error_rate[e]["cluster"])
         RI = rand_index_score(batch_by_error_rate[e]["class"], batch_by_error_rate[e]["cluster"])
+        FMI = fowlkes_mallows_score(batch_by_error_rate[e]["class"], batch_by_error_rate[e]["cluster"])
+        
         nr_samples = len(batch_by_error_rate[e]["class"])
-        print(ARI, RI, e, nr_samples)
+        print(ARI, RI, e, nr_samples, FMI)
 
-        outfile.write("{0},{1},{2},{3},{4}\n".format(ARI, RI, e, nr_samples, dataset))
+        outfile.write("{0},{1},{2},{3},{4},{5}\n".format(ARI, RI, FMI, e, nr_samples, dataset, tool))
     outfile.close
 
 
@@ -293,7 +296,7 @@ def main(args):
 
     print("done gettinng classes and clusters")
 
-    compute_rand_index_per_error_rate(clusters, classes, read_qualities, args.outfile, args.dataset)
+    compute_rand_index_per_error_rate(clusters, classes, read_qualities, args.outfile, args.dataset, args.tool)
 
 
 if __name__ == '__main__':
@@ -301,7 +304,8 @@ if __name__ == '__main__':
     parser.add_argument('--clusters', type=str, help='Inferred clusters (tsv file)')
     parser.add_argument('--classes', type=str, help='A sorted and indexed bam file.')
     parser.add_argument('--read_quals', type=str, help='A fastq or a bam file.')
-    parser.add_argument('--dataset', type=str, help='A fastq or a bam file.')
+    parser.add_argument('--dataset', type=str, help='dataset label name.')
+    parser.add_argument('--tool', type=str, help='The tool being evaluated.')
     parser.add_argument('--simulated', action="store_true", help='Simulated data, we can simply read correct classes from the ref field.')
     parser.add_argument('--ont', action="store_true", help='ONT data, parsing accessions differently.')
     parser.add_argument('--outfile', type=str, help='Output file with results')
