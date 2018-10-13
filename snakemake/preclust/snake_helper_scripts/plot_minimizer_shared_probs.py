@@ -56,7 +56,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Plot p-minimizers shared.")
-    parser.add_argument('--infile', type=str, help='Path to  tsv file')
+    parser.add_argument('--infile', type=str, help='Path to tsv file')
     parser.add_argument('--outfolder', type=str, help='Outfolder path')
     
     args = parser.parse_args()
