@@ -22,7 +22,10 @@ import pandas as pd
 
 def plot_p_minimizer_shared(tsv_file, outfile):
     # sns.plt.clf()
-    with sns.plotting_context("paper", font_scale=1.8):
+    with sns.plotting_context("paper", font_scale=1.6):
+        rc={'axes.labelsize': 20.0, 'font.size': 20.0, 'legend.fontsize': 20.0, 'axes.titlesize': 16, 'xtick.labelsize': 16.0, 'ytick.labelsize' : 16.0}
+        sns.set(rc=rc)
+
         indata = pd.read_csv(tsv_file, sep="\t")
         fig, ax = plt.subplots()
         # fix data to the same error rate  e1 == e2!
@@ -40,6 +43,7 @@ def plot_p_minimizer_shared(tsv_file, outfile):
         # g.set(yscale="log")
         # g.set(xlim=(0, 6))
         # g.set(ylim=(0, 1))
+        plt.tight_layout()
         plt.savefig(outfile)
         plt.close()
 
