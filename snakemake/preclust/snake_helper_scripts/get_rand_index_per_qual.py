@@ -154,6 +154,7 @@ def compute_rand_index_per_error_rate(clusters, classes, read_qualities, outfile
     print(list(clusters.keys())[:10])
     print()
     print(list(read_qualities.keys())[:10])
+    cluster_index = max(list(clusters.values())) +1
     # initialize
     for e in batch_by_error_rate:
         batch_by_error_rate[e]["class"] = []
@@ -168,6 +169,18 @@ def compute_rand_index_per_error_rate(clusters, classes, read_qualities, outfile
 
             batch_by_error_rate[eps_r]["class"].append(classes[read_acc])
             batch_by_error_rate[eps_r]["cluster"].append(clusters[read_acc])
+        
+        elif read_acc in classes: # these reads were omitted in clustering output, assign new unique inferred sinleton cluster
+            eps_r = round(error_rate, 2)
+            # print(error_rate, eps_r)
+            if eps_r > 0.25:
+                eps_r = 0.25
+
+            batch_by_error_rate[eps_r]["class"].append(classes[read_acc])
+            batch_by_error_rate[eps_r]["cluster"].append(cluster_index)
+            cluster_index += 1
+
+
 
     outfile = open(outfile_path, "w")
     outfile.write("ARI,RI,FMI,error_rate,nr_samples,dataset,tool\n")
