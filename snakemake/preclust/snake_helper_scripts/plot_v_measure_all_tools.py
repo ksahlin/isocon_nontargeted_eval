@@ -88,22 +88,23 @@ def plot_V_all_tools(args):
 def plot_V_all_tools2(args):
     with sns.plotting_context("paper", font_scale=2.4):
         # sns.set(style="whitegrid")
-        rc={'axes.labelsize': 16.0, 'font.size': 16.0, 'legend.fontsize': 16.0, 'axes.titlesize': 14, 'xtick.labelsize': 16.0, 'ytick.labelsize' : 16.0}
+        rc={'axes.labelsize': 20.0, 'font.size': 20.0, 'legend.fontsize': 20.0, 'axes.titlesize': 20, 'xtick.labelsize': 24.0, 'ytick.labelsize' : 20.0}
         sns.set(rc=rc, style="whitegrid")
 
         # Load the dataset
         # crashes = sns.load_dataset("car_crashes")
         # print(crashes)
         indata = pd.read_csv(args.infile)
-        indata = indata.dropna()   
+        # indata = indata.dropna()   
 
         # Make the PairGrid
-        g = sns.PairGrid(indata.sort_values("dataset", ascending=False), hue="tool", hue_order=["linclust", "isoseq3", "carnac", "qt"],
+        
+        g = sns.PairGrid(indata.sort_values("dataset", na_position="first"), hue="tool", hue_order=["linclust", "isoseq3", "carnac", "qubric"],
                          x_vars=indata.columns[2:], y_vars=["dataset"], 
-                         height=10, aspect=.25)
+                         height=10, aspect=.5)
 
         # Draw a dot plot using the stripplot function
-        g.map(sns.stripplot, size=10, orient="h", jitter=0.0, #palette="ch:s=1,r=-.1,h=1_r",
+        g.map(sns.stripplot, size=20, orient="h", jitter=0.0, #palette="ch:s=1,r=-.1,h=1_r",
                linewidth=1, edgecolor="w", alpha=.8)
 
         # Use the same x axis limits on all columns and add better labels
@@ -113,6 +114,8 @@ def plot_V_all_tools2(args):
         g.axes[0,1].set_xlim((0.5,1))
         g.axes[0,2].set_xlim((0.5,1))
         g.axes[0,3].set_xlim((0,100))
+        g.set(xticks=[0.5,0.75,1.0])
+        g.axes[0,3].set_xticks((0,50,100))
 
         # Use semantically meaningful titles for the columns
         titles = ["V-measure", "Completeness", "Homogeneity",
@@ -131,6 +134,8 @@ def plot_V_all_tools2(args):
         plt.tight_layout()
 
         g = g.add_legend()
+        # handles = ["linclust", "isoseq3", "carnac", "qubric"]
+        # plt.legend()
         # plt.yticks(rotation=90)
 
         plt.savefig(os.path.join(args.outfolder, "test.pdf" ))
