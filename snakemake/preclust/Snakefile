@@ -359,7 +359,7 @@ rule linclust_real:
         outfolder = config["ROOT_OUT"] + "cluster/linclust/{0}/".format(wildcards.dataset)
         mkdir_p(outfolder)
 
-        linclust_output = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_out.txt".format(wildcards.dataset)
+        linclust_output = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_out".format(wildcards.dataset)
         tmp_dir = config["ROOT_OUT"] + "cluster/linclust/{0}/linclust_tmpdir​".format(wildcards.dataset)
         shell("{time} mmseqs easy-linclust -c 0.5 --kmer-per-seq 100  --seq-id-mode 1 --cov-mode 1 --threads 8 {input.flnc_fasta} {linclust_output} {tmp_dir} 2> {output.time_and_mem_linclust}")
 
