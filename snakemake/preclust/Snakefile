@@ -599,10 +599,10 @@ rule v_measure_ont:
 
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["ROOT_OUT"] + "evaluation/{0}/ont/".format(wildcards.ont_dataset))
-        shell("source activate isoseq3")
-        shell("which python")
-        shell("python --version")
-        shell("pip list")
+        # shell("source activate isoseq3")
+        # shell("which python")
+        # shell("python --version")
+        # shell("pip list")
         shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
         shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.linclust_predicted} --classes {sorted_bam}  --outfile {output.linclust_res}")
         shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.carnac_predicted} --classes {sorted_bam}  --outfile {output.carnac_res}")
@@ -637,10 +637,10 @@ rule v_measure_real:
 
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["ROOT_OUT"] + "evaluation/{0}/".format(wildcards.dataset))
-        shell("source activate isoseq3")
-        shell("which python")
-        shell("python --version")
-        shell("pip list")
+        # shell("source activate isoseq3")
+        # shell("which python")
+        # shell("python --version")
+        # shell("pip list")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {sorted_bam}  --outfile {output.isoseq3_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.linclust_predicted} --classes {sorted_bam}  --outfile {output.linclust_res}")
@@ -675,10 +675,10 @@ rule v_measure_sim:
 
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["ROOT_OUT"] + "evaluation/{0}_{1}/".format(wildcards.sim_dataset, wildcards.nr_reads))
-        shell("source activate isoseq3")
-        shell("which python")
-        shell("python --version")
-        shell("pip list")
+        # shell("source activate isoseq3")
+        # shell("which python")
+        # shell("python --version")
+        # shell("pip list")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {sorted_bam}  --outfile {output.isoseq3_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.carnac_predicted} --classes {sorted_bam}  --outfile {output.carnac_res}")
