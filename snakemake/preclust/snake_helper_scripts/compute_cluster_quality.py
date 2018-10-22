@@ -159,7 +159,7 @@ def compute_V_measure_non_singleton_classes(clusters, classes):
 
     nontrivial_classes_reads = []
     for cl_id in classes_dict:
-        if len(classes_dict[cl_id]) <= 1:
+        if len(classes_dict[cl_id]) < 5:
             continue
         else:
             for read in classes_dict[cl_id]:
