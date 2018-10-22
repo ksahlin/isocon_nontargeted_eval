@@ -181,7 +181,7 @@ def compute_V_measure_non_singleton_classes(clusters, classes):
     v_score = v_measure_score(class_list, cluster_list)
     compl_score = completeness_score(class_list, cluster_list)
     homog_score = homogeneity_score(class_list, cluster_list)
-    nr_filtered_classes = len( [ 1 for cl_id in classes_dict if len(classes_dict[cl_id]) >= 5 ] 
+    nr_filtered_classes = len( [ 1 for cl_id in classes_dict if len(classes_dict[cl_id]) >= 5 ]) 
     print("NONTRIVIAL CLASSES: V:", v_score, "Completeness:", compl_score, "Homogeneity:", homog_score)
     print("NUMBER OF CLASSES (FILTERED):", len( [ 1 for cl_id in classes_dict if len(classes_dict[cl_id]) >= 5 ] )
     return v_score, compl_score, homog_score, nr_filtered_classes
