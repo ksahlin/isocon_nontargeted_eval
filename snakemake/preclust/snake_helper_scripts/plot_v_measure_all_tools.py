@@ -29,7 +29,7 @@ from collections import defaultdict
 def plot_V_all_tools(args):
     # sns.plt.clf()
     with sns.plotting_context("paper", font_scale=2.4):
-        rc={'axes.labelsize': 16.0, 'font.size': 16.0, 'legend.fontsize': 10.0, 'axes.titlesize': 14, 'xtick.labelsize': 16.0, 'ytick.labelsize' : 16.0}
+        rc={'axes.labelsize': 22.0, 'font.size': 16.0, 'legend.fontsize': 20.0, 'axes.titlesize': 16, 'xtick.labelsize': 16.0, 'ytick.labelsize' : 16.0}
         sns.set(rc=rc)
 
         # sns.set()
@@ -88,38 +88,37 @@ def plot_V_all_tools(args):
 def plot_V_all_tools2(args):
     with sns.plotting_context("paper", font_scale=2.4):
         # sns.set(style="whitegrid")
-        rc={'axes.labelsize': 20.0, 'font.size': 20.0, 'legend.fontsize': 20.0, 'axes.titlesize': 20, 'xtick.labelsize': 24.0, 'ytick.labelsize' : 20.0}
+        rc={'axes.labelsize': 24.0, 'legend.fontsize': 28.0, 'axes.titlesize': 28, 'xtick.labelsize': 24.0, 'ytick.labelsize' : 24.0}
         sns.set(rc=rc, style="whitegrid")
 
         # Load the dataset
         # crashes = sns.load_dataset("car_crashes")
         # print(crashes)
         indata = pd.read_csv(args.infile)
+        # indata.dropna()
         # indata = indata.dropna()   
-
+        print(indata.sort_values(by="sort_by_column", axis=0, na_position="first"))
         # Make the PairGrid
         
-        g = sns.PairGrid(indata.sort_values("dataset", na_position="first"), hue="tool", hue_order=["linclust", "isoseq3", "carnac", "qubric"],
-                         x_vars=indata.columns[2:], y_vars=["dataset"], 
+        g = sns.PairGrid(indata.sort_values(by="sort_by_column", axis=0, na_position="first"), hue="tool", hue_order=["linclust", "isoseq3", "carnac", "qubric"],
+                         x_vars=indata.columns[3:], y_vars=["dataset"],
                          height=10, aspect=.5)
-
         # Draw a dot plot using the stripplot function
         g.map(sns.stripplot, size=20, orient="h", jitter=0.0, #palette="ch:s=1,r=-.1,h=1_r",
                linewidth=1, edgecolor="w", alpha=.8)
-
+        # y_vars = ["ALZ_PB", "RC0_PB", "HUM_PB", "ZEB_PB", "BHAM_ONT", "ENS_100", "ENS_500", "ENS_1M"],
         # Use the same x axis limits on all columns and add better labels
         # g.set(xlim=[(0, 1), (0, 1),(0, 1), (0, 100) ], xlabel=["", "", "", "", ""], ylabel=["", "", "", "", ""])
         g.set(xlabel="", ylabel="")
-        g.axes[0,0].set_xlim((0.5,1))
+        g.axes[0,0].set_xlim((0,100))
         g.axes[0,1].set_xlim((0.5,1))
         g.axes[0,2].set_xlim((0.5,1))
-        g.axes[0,3].set_xlim((0,100))
+        g.axes[0,3].set_xlim((0.5,1))
         g.set(xticks=[0.5,0.75,1.0])
-        g.axes[0,3].set_xticks((0,50,100))
+        g.axes[0,0].set_xticks((0,50,100))
 
         # Use semantically meaningful titles for the columns
-        titles = ["V-measure", "Completeness", "Homogeneity",
-                  "%-nontrivially clustered"]
+        titles = ["%-nontrivially clustered", "V-measure", "Completeness", "Homogeneity"]
 
         for ax, title in zip(g.axes.flat, titles):
 
@@ -138,7 +137,7 @@ def plot_V_all_tools2(args):
         # plt.legend()
         # plt.yticks(rotation=90)
 
-        plt.savefig(os.path.join(args.outfolder, "test.pdf" ))
+        plt.savefig(os.path.join(args.outfolder, "main_res.pdf" ))
         plt.clf()
 
         plt.close()

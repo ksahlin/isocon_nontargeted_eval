@@ -149,6 +149,37 @@ def compute_V_measure(clusters, classes):
 
 
 
+def compute_V_measure_non_singleton_classes(clusters, classes):
+    classes_dict = {}
+    for read_acc, cl_id in classes.items():
+        if cl_id not in classes_dict:
+            classes_dict[cl_id] = [read_acc]
+        else:
+            classes_dict[cl_id].append(read_acc)
+
+    nontrivial_classes_reads = []
+    for cl_id in classes_dict:
+        if len(classes_dict[cl_id]) <= 1:
+            continue
+        else:
+            for read in classes_dict[cl_id]:
+                nontrivial_classes_reads.append(read)
+
+    class_list, cluster_list = [], []
+    print(len(nontrivial_classes_reads), len(clusters), len(classes))
+    for read in nontrivial_classes_reads:
+        if read in clusters:
+            class_list.append( classes[read] )
+            cluster_list.append( clusters[read] )
+
+    v_score = v_measure_score(class_list, cluster_list)
+    compl_score = completeness_score(class_list, cluster_list)
+    homog_score = homogeneity_score(class_list, cluster_list)
+    print("NONTRIVIAL CLASSES: V:", v_score, "Completeness:", compl_score, "Homogeneity:", homog_score)
+    return v_score, compl_score, homog_score
+
+
+
 def compute_V_measure_non_singletons(clusters, classes):
     cluster_dict = {}
     for read_acc, cl_id in clusters.items():
@@ -273,7 +304,9 @@ def main(args):
         classes, tot_nr_reads, unclassified  = parse_true_clusters(ref_file)
 
     v_score, compl_score, homog_score, clustered_but_unaligned = compute_V_measure(clusters, classes)
-    NT_v_score, NT_compl_score, NT_homog_score, _ = compute_V_measure_non_singletons(clusters, classes)
+    # NT_v_score, NT_compl_score, NT_homog_score, _ = compute_V_measure_non_singletons(clusters, classes)
+    NT_v_score, NT_compl_score, NT_homog_score = compute_V_measure_non_singleton_classes(clusters, classes)
+
     nr_non_singleton_classes, singleton_classes, min_class_size, max_class_size, mean_class_size, median_class_size, total_nr_clusters, singleton_clusters, min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, unaligned_but_nontrivially_clustered  = get_cluster_information(clusters, classes)
     tot_nr_reads_included_inclustering = len(clusters)
 

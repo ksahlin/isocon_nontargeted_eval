@@ -32,22 +32,24 @@ def plot_rand_index_per_error_batch(csv_file, outfile):
         indata = indata.loc[indata['nr_samples'] > 1000]
 
         # plot comparing qtclust and CARNAC-LR
-        # indata = indata.loc[indata['dataset'] == "BHAM_ONT"]
-        # g = sns.pointplot(x="error_rate", y="FMI", hue="tool", data=indata)
-        # plt.xticks(rotation=90)
-        # plt.tight_layout()
-        # g.set_title('FMI on BHAM_ONT')
-        # plt.savefig(args.outfile)
-        # plt.close()
-
-        # plot only investigating qtclust
-        indata = indata.loc[indata['tool'] == "QUBRIC"]
-        g = sns.pointplot(x="error_rate", y="FMI", hue="dataset", data=indata)
+        indata = indata.loc[indata['dataset'] == "BHAM_ONT"]
+        g = sns.pointplot(x="error_rate", y="FMI", hue="tool", data=indata, palette=sns.color_palette("Set2", 8))
         plt.xticks(rotation=90)
         plt.tight_layout()
-        # g.set_title('FMI on BHAM_ONT')
+        g.set(ylim=(0, 1))
+        g.set_title('FMI on BHAM_ONT')
         plt.savefig(args.outfile)
         plt.close()
+
+        # plot only investigating qtclust
+
+        # indata = indata.loc[indata['tool'] == "QUBRIC"]
+        # g = sns.pointplot(x="error_rate", y="FMI", hue="dataset", data=indata)
+        # plt.xticks(rotation=90)
+        # plt.tight_layout()
+        # # g.set_title('FMI on BHAM_ONT')
+        # plt.savefig(args.outfile)
+        # plt.close()
 
 
         # indata = indata.loc[indata['dataset'] == "Alzheimer_IsoSeq_2016"]

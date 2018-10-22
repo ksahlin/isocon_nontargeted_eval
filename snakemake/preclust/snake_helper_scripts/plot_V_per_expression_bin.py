@@ -41,22 +41,24 @@ def plot_V_per_expression_bin(args):
         #                     size=3, aspect=1.6, palette="Set2",
         #                     dodge=True, cut=0, bw=.2) #kind="violin",
         
-        g = sns.FacetGrid(indata, col="measure_type", size=3, aspect=1.6, col_order=["V-measure", "Completeness", "Homogeneity"], legend_out=True)
+        g = sns.FacetGrid(indata, row="measure_type", size=3, aspect=2.2, row_order=["V-measure", "Completeness", "Homogeneity"], legend_out=True)
         # sns.set(style="whitegrid", palette="muted")
-        (g.map(sns.pointplot, "class_size", "measure", "Dataset", hue_order=["ALZ_PB", "BHAM_ONT", "RC0_PB", "HUM_PB", "ZEB_PB", "ENS_PB_100k", "ENS_PB_500k", "ENS_PB_1M"], palette=sns.color_palette("Set1", 8)).despine(left=True).add_legend(title="DATASET", label_order=["ALZ_PB", "BHAM_ONT", "RC0_PB", "HUM_PB", "ZEB_PB", "ENS_PB_100k", "ENS_PB_500k", "ENS_PB_1M"]))
+        # (g.map(sns.pointplot, "class_size", "measure", "Dataset", hue_order=["ALZ_PB", "BHAM_ONT", "RC0_PB", "HUM_PB", "ZEB_PB", "ENS_PB_100k", "ENS_PB_500k", "ENS_PB_1M"], palette=sns.color_palette("Set1", 8)).despine(left=True).add_legend(title="DATASET", label_order=["ALZ_PB", "BHAM_ONT", "RC0_PB", "HUM_PB", "ZEB_PB", "ENS_PB_100k", "ENS_PB_500k", "ENS_PB_1M"]))
+        g.map(sns.pointplot, "class_size", "measure", "Dataset", hue_order=["ALZ_PB", "BHAM_ONT", "RC0_PB", "HUM_PB", "ZEB_PB", "ENS_PB_100k", "ENS_PB_500k", "ENS_PB_1M"], palette=sns.color_palette("Set1", 8))
+
         # g.set_titles(col_template="$\mu={col_name}$", row_template="{row_name}",  size=16)
         # g.set_yticklabels(["",0,0.2,0.4,0.6,0.8,1.0])
         # g.set(yscale="log")
         # g.set(xlim=(0, 6))
-        g.set(ylim=(0.75, 1))
+        # g.set(ylim=(0.75, 1))
 
         # resize figure box to -> put the legend out of the figure
-        box = g.ax.get_position() # get position of figure
-        g.ax.set_position([box.x0, box.y0, box.width * 0.85, box.height]) # resize position
+        # box = g.ax.get_position() # get position of figure
+        # g.ax.set_position([box.x0, box.y0, box.width * 0.85, box.height]) # resize position
 
-        # Put a legend to the right side
-        g.ax.legend(loc='center right', bbox_to_anchor=(1.25, 0.5), ncol=1)
-        
+        # # Put a legend to the right side
+        # g.ax.legend(loc='lower center', bbox_to_anchor=(1.25, 0.5), ncol=1)
+        plt.legend(loc='upper left', bbox_to_anchor=(1,0.5))
         # plt.legend(loc='lower right')
         plt.tight_layout()
         # g.set_title('Clustering accuracy per class size')
