@@ -150,6 +150,8 @@ def compute_V_measure(clusters, classes):
 
 
 def compute_V_measure_non_singleton_classes(clusters, classes):
+    max_cluster_id = max(clusters.values())
+    new_id = max_cluster_id +1
     classes_dict = {}
     for read_acc, cl_id in classes.items():
         if cl_id not in classes_dict:
@@ -171,11 +173,16 @@ def compute_V_measure_non_singleton_classes(clusters, classes):
         if read in clusters:
             class_list.append( classes[read] )
             cluster_list.append( clusters[read] )
+        else:
+            class_list.append( classes[read] )
+            cluster_list.append( new_id )            
+            new_id += 1
 
     v_score = v_measure_score(class_list, cluster_list)
     compl_score = completeness_score(class_list, cluster_list)
     homog_score = homogeneity_score(class_list, cluster_list)
     print("NONTRIVIAL CLASSES: V:", v_score, "Completeness:", compl_score, "Homogeneity:", homog_score)
+    print("NUMBER OF CLASSES (FILTERED):", len( [ 1 for cl_id in classes_dict if len(classes_dict[cl_id]) >= 5 ] )
     return v_score, compl_score, homog_score
 
 
