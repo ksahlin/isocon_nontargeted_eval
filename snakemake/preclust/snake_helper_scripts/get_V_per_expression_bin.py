@@ -155,11 +155,11 @@ def compute_V_measure_per_expression_bin(clusters, classes, tmp_file, dataset):
             assert False
 
     # bin together into
-    bins= [(0,1), (2,5), (6,10), (11,20), (21,50), (50, 10000000000)]
+    bins= [(1,5), (6,10), (11,20), (21,50), (50, 10000000000)]
     tmp_file_ = open(tmp_file, "w")
     # tmp_file_.write("class_size,measure,nr_samples,measure_type\n")
     from collections import Counter
-    tmp_file_.write("dataset,class_size,nr_samples,v,c,h,percent_nt\n")
+    tmp_file_.write("dataset,class_size,nr_samples,v,c,h\n")
     for  (l, u) in bins:
         class_list = []
         cluster_list = []
@@ -174,23 +174,23 @@ def compute_V_measure_per_expression_bin(clusters, classes, tmp_file, dataset):
                     cluster_list.append(cluster_id)
                     unique_classes.add(class_id)
             
-        nontrivially_clustered = len( [1 for elem, cnt in Counter(cluster_list).items() if cnt > 1])
-        total = len(cluster_list)
+        # nontrivially_clustered = sum( [cnt for elem, cnt in Counter(cluster_list).items() if cnt > 1])
+        # total = len(cluster_list)
 
 
         v_score = v_measure_score(class_list, cluster_list)
         compl_score = completeness_score(class_list, cluster_list)
         homog_score = homogeneity_score(class_list, cluster_list)
-        percent_nt = round(100*float(nontrivially_clustered)/float(total), 3)
+        # percent_nt = round(100*float(nontrivially_clustered)/float(total), 3)
         print("Bin size: {0}-{1}:".format(l, u))
         print("Nr samples:", len(unique_classes))
-        print("V:", v_score, "Completeness:", compl_score, "Homogeneity:", homog_score, "percent_nt", percent_nt)
+        print("V:", v_score, "Completeness:", compl_score, "Homogeneity:", homog_score)
 
         # for new style plot
         if l != 50:
-            tmp_file_.write("{0},{1},{2},{3},{4},{5},{6}\n".format(dataset, str(l)+ "-" + str(u), len(unique_classes), v_score, compl_score, homog_score, percent_nt ))
+            tmp_file_.write("{0},{1},{2},{3},{4},{5}\n".format(dataset, str(l)+ "-" + str(u), len(unique_classes), v_score, compl_score, homog_score ))
         else:
-            tmp_file_.write("{0},{1},{2},{3},{4},{5},{6}\n".format(dataset, ">" + str(l), len(unique_classes), v_score, compl_score, homog_score, percent_nt ))
+            tmp_file_.write("{0},{1},{2},{3},{4},{5}\n".format(dataset, ">" + str(l), len(unique_classes), v_score, compl_score, homog_score ))
 
         # for old style plot
         # if l != 50:
