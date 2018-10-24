@@ -120,7 +120,7 @@ def parse_true_clusters_simulated(ref_file):
     return classes
 
 
-def compute_V_measure_per_expression_bin(clusters, classes, tmp_file):
+def compute_V_measure_per_expression_bin(clusters, classes, tmp_file, dataset):
     """
         split classes dict into dicts of classes with 0-5, 6-10, 11-50 , >50 sizes. 
         Compute homog, completeness, V measure on each of these subdata sets.
@@ -152,17 +152,20 @@ def compute_V_measure_per_expression_bin(clusters, classes, tmp_file):
                 cluster_sorted_by_expression[ class_expression_levels[read_acc] ] = [ clusters[read_acc] ]
         else:
             pass
+            assert False
 
-    # print(class_sorted_by_expression)
     # bin together into
-    bins= [(0,5), (6,10), (11,20), (21,50), (50, 10000000000)]
-    # final_out = []
+    bins= [(0,1), (2-5) (6,10), (11,20), (21,50), (50, 10000000000)]
     tmp_file_ = open(tmp_file, "w")
-    tmp_file_.write("class_size,measure,nr_samples,measure_type\n")
+    # tmp_file_.write("class_size,measure,nr_samples,measure_type\n")
+    from collections import Counter
+    tmp_file_.write("dataset,class_size,nr_samples,v,c,h,percent_nt\n")
     for  (l, u) in bins:
         class_list = []
         cluster_list = []
         unique_classes = set()
+        nontrivially_clustered = 0
+        total = 0
         for expr_level in  class_sorted_by_expression:
             print(expr_level, l, u)
             if l <= expr_level <= u:
@@ -170,25 +173,36 @@ def compute_V_measure_per_expression_bin(clusters, classes, tmp_file):
                     class_list.append(class_id)
                     cluster_list.append(cluster_id)
                     unique_classes.add(class_id)
+            
+            nontrivially_clustered += len( [1 for elem, cnt in Counter(cluster_sorted_by_expression[expr_level]).itmes() if cnt > 1])
+            total += len(cluster_sorted_by_expression[expr_level])
 
 
         v_score = v_measure_score(class_list, cluster_list)
         compl_score = completeness_score(class_list, cluster_list)
         homog_score = homogeneity_score(class_list, cluster_list)
+        percent_nt = round(100*float(nontrivially_clustered)/float(total), 3)
         print("Bin size: {0}-{1}:".format(l, u))
         print("Nr samples:", len(unique_classes))
-        print("V:", v_score, "Completeness:", compl_score, "Homogeneity:", homog_score)
+        print("V:", v_score, "Completeness:", compl_score, "Homogeneity:", homog_score, "percent_nt", percent_nt)
+
+        # for new style plot
         if l != 50:
-            tmp_file_.write("{0},{1},{2},{3}\n".format(str(l)+ "-" + str(u), v_score, len(unique_classes), "V-measure" ))
-            tmp_file_.write("{0},{1},{2},{3}\n".format(str(l)+ "-" + str(u), compl_score,  len(unique_classes), "Completeness" ))
-            tmp_file_.write("{0},{1},{2},{3}\n".format(str(l)+ "-" + str(u), homog_score, len(unique_classes), "Homogeneity" ))
+            tmp_file_.write("{0},{1},{2},{3},{4},{5},{6}\n".format(dataset, str(l)+ "-" + str(u), len(unique_classes), v_score, compl_score, homog_score, percent_nt ))
         else:
-            tmp_file_.write("{0},{1},{2},{3}\n".format(">" + str(l), v_score, len(unique_classes), "V-measure" ))
-            tmp_file_.write("{0},{1},{2},{3}\n".format(">" + str(l), compl_score,  len(unique_classes), "Completeness" ))
-            tmp_file_.write("{0},{1},{2},{3}\n".format(">" + str(l), homog_score, len(unique_classes), "Homogeneity" ))
+            tmp_file_.write("{0},{1},{2},{3},{4},{5},{6}\n".format(dataset, ">" + str(l), len(unique_classes), v_score, compl_score, homog_score, percent_nt ))
+
+        # for old style plot
+        # if l != 50:
+        #     tmp_file_.write("{0},{1},{2},{3}\n".format(str(l)+ "-" + str(u), v_score, len(unique_classes), "V-measure" ))
+        #     tmp_file_.write("{0},{1},{2},{3}\n".format(str(l)+ "-" + str(u), compl_score,  len(unique_classes), "Completeness" ))
+        #     tmp_file_.write("{0},{1},{2},{3}\n".format(str(l)+ "-" + str(u), homog_score, len(unique_classes), "Homogeneity" ))
+        # else:
+        #     tmp_file_.write("{0},{1},{2},{3}\n".format(">" + str(l), v_score, len(unique_classes), "V-measure" ))
+        #     tmp_file_.write("{0},{1},{2},{3}\n".format(">" + str(l), compl_score,  len(unique_classes), "Completeness" ))
+        #     tmp_file_.write("{0},{1},{2},{3}\n".format(">" + str(l), homog_score, len(unique_classes), "Homogeneity" ))
 
     tmp_file_.close
-        # final_out.append( ((l,u), v_score, compl_score, homog_score ) )
 
     return tmp_file_.name
 
@@ -205,7 +219,7 @@ def main(args):
         ref_file = pysam.AlignmentFile(args.classes, "rb", check_sq=False)
         classes, tot_nr_reads, unclassified  = parse_true_clusters(ref_file)
 
-    tmp_file_ = compute_V_measure_per_expression_bin(clusters, classes, args.outfile)
+    tmp_file_ = compute_V_measure_per_expression_bin(clusters, classes, args.outfile, args.dataset)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Align predicted transcripts to transcripts in ensembl reference data base.")
@@ -213,7 +227,9 @@ if __name__ == '__main__':
     parser.add_argument('--classes', type=str, help='A sorted and indexed bam file.')
     parser.add_argument('--simulated', action="store_true", help='Simulated data, we can simply read correct classes from the ref field.')
     parser.add_argument('--ont', action="store_true", help='ONT data, parsing accessions differently.')
+    parser.add_argument('--dataset', type=str, help='the dataset label.')
     parser.add_argument('--outfile', type=str, help='Output file with results')
+
     args = parser.parse_args()
 
     # if not os.path.exists(args.outfolder):

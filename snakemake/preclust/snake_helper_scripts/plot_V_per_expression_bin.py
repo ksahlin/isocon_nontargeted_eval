@@ -67,10 +67,62 @@ def plot_V_per_expression_bin(args):
         plt.savefig(args.outfile)
         plt.close()
 
+def plot_V_per_expression_bin2(args):
+    with sns.plotting_context("paper", font_scale=2.4):
+        # sns.set(style="whitegrid")
+        rc={'axes.labelsize': 24.0, 'legend.fontsize': 28.0, 'axes.titlesize': 28, 'xtick.labelsize': 24.0, 'ytick.labelsize' : 24.0}
+        sns.set(rc=rc, style="whitegrid")
+
+        indata = pd.read_csv(args.infile)
+ 
+        # print(indata.sort_values(by="sort_by_column", axis=0, na_position="first"))
+        # Make the PairGrid
+        
+        g = sns.PairGrid(indata.sort_values(by="sort_by_column", axis=0, na_position="first"), hue="class", hue_order=["0-1", "2-5", "6-10", "11-20", "21-50", ">50"],
+                         x_vars=indata.columns[3:], y_vars=["dataset"],
+                         height=10, aspect=.5)
+        # Draw a dot plot using the stripplot function
+        g.map(sns.stripplot, size=20, orient="h", jitter=0.0, #palette="ch:s=1,r=-.1,h=1_r",
+               linewidth=1, edgecolor="w", alpha=.8)
+        # y_vars = ["ALZ_PB", "RC0_PB", "HUM_PB", "ZEB_PB", "BHAM_ONT", "ENS_100", "ENS_500", "ENS_1M"],
+        # Use the same x axis limits on all columns and add better labels
+        # g.set(xlim=[(0, 1), (0, 1),(0, 1), (0, 100) ], xlabel=["", "", "", "", ""], ylabel=["", "", "", "", ""])
+        g.set(xlabel="", ylabel="")
+        g.axes[0,0].set_xlim((0,100))
+        g.axes[0,1].set_xlim((0.5,1))
+        g.axes[0,2].set_xlim((0.5,1))
+        g.axes[0,3].set_xlim((0.5,1))
+        g.set(xticks=[0.5,0.75,1.0])
+        g.axes[0,0].set_xticks((0,50,100))
+
+        # Use semantically meaningful titles for the columns
+        titles = ["%-nontrivially clustered", "V-measure", "Completeness", "Homogeneity"]
+
+        for ax, title in zip(g.axes.flat, titles):
+
+            # Set a different title for each axes
+            ax.set(title=title)
+
+            # Make the grid horizontal instead of vertical
+            ax.xaxis.grid(False)
+            ax.yaxis.grid(True)
+
+        sns.despine(left=True, bottom=True)
+        plt.tight_layout()
+
+        g = g.add_legend()
+        # handles = ["linclust", "isoseq3", "carnac", "qubric"]
+        # plt.legend()
+        # plt.yticks(rotation=90)
+
+        plt.savefig(os.path.join(args.outfolder, "main_res.pdf" ))
+        plt.clf()
+
+        plt.close()
 
 
 def main(args):
-    plot_V_per_expression_bin(args)
+    plot_V_per_expression_bin2(args)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Align predicted transcripts to transcripts in ensembl reference data base.")
