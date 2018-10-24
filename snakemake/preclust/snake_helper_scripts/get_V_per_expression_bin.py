@@ -164,8 +164,8 @@ def compute_V_measure_per_expression_bin(clusters, classes, tmp_file, dataset):
         class_list = []
         cluster_list = []
         unique_classes = set()
-        nontrivially_clustered = 0
-        total = 0
+        # nontrivially_clustered = 0
+        # total = 0
         for expr_level in  class_sorted_by_expression:
             print(expr_level, l, u)
             if l <= expr_level <= u:
@@ -174,8 +174,8 @@ def compute_V_measure_per_expression_bin(clusters, classes, tmp_file, dataset):
                     cluster_list.append(cluster_id)
                     unique_classes.add(class_id)
             
-            nontrivially_clustered += len( [1 for elem, cnt in Counter(cluster_sorted_by_expression[expr_level]).items() if cnt > 1])
-            total += len(cluster_sorted_by_expression[expr_level])
+        nontrivially_clustered = len( [1 for elem, cnt in Counter(cluster_list).items() if cnt > 1])
+        total = len(cluster_list)
 
 
         v_score = v_measure_score(class_list, cluster_list)

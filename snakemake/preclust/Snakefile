@@ -803,7 +803,7 @@ rule v_per_class_size_sim:
         # shell("samtools index {sorted_bam}")
 
         script_path = config["SCRIPT_FOLDER"]
-        shell("python {script_path}/get_V_per_expression_bin.py --clusters {input.qt_clust_predicted}  --classes {sorted_bam} --outfile {output.qt_clust_res} --dataset {wildcards.sim_dataset}")
+        shell("python {script_path}/get_V_per_expression_bin.py --clusters {input.qt_clust_predicted}  --classes {sorted_bam} --outfile {output.qt_clust_res} --dataset {wildcards.sim_dataset}_{wildcards.nr_reads}")
 
 
 rule v_per_class_size_ont:
