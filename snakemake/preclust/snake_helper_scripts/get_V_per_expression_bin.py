@@ -155,7 +155,7 @@ def compute_V_measure_per_expression_bin(clusters, classes, tmp_file, dataset):
             assert False
 
     # bin together into
-    bins= [(0,1), (2-5) (6,10), (11,20), (21,50), (50, 10000000000)]
+    bins= [(0,1), (2-5), (6,10), (11,20), (21,50), (50, 10000000000)]
     tmp_file_ = open(tmp_file, "w")
     # tmp_file_.write("class_size,measure,nr_samples,measure_type\n")
     from collections import Counter
