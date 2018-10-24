@@ -174,7 +174,7 @@ def compute_V_measure_per_expression_bin(clusters, classes, tmp_file, dataset):
                     cluster_list.append(cluster_id)
                     unique_classes.add(class_id)
             
-            nontrivially_clustered += len( [1 for elem, cnt in Counter(cluster_sorted_by_expression[expr_level]).itmes() if cnt > 1])
+            nontrivially_clustered += len( [1 for elem, cnt in Counter(cluster_sorted_by_expression[expr_level]).items() if cnt > 1])
             total += len(cluster_sorted_by_expression[expr_level])
 
 
