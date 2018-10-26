@@ -369,14 +369,14 @@ def main(args):
     V, c,h = round(v_score, 3), round(compl_score, 3), round(homog_score, 3)
     V_nt, c_nt, h_nt = round(NT_v_score, 3), round(NT_compl_score, 3), round(NT_homog_score, 3)
     non_singleton_clusters = total_nr_clusters - singleton_clusters
-    min_, max_, median, mean = min_cluster_size, max_cluster_size, round(mean_cluster_size,0), round(median_cluster_size,0)
+    # min_, max_, mean, median  = min_cluster_size, max_cluster_size, round(mean_cluster_size,0), round(median_cluster_size,0)
 
 
     outfile.write("CLUSTERS\n")
     outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8}\n".format("V", "c","h", "Reads_nontrivially_clustered_percent", "Reads_Nontrivially_clustered_but_unaligned",\
                                                                                           "non_singleton_clusters", "singleton_clusters", "upper_75_cluster_size", "median" ))
     outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},\n".format(V, c,h, Reads_nontrivially_clustered_percent, Reads_Nontrivially_clustered_but_unaligned,\
-                                                                                          non_singleton_clusters, singleton_clusters, upper_75_cluster_size, median))
+                                                                                          non_singleton_clusters, singleton_clusters, upper_75_cluster_size, median_cluster_size))
 
     # outfile.write("CLUSTERS\n")
     # outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13}\n".format("Reads_nontrivially_clustered_percent", "Singletons_percent", "Reads_Nontrivially_clustered_but_unaligned", \
