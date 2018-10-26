@@ -224,7 +224,34 @@ def compute_V_measure_non_singletons(clusters, classes):
     print("NONTRIVIAL CLUSTERS: Nr reads clustered but unaligned (i.e., no class and excluded from V-veasure): ", clustered_but_unaligned)
     return v_score, compl_score, homog_score, clustered_but_unaligned
 
-# def singleton_stats():
+
+## {{{ http://code.activestate.com/recipes/511478/ (r1)
+import math
+import functools
+
+def percentile(N, percent, key=lambda x:x):
+    """
+    Find the percentile of a list of values.
+
+    @parameter N - is a list of values. Note N MUST BE already sorted.
+    @parameter percent - a float value from 0.0 to 1.0.
+    @parameter key - optional key function to compute value from each element of N.
+
+    @return - the percentile of the values
+    """
+    if not N:
+        return None
+    k = (len(N)-1) * percent
+    f = math.floor(k)
+    c = math.ceil(k)
+    if f == c:
+        return key(N[int(k)])
+    d0 = key(N[int(f)]) * (c-k)
+    d1 = key(N[int(c)]) * (k-f)
+    return d0+d1
+
+## end of http://code.activestate.com/recipes/511478/ }}}
+
 
 def get_cluster_information(clusters, classes):
 
@@ -244,6 +271,9 @@ def get_cluster_information(clusters, classes):
     max_class_size = max(class_distribution)
     mean_class_size = sum(class_distribution) / float(len(class_distribution))
     median_class_size = class_distribution[ int(len(class_distribution)/2) ] if len(class_distribution) % 2 == 1 else ( class_distribution[ int(len(class_distribution)/2) ] + class_distribution[ int(len(class_distribution)/2) -1] ) / 2.0
+
+    upper_75_class_size = percentile(class_distribution, 0.75)
+    median_class_size = percentile(class_distribution, 0.5)
 
     # cluster distribution
     cluster_dict = {}
@@ -265,6 +295,9 @@ def get_cluster_information(clusters, classes):
     max_cluster_size = max(cluster_distribution)
     mean_cluster_size = sum(cluster_distribution) / float(len(cluster_distribution))
     median_cluster_size = cluster_distribution[ int(len(cluster_distribution)/2) ] if len(cluster_distribution) % 2 == 1 else ( cluster_distribution[ int(len(cluster_distribution)/2) ] + cluster_distribution[ int(len(cluster_distribution)/2) -1] ) / 2.0
+
+    upper_75_cluster_size = percentile(cluster_distribution, 0.75)
+    median_cluster_size = percentile(cluster_distribution, 0.5)
 
     unaligned_but_nontrivially_clustered = set(clusters.keys()) - singleton_clusters - set(classes.keys())
 
@@ -296,7 +329,7 @@ def get_cluster_information(clusters, classes):
     print("CLUSTERED:", "Tot classes:", len(clustered_classes), sorted(clustered_classes.items(), key=lambda x: x[1], reverse=True))
     print("MIXED:", "Tot classes containing both:", len( set(clustered_classes.keys()) & set(not_clustered_classes.keys())))
     print("Total number of classes (unique gene ID):", total_nr_classes)
-    return total_nr_classes - len(singleton_classes), len(singleton_classes), min_class_size, max_class_size, mean_class_size, median_class_size, total_nr_clusters, len(singleton_clusters) + len(omitted_from_output_singletons), min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, len(unaligned_but_nontrivially_clustered) 
+    return total_nr_classes - len(singleton_classes), len(singleton_classes), min_class_size, max_class_size, mean_class_size, median_class_size, total_nr_clusters, len(singleton_clusters) + len(omitted_from_output_singletons), min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, len(unaligned_but_nontrivially_clustered), upper_75_class_size, upper_75_cluster_size 
 
 
 
@@ -315,7 +348,7 @@ def main(args):
     # NT_v_score, NT_compl_score, NT_homog_score, _ = compute_V_measure_non_singletons(clusters, classes)
     NT_v_score, NT_compl_score, NT_homog_score, nr_filtered_classes = compute_V_measure_non_singleton_classes(clusters, classes)
 
-    nr_non_singleton_classes, singleton_classes, min_class_size, max_class_size, mean_class_size, median_class_size, total_nr_clusters, singleton_clusters, min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, unaligned_but_nontrivially_clustered  = get_cluster_information(clusters, classes)
+    nr_non_singleton_classes, singleton_classes, min_class_size, max_class_size, mean_class_size, median_class_size, total_nr_clusters, singleton_clusters, min_cluster_size, max_cluster_size, mean_cluster_size, median_cluster_size, unaligned_but_nontrivially_clustered, upper_75_class_size, upper_75_cluster_size   = get_cluster_information(clusters, classes)
     tot_nr_reads_included_inclustering = len(clusters)
 
     outfile = open(args.outfile, "w")
@@ -324,8 +357,8 @@ def main(args):
 
     #reads, unaligned, classes, singleton, min,max, mean,median
 
-    outfile.write("{0},{1},{2},{3},{4},{5},{6}\n".format("tot_nr_reads", "unclassified", "nr_non_singleton_classes", "singleton_classes", "max_class_size", "mean_class_size", "median_class_size"))
-    outfile.write("{0},{1},{2},{3},{4},{5},{6}\n".format(tot_nr_reads, unclassified, nr_non_singleton_classes, singleton_classes, max_class_size, round(mean_class_size, 0), median_class_size))
+    outfile.write("{0},{1},{2},{3},{4},{5},{6}\n".format("tot_nr_reads", "unclassified", "nr_non_singleton_classes", "singleton_classes", "upper_75_class_size", "median_class_size"))
+    outfile.write("{0},{1},{2},{3},{4},{5},{6}\n".format(tot_nr_reads, unclassified, nr_non_singleton_classes, singleton_classes, upper_75_class_size, median_class_size))
 
 
     # Reads_nontrivially_clustered_(%), Singletons_(%), Reads_Nontrivially_clustered_but_unaligned, V, c,h ,V_nt, c_nt,h_nt,  non_singleton_clusters, min, max, median, mean
@@ -340,10 +373,16 @@ def main(args):
 
 
     outfile.write("CLUSTERS\n")
-    outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13}\n".format("Reads_nontrivially_clustered_percent", "Singletons_percent", "Reads_Nontrivially_clustered_but_unaligned", \
-                                                                                    "V", "c","h", "V_nt", "c_nt", "h_nt", "non_singleton_clusters", "max_", "median", "mean", "nr_filtered_classes" ))
-    outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13}\n".format(Reads_nontrivially_clustered_percent, Singletons_percent, Reads_Nontrivially_clustered_but_unaligned, \
-                                                                                    V, c,h, V_nt, c_nt,h_nt, non_singleton_clusters, max_, median, mean, nr_filtered_classes))
+    outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8}\n".format("V", "c","h", "Reads_nontrivially_clustered_percent", "Reads_Nontrivially_clustered_but_unaligned",\
+                                                                                          "non_singleton_clusters", "singleton_clusters", "upper_75_cluster_size", "median" ))
+    outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},\n".format(V, c,h, Reads_nontrivially_clustered_percent, Reads_Nontrivially_clustered_but_unaligned,\
+                                                                                          non_singleton_clusters, singleton_clusters, upper_75_cluster_size, median))
+
+    # outfile.write("CLUSTERS\n")
+    # outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13}\n".format("Reads_nontrivially_clustered_percent", "Singletons_percent", "Reads_Nontrivially_clustered_but_unaligned", \
+    #                                                                                 "V", "c","h", "V_nt", "c_nt", "h_nt", "non_singleton_clusters", "max_", "median", "mean", "nr_filtered_classes" ))
+    # outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13}\n".format(Reads_nontrivially_clustered_percent, Singletons_percent, Reads_Nontrivially_clustered_but_unaligned, \
+    #                                                                                 V, c,h, V_nt, c_nt,h_nt, non_singleton_clusters, max_, median, mean, nr_filtered_classes))
 
 
     # outfile.write("ALL CLUSTERS\n")
