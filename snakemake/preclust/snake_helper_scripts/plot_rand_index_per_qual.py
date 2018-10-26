@@ -27,25 +27,43 @@ def plot_rand_index_per_error_batch(csv_file, outfile):
         
         rc={'axes.labelsize': 16.0, 'font.size': 16.0, 'legend.fontsize': 10.0, 'axes.titlesize': 14, 'xtick.labelsize': 16.0, 'ytick.labelsize' : 16.0}
         sns.set(rc=rc)
+        sns.set_style("whitegrid")
         original_indata = pd.read_csv(csv_file)
         indata = original_indata.dropna()
         indata = indata.loc[indata['nr_samples'] > 1000]
 
-        # plot comparing qtclust and CARNAC-LR
-        indata = indata.loc[indata['dataset'] == "BHAM_ONT"]
-        g = sns.pointplot(x="error_rate", y="FMI", hue="tool", data=indata, palette=sns.color_palette("Set2", 8))
-        plt.xticks(rotation=90)
-        plt.tight_layout()
+        g = sns.FacetGrid(indata, col="tool", size=4, aspect=1.6, col_order=["IsONClust", "CARNAC-LR"], legend_out=True)
+        (g.map(sns.pointplot, "error_rate", "ARI", "dataset", hue_order= ["ALZ_PB", "RC0_PB", "HUM_PB", "ZEB_PB", "SIM-100k", "SIM-500k", "SIM-1000k", "BHAM_ONT" ], palette=sns.color_palette("colorblind", 8)).despine(left=True).add_legend(title="DATASET"))
+        g.set(xticklabels=["", 0.01, "", "", "", 0.05, "", "", "", "",  0.10, "", "", "", "", 0.15, "", "", "", "", 0.20])
+        # g.set_xticklabels(rotation=90)
         g.set(ylim=(0, 1))
-        g.set_title('FMI on BHAM_ONT')
+
+        axes = g.axes.flatten()
+        axes[0].set_title("IsONclust")
+        axes[1].set_title("CARNAC-LR")
+        axes[0].set_ylabel("ARI")
+        # axes[1].set_ylabel("Homogeneity")
+        for ax in axes:
+            ax.set_xlabel("Error rate")
+
         plt.savefig(args.outfile)
         plt.close()
 
-        # plot only investigating qtclust
-
-        # indata = indata.loc[indata['tool'] == "QUBRIC"]
-        # g = sns.pointplot(x="error_rate", y="FMI", hue="dataset", data=indata)
+        # plot comparing qtclust and CARNAC-LR
+        # indata = indata.loc[indata['dataset'] == "BHAM_ONT"]
+        # g = sns.pointplot(x="error_rate", y="FMI", hue="tool", data=indata, palette=sns.color_palette("Set2", 8))
         # plt.xticks(rotation=90)
+        # plt.tight_layout()
+        # g.set(ylim=(0, 1))
+        # g.set_title('FMI on BHAM_ONT')
+        # plt.savefig(args.outfile)
+        # plt.close()
+
+        # plot only investigating qtclust
+        # indata = indata.loc[indata['tool'] == "IsONClust"]
+        # g = sns.pointplot(x="error_rate", y="ARI", hue="dataset", data=indata)
+        # plt.xticks(rotation=90)
+        # g.set(ylim=(0, 1))
         # plt.tight_layout()
         # # g.set_title('FMI on BHAM_ONT')
         # plt.savefig(args.outfile)

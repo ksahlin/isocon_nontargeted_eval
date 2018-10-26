@@ -31,6 +31,7 @@ def plot_V_per_expression_bin(args):
     with sns.plotting_context("paper", font_scale=2.4):
         rc={'axes.labelsize': 16.0, 'font.size': 16.0, 'legend.fontsize': 10.0, 'axes.titlesize': 14, 'xtick.labelsize': 16.0, 'ytick.labelsize' : 16.0}
         sns.set(rc=rc)
+        sns.set_style("whitegrid")
 
         # sns.set()
         indata = pd.read_csv(args.infile)
@@ -41,11 +42,17 @@ def plot_V_per_expression_bin(args):
         #                     size=3, aspect=1.6, palette="Set2",
         #                     dodge=True, cut=0, bw=.2) #kind="violin",
         
-        g = sns.FacetGrid(indata, row="measure_type", size=3, aspect=2.2, row_order=["V-measure", "Completeness", "Homogeneity"], legend_out=True)
+        g = sns.FacetGrid(indata, col="measure_type", size=4, aspect=1.6, col_order=["Completeness", "Homogeneity"], sharey=False, legend_out=True)
         # sns.set(style="whitegrid", palette="muted")
-        # (g.map(sns.pointplot, "class_size", "measure", "Dataset", hue_order=["ALZ_PB", "BHAM_ONT", "RC0_PB", "HUM_PB", "ZEB_PB", "ENS_PB_100k", "ENS_PB_500k", "ENS_PB_1M"], palette=sns.color_palette("Set1", 8)).despine(left=True).add_legend(title="DATASET", label_order=["ALZ_PB", "BHAM_ONT", "RC0_PB", "HUM_PB", "ZEB_PB", "ENS_PB_100k", "ENS_PB_500k", "ENS_PB_1M"]))
-        g.map(sns.pointplot, "class_size", "measure", "Dataset", hue_order=["ALZ_PB", "BHAM_ONT", "RC0_PB", "HUM_PB", "ZEB_PB", "ENS_PB_100k", "ENS_PB_500k", "ENS_PB_1M"], palette=sns.color_palette("Set1", 8))
-
+        (g.map(sns.pointplot, "class_size", "measure", "dataset", hue_order=["ALZ_PB", "RC0_PB", "HUM_PB", "ZEB_PB", "SIM-100k", "SIM-500k", "SIM-1000k", "BHAM_ONT"], palette=sns.color_palette("colorblind", 8)).despine(left=True).add_legend(title="DATASET")) # .despine(left=True).add_legend(title="DATASET", label_order=["ALZ_PB", "BHAM_ONT", "RC0_PB", "HUM_PB", "ZEB_PB", "ENS_PB_100k", "ENS_PB_500k", "ENS_PB_1M"]))
+        # g.map(sns.pointplot, "class_size", "measure", "Dataset", hue_order=["ALZ_PB", "BHAM_ONT", "RC0_PB", "HUM_PB", "ZEB_PB", "ENS_PB_100k", "ENS_PB_500k", "ENS_PB_1M"], palette=sns.color_palette("Set1", 8))
+        axes = g.axes.flatten()
+        axes[0].set_title("")
+        axes[1].set_title("")
+        axes[0].set_ylabel("Completeness")
+        axes[1].set_ylabel("Homogeneity")
+        for ax in axes:
+            ax.set_xlabel("Class size")
         # g.set_titles(col_template="$\mu={col_name}$", row_template="{row_name}",  size=16)
         # g.set_yticklabels(["",0,0.2,0.4,0.6,0.8,1.0])
         # g.set(yscale="log")
@@ -58,9 +65,9 @@ def plot_V_per_expression_bin(args):
 
         # # Put a legend to the right side
         # g.ax.legend(loc='lower center', bbox_to_anchor=(1.25, 0.5), ncol=1)
-        plt.legend(loc='upper left', bbox_to_anchor=(1,0.5))
+        # plt.legend(loc='upper left', bbox_to_anchor=(1,0.5))
         # plt.legend(loc='lower right')
-        plt.tight_layout()
+        # plt.tight_layout()
         # g.set_title('Clustering accuracy per class size')
         # g.set_ylabel("Performance")
         # g.set_xlabel("Class size")
@@ -125,7 +132,7 @@ def plot_V_per_expression_bin2(args):
 
 
 def main(args):
-    plot_V_per_expression_bin2(args)
+    plot_V_per_expression_bin(args)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Align predicted transcripts to transcripts in ensembl reference data base.")
