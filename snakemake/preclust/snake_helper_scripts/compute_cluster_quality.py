@@ -357,8 +357,8 @@ def main(args):
 
     #reads, unaligned, classes, singleton, min,max, mean,median
 
-    outfile.write("{0},{1},{2},{3},{4},{5},{6}\n".format("tot_nr_reads", "unclassified", "nr_non_singleton_classes", "singleton_classes", "upper_75_class_size", "median_class_size"))
-    outfile.write("{0},{1},{2},{3},{4},{5},{6}\n".format(tot_nr_reads, unclassified, nr_non_singleton_classes, singleton_classes, upper_75_class_size, median_class_size))
+    outfile.write("{0},{1},{2},{3},{4},{5}\n".format("tot_nr_reads", "unclassified", "nr_non_singleton_classes", "singleton_classes", "upper_75_class_size", "median_class_size"))
+    outfile.write("{0},{1},{2},{3},{4},{5}\n".format(tot_nr_reads, unclassified, nr_non_singleton_classes, singleton_classes, upper_75_class_size, median_class_size))
 
 
     # Reads_nontrivially_clustered_(%), Singletons_(%), Reads_Nontrivially_clustered_but_unaligned, V, c,h ,V_nt, c_nt,h_nt,  non_singleton_clusters, min, max, median, mean
