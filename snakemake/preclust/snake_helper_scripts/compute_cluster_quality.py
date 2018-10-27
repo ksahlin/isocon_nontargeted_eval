@@ -4,7 +4,7 @@ import pysam
 
 from collections import defaultdict
 
-from sklearn.metrics.cluster import v_measure_score, completeness_score, homogeneity_score
+from sklearn.metrics.cluster import v_measure_score, completeness_score, homogeneity_score, adjusted_rand_score
 
 def parse_inferred_clusters_tsv(tsv_file, args):
     infile = open(tsv_file , "r")
@@ -142,10 +142,12 @@ def compute_V_measure(clusters, classes):
     v_score = v_measure_score(class_list, cluster_list)
     compl_score = completeness_score(class_list, cluster_list)
     homog_score = homogeneity_score(class_list, cluster_list)
+    ari = adjusted_rand_score(class_list, cluster_list)
+
     print("Not inluded in clustering but aligned:", len(not_clustered))
     print("V:", v_score, "Completeness:", compl_score, "Homogeneity:", homog_score)
     print("Nr reads clustered but unaligned (i.e., no class and excluded from V-veasure): ", clustered_but_unaligned)
-    return v_score, compl_score, homog_score, clustered_but_unaligned
+    return v_score, compl_score, homog_score, clustered_but_unaligned, ari
 
 
 
@@ -364,7 +366,7 @@ def main(args):
         ref_file = pysam.AlignmentFile(args.classes, "rb", check_sq=False)
         classes, tot_nr_reads, unclassified  = parse_true_clusters(ref_file)
 
-    v_score, compl_score, homog_score, clustered_but_unaligned = compute_V_measure(clusters, classes)
+    v_score, compl_score, homog_score, clustered_but_unaligned, ari = compute_V_measure(clusters, classes)
     # NT_v_score, NT_compl_score, NT_homog_score, _ = compute_V_measure_non_singletons(clusters, classes)
     NT_v_score, NT_compl_score, NT_homog_score, nr_filtered_classes = compute_V_measure_non_singleton_classes(clusters, classes)
 
@@ -393,9 +395,9 @@ def main(args):
 
 
     outfile.write("CLUSTERS\n")
-    outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}\n".format("V", "c","h", "Reads_nontrivially_clustered_percent", "Reads_Nontrivially_clustered_but_unaligned",\
+    outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}\n".format("V", "c","h", "ARI", "Reads_nontrivially_clustered_percent", "Reads_Nontrivially_clustered_but_unaligned",\
                                                                                           "non_singleton_clusters", "singleton_clusters", "upper_75_cluster_size", "median", "e_cluster_size", "n50_cluster_size" ))
-    outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}\n".format(V, c,h, Reads_nontrivially_clustered_percent, Reads_Nontrivially_clustered_but_unaligned,\
+    outfile.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}\n".format(V, c,h, ari, Reads_nontrivially_clustered_percent, Reads_Nontrivially_clustered_but_unaligned,\
                                                                                           non_singleton_clusters, singleton_clusters, upper_75_cluster_size, median_cluster_size, e_cluster_size, n50_cluster_size))
 
     # outfile.write("CLUSTERS\n")
