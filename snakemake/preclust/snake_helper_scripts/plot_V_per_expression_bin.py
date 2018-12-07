@@ -44,7 +44,7 @@ def plot_V_per_expression_bin(args):
         
         g = sns.FacetGrid(indata, col="measure_type", size=4, aspect=1.6, col_order=["Completeness", "Homogeneity"], sharey=False, legend_out=True)
         # sns.set(style="whitegrid", palette="muted")
-        (g.map(sns.pointplot, "class_size", "measure", "dataset", hue_order=["ALZ_PB", "RC0_PB", "HUM_PB", "ZEB_PB", "SIM-100k", "SIM-500k", "SIM-1000k", "BHAM_ONT"], palette=sns.color_palette("colorblind", 8)).despine(left=True).add_legend(title="DATASET")) # .despine(left=True).add_legend(title="DATASET", label_order=["ALZ_PB", "BHAM_ONT", "RC0_PB", "HUM_PB", "ZEB_PB", "ENS_PB_100k", "ENS_PB_500k", "ENS_PB_1M"]))
+        (g.map(sns.pointplot, "class_size", "measure", "dataset", hue_order=["ALZ", "RC0", "HUM", "ZEB", "SIM-100k", "SIM-500k", "SIM-1000k", "ONT"], palette=sns.color_palette("colorblind", 8)).despine(left=True).add_legend(title="DATASET")) # .despine(left=True).add_legend(title="DATASET", label_order=["ALZ_PB", "BHAM_ONT", "RC0_PB", "HUM_PB", "ZEB_PB", "ENS_PB_100k", "ENS_PB_500k", "ENS_PB_1M"]))
         # g.map(sns.pointplot, "class_size", "measure", "Dataset", hue_order=["ALZ_PB", "BHAM_ONT", "RC0_PB", "HUM_PB", "ZEB_PB", "ENS_PB_100k", "ENS_PB_500k", "ENS_PB_1M"], palette=sns.color_palette("Set1", 8))
         axes = g.axes.flatten()
         axes[0].set_title("")

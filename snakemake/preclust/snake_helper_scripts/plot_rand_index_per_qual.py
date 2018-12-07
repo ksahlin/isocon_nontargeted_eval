@@ -33,7 +33,7 @@ def plot_rand_index_per_error_batch(csv_file, outfile):
         indata = indata.loc[indata['nr_samples'] > 1000]
 
         g = sns.FacetGrid(indata, col="tool", size=4, aspect=1.6, col_order=["IsONClust", "CARNAC-LR"], legend_out=True)
-        (g.map(sns.pointplot, "error_rate", "ARI", "dataset", hue_order= ["ALZ_PB", "RC0_PB", "HUM_PB", "ZEB_PB", "SIM-100k", "SIM-500k", "SIM-1000k", "BHAM_ONT" ], palette=sns.color_palette("colorblind", 8)).despine(left=True).add_legend(title="DATASET"))
+        (g.map(sns.pointplot, "error_rate", "ARI", "dataset", hue_order= ["ALZ", "RC0", "HUM", "ZEB", "SIM-100k", "SIM-500k", "SIM-1000k", "ONT" ], scale = 0.75,  palette=sns.color_palette("colorblind", 8)).despine(left=True).add_legend(title="DATASET"))
         g.set(xticklabels=["", 0.01, "", "", "", 0.05, "", "", "", "",  0.10, "", "", "", "", 0.15, "", "", "", "", 0.20])
         # g.set_xticklabels(rotation=90)
         g.set(ylim=(0, 1))

@@ -199,7 +199,7 @@ def main(args):
     tsv_file = print_out_tsv(ccs_dict, args)
     
     # plot qual vs basepair
-    outfile = os.path.join(args.outfolder, "plot_bp_quals.png")
+    outfile = os.path.join(args.outfolder, "plot_bp_quals.pdf")
     plot_bp_qual(tsv_file, outfile)
 
 
