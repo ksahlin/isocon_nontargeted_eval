@@ -790,7 +790,7 @@ rule qt_clust_quals:
     input:  flnc = rules.isoseq3_real.output.flnc,
             ccs = rules.merge_demultiplexed_files.output.outfile
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem_quals/qt_clust/{dataset}/{quals}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster_quals/qt_clust/{dataset}/{quals}/pre_clusters.csv"
+            clusters = config["ROOT_OUT"] + "cluster_quals/qt_clust/{dataset}/{quals}/pre_clusters.csv",
             fix_q_outfile = config["ROOT_OUT"] + "cluster_quals/qt_clust/{dataset}/{quals}/flnc_fixed.fastq"
     run:
         time = config["GNUTIME"]
