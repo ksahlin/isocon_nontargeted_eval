@@ -192,6 +192,11 @@ TARGET_FILES["evaluation_ont"] = eval_ont_files
 evaluation_nr_cores_files = expand(config["ROOT_OUT"] + "evaluation_nr_cores/{dataset}/{nr_cores}/{tool}_table.tsv", dataset = config["ISOSEQ_DATASET"], tool = ["qt_clust"], nr_cores = config["NR_CORES"]) 
 TARGET_FILES["evaluation_nr_cores"] = evaluation_nr_cores_files
 
+#EVALUATION NR CORES
+evaluation_quals_files = expand(config["ROOT_OUT"] + "evaluation_quals/{dataset}/{quals}/{tool}_table.tsv", dataset = config["ISOSEQ_DATASET"], tool = ["qt_clust"], quals = config["QUALS"]) 
+TARGET_FILES["evaluation_quals"] = evaluation_quals_files
+
+
 
 # SIMULATE
 simulate_files = expand(config["ROOT_OUT"] + "ccs/{sim_dataset}/{nr_reads}/ccs.bam" , sim_dataset = config["SIM_DATASET"], nr_reads =config["NR_SIM_READS"]) 
@@ -234,6 +239,9 @@ rule evaluation_ont:
 
 rule evaluation_nr_cores:
         input: TARGET_FILES["evaluation_nr_cores"]
+
+rule evaluation_quals:
+        input: TARGET_FILES["evaluation_quals"]
 
 rule simulation:
         input: TARGET_FILES["simulation"]
@@ -731,6 +739,8 @@ rule make_eval_table:
         out_table.close()
 
 
+########################################################
+########################################################
 
 rule qt_clust_core_variability:
     input:  flnc = rules.isoseq3_real.output.flnc,
@@ -767,6 +777,57 @@ rule v_measure_core_variability:
         shell("python --version")
         shell("pip list")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
+
+########################################################
+########################################################
+
+
+
+########################################################
+########################################################
+
+rule qt_clust_quals:
+    input:  flnc = rules.isoseq3_real.output.flnc,
+            ccs = rules.merge_demultiplexed_files.output.outfile
+    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem_nr_cores/qt_clust/{dataset}/{quals}/runtime.stdout",
+            clusters = config["ROOT_OUT"] + "cluster_quals/qt_clust/{dataset}/{quals}/pre_clusters.csv"
+            fix_q_outfile = config["ROOT_OUT"] + "cluster_quals/qt_clust/{dataset}/{quals}/flnc_fixed.fastq"
+    run:
+        time = config["GNUTIME"]
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/{1}/".format(wildcards.dataset, wildcards.quals) )
+        outfolder = config["ROOT_OUT"] + "cluster/qt_clust/{0}/{1}/".format(wildcards.dataset, wildcards.quals)
+        script_path = config["SCRIPT_FOLDER"]
+
+        mkdir_p(outfolder)
+        shell("{script_path}/fix_quality_values_experiment.py  --flnc {input.flnc} --quality {wildcards.quals} --outfile {output.fix_q_outfile}")
+        shell("{time} python /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust/qt_clust.py --isoseq --t 1 --fastq {output.fix_q_outfile}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+
+
+rule v_measure_quals:
+    input: 
+        true  = rules.minimap2_align_real.output.alignment,
+        qt_clust_predicted = rules.qt_clust_quals.output.clusters,
+
+    output: 
+        qt_clust_res = config["ROOT_OUT"] + "evaluation_nr_cores/{dataset}/{quals}/qt_clust_table.tsv"
+    run:
+        bam = "{0}.bam".format(input.true)
+        shell("samtools view -b {input.true} > {bam}")
+        sorted_bam = "{0}_sorted.bam".format(input.true)
+        shell("samtools sort {bam} > {sorted_bam}")
+        shell("samtools index {sorted_bam}")
+
+        script_path = config["SCRIPT_FOLDER"]
+        mkdir_p(config["ROOT_OUT"] + "evaluation_quals/{0}/{1}".format(wildcards.dataset, wildcards.quals))
+        shell("source activate isoseq3")
+        shell("which python")
+        shell("python --version")
+        shell("pip list")
+        shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
+
+########################################################
+########################################################
+
 
 
 rule v_per_class_size_pb:
