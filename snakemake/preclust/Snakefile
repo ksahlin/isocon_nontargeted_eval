@@ -799,7 +799,7 @@ rule qt_clust_quals:
         script_path = config["SCRIPT_FOLDER"]
 
         mkdir_p(outfolder)
-        shell("{script_path}/fix_quality_values_experiment.py  --flnc {input.flnc} --quality {wildcards.quals} --outfile {output.fix_q_outfile}")
+        shell("python {script_path}/fix_quality_values_experiment.py  --flnc {input.flnc} --quality {wildcards.quals} --outfile {output.fix_q_outfile}")
         shell("{time} python /galaxy/home/ksahlin/prefix/source/isocon_nontargeted/modules/qt_clust/qt_clust.py --isoseq --t 1 --fastq {output.fix_q_outfile}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
