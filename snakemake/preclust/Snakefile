@@ -192,7 +192,7 @@ TARGET_FILES["evaluation_ont"] = eval_ont_files
 evaluation_nr_cores_files = expand(config["ROOT_OUT"] + "evaluation_nr_cores/{dataset}/{nr_cores}/{tool}_table.tsv", dataset = config["ISOSEQ_DATASET"], tool = ["qt_clust"], nr_cores = config["NR_CORES"]) 
 TARGET_FILES["evaluation_nr_cores"] = evaluation_nr_cores_files
 
-#EVALUATION NR CORES
+#EVALUATION QUALS
 evaluation_quals_files = expand(config["ROOT_OUT"] + "evaluation_quals/{dataset}/{quals}/{tool}_table.tsv", dataset = config["ISOSEQ_DATASET"], tool = ["qt_clust"], quals = config["QUALS"]) 
 TARGET_FILES["evaluation_quals"] = evaluation_quals_files
 
@@ -789,7 +789,7 @@ rule v_measure_core_variability:
 rule qt_clust_quals:
     input:  flnc = rules.isoseq3_real.output.flnc,
             ccs = rules.merge_demultiplexed_files.output.outfile
-    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem_nr_cores/qt_clust/{dataset}/{quals}/runtime.stdout",
+    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem_quals/qt_clust/{dataset}/{quals}/runtime.stdout",
             clusters = config["ROOT_OUT"] + "cluster_quals/qt_clust/{dataset}/{quals}/pre_clusters.csv"
             fix_q_outfile = config["ROOT_OUT"] + "cluster_quals/qt_clust/{dataset}/{quals}/flnc_fixed.fastq"
     run:
@@ -809,7 +809,7 @@ rule v_measure_quals:
         qt_clust_predicted = rules.qt_clust_quals.output.clusters,
 
     output: 
-        qt_clust_res = config["ROOT_OUT"] + "evaluation_nr_cores/{dataset}/{quals}/qt_clust_table.tsv"
+        qt_clust_res = config["ROOT_OUT"] + "evaluation_quals/{dataset}/{quals}/qt_clust_table.tsv"
     run:
         bam = "{0}.bam".format(input.true)
         shell("samtools view -b {input.true} > {bam}")
