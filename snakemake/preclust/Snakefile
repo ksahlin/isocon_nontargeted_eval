@@ -807,7 +807,7 @@ rule qt_clust_quals:
         outfolder = config["ROOT_OUT"] + "cluster_quals/qt_clust/{0}/{1}/".format(wildcards.dataset, wildcards.quals)
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(outfolder)
-        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --isoseq --t 1 --fastq {input.fastq}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --isoseq --t 8 --fastq {input.fastq}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
 rule v_measure_quals:

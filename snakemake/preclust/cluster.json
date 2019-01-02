@@ -26,7 +26,7 @@
     "qt_clust_quals" : 
     {
         "jobname" : "qt_clust_quals",
-        "ntasks" : "4",
+        "ntasks" : "8",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
