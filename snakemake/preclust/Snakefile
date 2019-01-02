@@ -818,7 +818,7 @@ rule v_measure_quals:
         qt_clust_res = config["ROOT_OUT"] + "evaluation_quals/{dataset}/{quals}/qt_clust_table.tsv"
     run:
         bam = "{0}.bam".format(input.true)
-        shell("samtools view -b {input.true} > {bam}")
+        shell("samtools view -b {input.true} -o {bam}")
         sorted_bam = "{0}_sorted.bam".format(input.true)
         shell("samtools sort {bam} > {sorted_bam}")
         shell("samtools index {sorted_bam}")
