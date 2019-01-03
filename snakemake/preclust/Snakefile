@@ -870,7 +870,7 @@ rule qt_clust_quals_ont:
 
 rule v_measure_quals_ont:
     input: 
-        true  = rules.minimap2_align_real.output.alignment,
+        true  = rules.minimap2_align_ont.output.alignment,
         qt_clust_predicted = rules.qt_clust_quals_ont.output.clusters
     output: 
         qt_clust_res = config["HOME_ROOT_OUT"] + "evaluation_quals/{ont_dataset}/ont/{quals}/qt_clust_table.tsv"
