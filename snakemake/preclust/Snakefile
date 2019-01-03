@@ -196,6 +196,10 @@ TARGET_FILES["evaluation_nr_cores"] = evaluation_nr_cores_files
 evaluation_quals_files = expand(config["HOME_ROOT_OUT"] + "evaluation_quals/{dataset}/{quals}/{tool}_table.tsv", dataset = config["ISOSEQ_DATASET"], tool = ["qt_clust"], quals = config["QUALS"]) 
 TARGET_FILES["evaluation_quals"] = evaluation_quals_files
 
+#EVALUATION QUALS ONT
+evaluation_quals_files = expand(config["HOME_ROOT_OUT"] + "evaluation_quals/{ont_dataset}/ont/{quals}/{tool}_table.tsv", ont_dataset = config["ONT_DATASET"], tool = ["qt_clust"], quals = config["QUALS"]) 
+TARGET_FILES["evaluation_quals_ont"] = evaluation_quals_files
+
 
 
 # SIMULATE
@@ -242,6 +246,9 @@ rule evaluation_nr_cores:
 
 rule evaluation_quals:
         input: TARGET_FILES["evaluation_quals"]
+
+rule evaluation_quals_ont:
+        input: TARGET_FILES["evaluation_quals_ont"]
 
 rule simulation:
         input: TARGET_FILES["simulation"]
@@ -816,7 +823,7 @@ rule v_measure_quals:
     output: 
         qt_clust_res = config["HOME_ROOT_OUT"] + "evaluation_quals/{dataset}/{quals}/qt_clust_table.tsv"
     run:
-        sorted_bam = config["HOME_ROOT_OUT"] + "read_alignment/{0}_sorted.bam".format(wildcards.dataset, wildcards.quals)
+        sorted_bam = config["HOME_ROOT_OUT"] + "read_alignment/{0}_sorted.bam".format(wildcards.dataset)
 
         if os.path.isfile(sorted_bam):
             pass
