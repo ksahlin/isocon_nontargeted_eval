@@ -863,7 +863,7 @@ rule qt_clust_quals_ont:
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem_quals/qt_clust/{0}/{1}/".format(wildcards.ont_dataset, wildcards.quals) )
-        outfolder = config["ROOT_OUT"] + "cluster_quals/qt_clust/{0}/{1}/".format(wildcards.ont_dataset, wildcards.quals)
+        outfolder = config["ROOT_OUT"] + "cluster_quals/qt_clust/{0}/ont/{1}/".format(wildcards.ont_dataset, wildcards.quals)
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(outfolder)
         shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --ont --t 16 --fastq {input.fastq}  --outfolder {outfolder} ")
