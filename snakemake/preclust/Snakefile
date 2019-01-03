@@ -816,14 +816,18 @@ rule v_measure_quals:
     output: 
         qt_clust_res = config["HOME_ROOT_OUT"] + "evaluation_quals/{dataset}/{quals}/qt_clust_table.tsv"
     run:
-        mkdir_p(config["HOME_ROOT_OUT"] + "read_alignment/")
-        bam = config["HOME_ROOT_OUT"] + "read_alignment/{0}_{1}.bam".format(wildcards.dataset, wildcards.quals) #"/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{dataset}.sam"
-        # bam = "{0}.bam".format(input.true)
-        shell("samtools view -b {input.true} -o {bam}")
-        sorted_bam = config["HOME_ROOT_OUT"] + "read_alignment/{0}_{1}_sorted.bam".format(wildcards.dataset, wildcards.quals)
-        # sorted_bam = "{0}_sorted.bam".format(input.true)
-        shell("samtools sort {bam} > {sorted_bam}")
-        shell("samtools index {sorted_bam}")
+        sorted_bam = config["HOME_ROOT_OUT"] + "read_alignment/{0}_sorted.bam".format(wildcards.dataset, wildcards.quals)
+
+        if os.path.isfile(sorted_bam):
+            pass
+        else:
+            mkdir_p(config["HOME_ROOT_OUT"] + "read_alignment/")
+            bam = config["HOME_ROOT_OUT"] + "read_alignment/{0}.bam".format(wildcards.dataset) #"/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{dataset}.sam"
+            # bam = "{0}.bam".format(input.true)
+            shell("samtools view -b {input.true} -o {bam}")
+            # sorted_bam = "{0}_sorted.bam".format(input.true)
+            shell("samtools sort {bam} > {sorted_bam}")
+            shell("samtools index {sorted_bam}")
 
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["HOME_ROOT_OUT"] + "evaluation_quals/{0}/{1}".format(wildcards.dataset, wildcards.quals))
