@@ -33,6 +33,16 @@
         "mail_type" : "FAIL",
         "exclude" : "c[4,6-7,8-16]"
     },
+    "qt_clust_quals_ont" : 
+    {
+        "jobname" : "qt_clust_quals",
+        "ntasks" : "16",
+        "Nodes" : 1,
+        "runtime" : "7-00:00:00",
+        "mail" : "ksahlin@kth.se",
+        "mail_type" : "FAIL",
+        "exclude" : "c[4,6-7,8-16]"
+    },
 
     "qt_clust_core_variability" : 
     {
