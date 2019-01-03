@@ -847,7 +847,7 @@ rule v_measure_quals:
 
 
 rule write_fake_fastq_ont:
-    input:  fastq = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
+    input:  fastq = config["ROOT_OUT"] + "{ont_dataset}/ont/ont.fastq"
     output: fix_q_outfile = config["ROOT_OUT"] + "cluster_quals/qt_clust/{ont_dataset}/ont/{quals}/flnc_fixed.fastq"
     run:
         outfolder = config["ROOT_OUT"] + "cluster_quals/qt_clust/{0}/{1}/".format(wildcards.ont_dataset, wildcards.quals)
