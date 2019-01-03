@@ -2,7 +2,7 @@
     "__default__" : 
     {
         "account" : "",
-        "ntasks" : "4",
+        "ntasks" : "8",
         "Nodes" : 1,
         "runtime" : "04:00:00",
         "jobname" : "pipline",
@@ -26,7 +26,7 @@
     "qt_clust_quals" : 
     {
         "jobname" : "qt_clust_quals",
-        "ntasks" : "8",
+        "ntasks" : "16",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
