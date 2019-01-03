@@ -816,6 +816,7 @@ rule v_measure_quals:
     output: 
         qt_clust_res = config["HOME_ROOT_OUT"] + "evaluation_quals/{dataset}/{quals}/qt_clust_table.tsv"
     run:
+        mkdir_p(config["HOME_ROOT_OUT"] + "read_alignment/")
         bam = config["HOME_ROOT_OUT"] + "read_alignment/{0}_{1}.bam".format(wildcards.dataset, wildcards.quals) #"/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{dataset}.sam"
         # bam = "{0}.bam".format(input.true)
         shell("samtools view -b {input.true} -o {bam}")
