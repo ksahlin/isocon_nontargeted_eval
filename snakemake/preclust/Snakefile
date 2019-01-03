@@ -844,6 +844,58 @@ rule v_measure_quals:
         shell("pip list")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
 
+
+
+rule write_fake_fastq_ont:
+    input:  fastq = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
+    output: fix_q_outfile = config["ROOT_OUT"] + "cluster_quals/qt_clust/{dataset_ont}/ont/{quals}/flnc_fixed.fastq"
+    run:
+        outfolder = config["ROOT_OUT"] + "cluster_quals/qt_clust/{0}/{1}/".format(wildcards.dataset_ont, wildcards.quals)
+        script_path = config["SCRIPT_FOLDER"]
+        mkdir_p(outfolder)
+        shell("python {script_path}/fix_quality_values_experiment.py  --fastq {input.fastq} --quality {wildcards.quals} --outfile {output.fix_q_outfile}")
+
+
+rule qt_clust_quals_ont:
+    input:  fastq = rules.write_fake_fastq_ont.output.fix_q_outfile
+    output: clusters = config["ROOT_OUT"] + "cluster_quals/qt_clust/{ont_dataset}/ont/{quals}/final_clusters.csv"
+    run:
+        time = config["GNUTIME"]
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem_quals/qt_clust/{0}/{1}/".format(wildcards.ont_dataset, wildcards.quals) )
+        outfolder = config["ROOT_OUT"] + "cluster_quals/qt_clust/{0}/{1}/".format(wildcards.ont_dataset, wildcards.quals)
+        script_path = config["SCRIPT_FOLDER"]
+        mkdir_p(outfolder)
+        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --isoseq --t 1 --fastq {input.fastq}  --outfolder {outfolder} ")
+
+
+rule v_measure_quals_ont:
+    input: 
+        true  = rules.minimap2_align_real.output.alignment,
+        qt_clust_predicted = rules.qt_clust_quals_ont.output.clusters
+    output: 
+        qt_clust_res = config["HOME_ROOT_OUT"] + "evaluation_quals/{ont_dataset}/ont/{quals}/qt_clust_table.tsv"
+    run:
+        sorted_bam = config["HOME_ROOT_OUT"] + "read_alignment/{0}_sorted.bam".format(wildcards.ont_dataset)
+
+        if os.path.isfile(sorted_bam):
+            pass
+        else:
+            mkdir_p(config["HOME_ROOT_OUT"] + "read_alignment/")
+            bam = config["HOME_ROOT_OUT"] + "read_alignment/{0}.bam".format(wildcards.ont_dataset) #"/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{ont_dataset}.sam"
+            # bam = "{0}.bam".format(input.true)
+            shell("samtools view -b {input.true} -o {bam}")
+            # sorted_bam = "{0}_sorted.bam".format(input.true)
+            shell("samtools sort {bam} > {sorted_bam}")
+            shell("samtools index {sorted_bam}")
+
+        script_path = config["SCRIPT_FOLDER"]
+        mkdir_p(config["HOME_ROOT_OUT"] + "evaluation_quals/{0}/{1}".format(wildcards.ont_dataset, wildcards.quals))
+        shell("source activate isoseq3")
+        shell("which python")
+        shell("python --version")
+        shell("pip list")
+        shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}") 
+
 ########################################################
 ########################################################
 
