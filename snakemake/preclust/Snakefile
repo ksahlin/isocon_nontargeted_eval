@@ -129,7 +129,7 @@ wildcard_constraints:
     dataset="[^/]+",
     ont_dataset="[^/]+",
     sim_dataset="[^/]+",
-    nr_reads="[^/]+",
+    nr_reads="[\d]+",
     quals="[^/]+"
 
 ############## TARGET FILES ####################
