@@ -127,7 +127,7 @@ def clean_dir(folder):
 
 wildcard_constraints:
     dataset="[^/]+",
-    ont_dataset="^[^/0]*$",
+    ont_dataset="[^/]+",
     sim_dataset="[^/]+",
     nr_reads="[^/]+",
     quals="[^/]+"
@@ -182,11 +182,11 @@ eval_isoseq_files = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{tool}_tab
 TARGET_FILES["evaluation"] = eval_isoseq_files
 
 #EVALUATION SIMULATED
-eval_sim_files = expand(config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/{tool}_table.tsv", sim_dataset = config["SIM_DATASET"],  nr_reads = config["NR_SIM_READS"], tool = ["isoseq3", "qt_clust", "carnac_lr", "linclust"]) 
+eval_sim_files = expand(config["ROOT_OUT"] + "evaluation_sim/{sim_dataset}/{nr_reads}/{tool}_table.tsv", sim_dataset = config["SIM_DATASET"],  nr_reads = config["NR_SIM_READS"], tool = ["isoseq3", "qt_clust", "carnac_lr", "linclust"]) 
 TARGET_FILES["evaluation_sim"] = eval_sim_files
 
 # EVALUATION ONT
-eval_ont_files = expand(config["ROOT_OUT"] + "evaluation/{ont_dataset}/ont/{tool}_table.tsv", ont_dataset = config["ONT_DATASET"], tool = ["qt_clust", "carnac_lr", "linclust"]) 
+eval_ont_files = expand(config["ROOT_OUT"] + "evaluation_ont/{ont_dataset}/ont/{tool}_table.tsv", ont_dataset = config["ONT_DATASET"], tool = ["qt_clust", "carnac_lr", "linclust"]) 
 TARGET_FILES["evaluation_ont"] = eval_ont_files
 
 #EVALUATION NR CORES
@@ -210,8 +210,8 @@ TARGET_FILES["simulation"] = simulate_files
 
 #QTCLUST_EVAL
 csv_pb_file = expand(config["ROOT_OUT"] + "evaluation/{dataset}/V_per_class_size.csv", dataset = config["ISOSEQ_DATASET"], tool = ["qt_clust"]) 
-csv_ont_file = expand(config["ROOT_OUT"] + "evaluation/{dataset}/ont/V_per_class_size.csv", dataset = config["ONT_DATASET"], tool = ["qt_clust"]) 
-csv_sim_file = expand(config["ROOT_OUT"] + "evaluation/{dataset}/{nr_reads}/V_per_class_size.csv", dataset = config["SIM_DATASET"], tool = ["qt_clust"], nr_reads =config["NR_SIM_READS"]) 
+csv_ont_file = expand(config["ROOT_OUT"] + "evaluation_ont/{dataset}/ont/V_per_class_size.csv", dataset = config["ONT_DATASET"], tool = ["qt_clust"]) 
+csv_sim_file = expand(config["ROOT_OUT"] + "evaluation_sim/{dataset}/{nr_reads}/V_per_class_size.csv", dataset = config["SIM_DATASET"], tool = ["qt_clust"], nr_reads =config["NR_SIM_READS"]) 
 csv_rand_index_file = [config["ROOT_OUT"] + "evaluation/all_datasets_rand_index_per_error_rate_table.tsv"]
 TARGET_FILES["csv_for_plots"] = csv_pb_file + csv_ont_file + csv_sim_file + csv_rand_index_file
 
@@ -603,9 +603,9 @@ rule v_measure_ont:
         linclust_predicted = rules.linclust_ont.output.clusters
 
     output: 
-        qt_clust_res = config["ROOT_OUT"] + "evaluation/{ont_dataset}/ont/qt_clust_table.tsv",
-        carnac_res = config["ROOT_OUT"] + "evaluation/{ont_dataset}/ont/carnac_lr_table.tsv",
-        linclust_res = config["ROOT_OUT"] + "evaluation/{ont_dataset}/ont/linclust_table.tsv"
+        qt_clust_res = config["ROOT_OUT"] + "evaluation_ont/{ont_dataset}/ont/qt_clust_table.tsv",
+        carnac_res = config["ROOT_OUT"] + "evaluation_ont/{ont_dataset}/ont/carnac_lr_table.tsv",
+        linclust_res = config["ROOT_OUT"] + "evaluation_ont/{ont_dataset}/ont/linclust_table.tsv"
     run:
         bam = "{0}.bam".format(input.true)
         shell("samtools view -b {input.true} > {bam}")
@@ -614,7 +614,7 @@ rule v_measure_ont:
         shell("samtools index {sorted_bam}")
 
         script_path = config["SCRIPT_FOLDER"]
-        mkdir_p(config["ROOT_OUT"] + "evaluation/{0}/ont/".format(wildcards.ont_dataset))
+        mkdir_p(config["ROOT_OUT"] + "evaluation_ont/{0}/ont/".format(wildcards.ont_dataset))
         # shell("source activate isoseq3")
         # shell("which python")
         # shell("python --version")
@@ -677,10 +677,10 @@ rule v_measure_sim:
         linclust_predicted = rules.linclust_sim.output.clusters
 
     output: 
-        isoseq3_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/isoseq3_table.tsv",
-        qt_clust_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/qt_clust_table.tsv",
-        carnac_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/carnac_lr_table.tsv",
-        linclust_res = config["ROOT_OUT"] + "evaluation/{sim_dataset}/{nr_reads}/linclust_table.tsv"
+        isoseq3_res = config["ROOT_OUT"] + "evaluation_sim/{sim_dataset}/{nr_reads}/isoseq3_table.tsv",
+        qt_clust_res = config["ROOT_OUT"] + "evaluation_sim/{sim_dataset}/{nr_reads}/qt_clust_table.tsv",
+        carnac_res = config["ROOT_OUT"] + "evaluation_sim/{sim_dataset}/{nr_reads}/carnac_lr_table.tsv",
+        linclust_res = config["ROOT_OUT"] + "evaluation_sim/{sim_dataset}/{nr_reads}/linclust_table.tsv"
 
     run:
         bam = "{0}.bam".format(input.true)
@@ -690,7 +690,7 @@ rule v_measure_sim:
         shell("samtools index {sorted_bam}")
 
         script_path = config["SCRIPT_FOLDER"]
-        mkdir_p(config["ROOT_OUT"] + "evaluation/{0}_{1}/".format(wildcards.sim_dataset, wildcards.nr_reads))
+        mkdir_p(config["ROOT_OUT"] + "evaluation_sim/{0}_{1}/".format(wildcards.sim_dataset, wildcards.nr_reads))
         # shell("source activate isoseq3")
         # shell("which python")
         # shell("python --version")
