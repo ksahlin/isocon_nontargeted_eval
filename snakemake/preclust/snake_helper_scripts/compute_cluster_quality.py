@@ -361,6 +361,7 @@ def main(args):
     if not clusters:
         outfile = open(args.outfile, "w")
         outfile.write("No clusters created\n")
+        outfile.close()
         return
 
     if args.simulated:

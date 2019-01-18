@@ -621,9 +621,9 @@ rule v_measure_ont:
         # shell("which python")
         # shell("python --version")
         # shell("pip list")
-        shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.qt_clust_predicted} --classes {true}  --outfile {output.qt_clust_res}")
-        shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.linclust_predicted} --classes {true}  --outfile {output.linclust_res}")
-        shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.carnac_predicted} --classes {true}  --outfile {output.carnac_res}")
+        shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.qt_clust_predicted} --classes {input.true}  --outfile {output.qt_clust_res}")
+        shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.linclust_predicted} --classes {input.true}  --outfile {output.linclust_res}")
+        shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.carnac_predicted} --classes {input.true}  --outfile {output.carnac_res}")
 
         # if wildcards.ont_dataset == "Alzheimer_IsoSeq_2016":
         #     shell("touch {output.carnac_res}")
