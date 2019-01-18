@@ -186,7 +186,10 @@ eval_sim_files = expand(config["ROOT_OUT"] + "evaluation_sim/{sim_dataset}/{nr_r
 TARGET_FILES["evaluation_sim"] = eval_sim_files
 
 # EVALUATION ONT
-eval_ont_files = expand(config["ROOT_OUT"] + "evaluation_ont/{ont_dataset}/ont/{tool}_table.tsv", ont_dataset = config["ONT_DATASET"], tool = ["qt_clust", "carnac_lr", "linclust"]) 
+# eval_ont_files = expand(config["ROOT_OUT"] + "evaluation_ont/{ont_dataset}/ont/{tool}_table.tsv", ont_dataset = config["ONT_DATASET"], tool = ["qt_clust", "carnac_lr", "linclust"]) 
+eval_ont_files = expand("/nfs/brubeck.bx.psu.edu/scratch4/ksahlin/preclust_eval/evaluation_ont/{ont_dataset}/ont/{tool}_table.tsv", ont_dataset = config["ONT_DATASET"], tool = ["qt_clust", "carnac_lr", "linclust"]) 
+
+
 TARGET_FILES["evaluation_ont"] = eval_ont_files
 
 #EVALUATION NR CORES
@@ -611,9 +614,9 @@ rule v_measure_ont:
         linclust_predicted = rules.linclust_ont.output.clusters
 
     output: 
-        qt_clust_res = config["ROOT_OUT"] + "evaluation_ont/{ont_dataset}/ont/qt_clust_table.tsv",
-        carnac_res = config["ROOT_OUT"] + "evaluation_ont/{ont_dataset}/ont/carnac_lr_table.tsv",
-        linclust_res = config["ROOT_OUT"] + "evaluation_ont/{ont_dataset}/ont/linclust_table.tsv"
+        qt_clust_res = "/nfs/brubeck.bx.psu.edu/scratch4/ksahlin/preclust_eval/evaluation_ont/{ont_dataset}/ont/qt_clust_table.tsv", # config["ROOT_OUT"] + "evaluation_ont/{ont_dataset}/ont/qt_clust_table.tsv",
+        carnac_res = "/nfs/brubeck.bx.psu.edu/scratch4/ksahlin/preclust_eval/evaluation_ont/{ont_dataset}/ont/carnac_lr_table.tsv", #config["ROOT_OUT"] + "evaluation_ont/{ont_dataset}/ont/carnac_lr_table.tsv",
+        linclust_res = "/nfs/brubeck.bx.psu.edu/scratch4/ksahlin/preclust_eval/evaluation_ont/{ont_dataset}/ont/linclust_table.tsv", #config["ROOT_OUT"] + "evaluation_ont/{ont_dataset}/ont/linclust_table.tsv"
     run:
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["ROOT_OUT"] + "evaluation_ont/{0}/ont/".format(wildcards.ont_dataset))
