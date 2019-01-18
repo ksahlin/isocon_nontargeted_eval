@@ -358,6 +358,11 @@ def get_cluster_information(clusters, classes):
 def main(args):
 
     clusters = parse_inferred_clusters_tsv(args.clusters, args)
+    if not clusters:
+        outfile = open(args.outfile, "w")
+        outfile.write("No clusters created\n")
+        return
+
     if args.simulated:
         ref_file = pysam.AlignmentFile(args.classes, "r", check_sq=False)
         classes  = parse_true_clusters_simulated(ref_file)

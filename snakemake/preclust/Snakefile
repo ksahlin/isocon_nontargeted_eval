@@ -595,9 +595,17 @@ rule file_convert_isoseq3_sim_clusters:
         shell("python {script_path}/modify_cluster_format.py {input.clusters} {output.clusters} ")
 
 
+rule sam_to_sorted_bam_ont:
+    input: true  = rules.minimap2_align_ont.output.alignment
+    output: sorted_bam ="/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/ont/{ont_dataset}_sorted.bam"
+    run:
+        bam = "{0}.bam".format(input.true)
+        shell("samtools view -b {input.true} > {bam}")
+        shell("samtools sort {bam} > {output.sorted_bam}")
+        shell("samtools index {output.sorted_bam}")
+
 rule v_measure_ont:
-    input: 
-        true  = rules.minimap2_align_ont.output.alignment,
+    input:  true  = rules.sam_to_sorted_bam_ont.output.sorted_bam,
         qt_clust_predicted = rules.qt_clust_ont.output.clusters,
         carnac_predicted = rules.carnac_ont.output.clusters,
         linclust_predicted = rules.linclust_ont.output.clusters
@@ -607,21 +615,15 @@ rule v_measure_ont:
         carnac_res = config["ROOT_OUT"] + "evaluation_ont/{ont_dataset}/ont/carnac_lr_table.tsv",
         linclust_res = config["ROOT_OUT"] + "evaluation_ont/{ont_dataset}/ont/linclust_table.tsv"
     run:
-        bam = "{0}.bam".format(input.true)
-        shell("samtools view -b {input.true} > {bam}")
-        sorted_bam = "{0}_sorted.bam".format(input.true)
-        shell("samtools sort {bam} > {sorted_bam}")
-        shell("samtools index {sorted_bam}")
-
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["ROOT_OUT"] + "evaluation_ont/{0}/ont/".format(wildcards.ont_dataset))
         # shell("source activate isoseq3")
         # shell("which python")
         # shell("python --version")
         # shell("pip list")
-        shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
-        shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.linclust_predicted} --classes {sorted_bam}  --outfile {output.linclust_res}")
-        shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.carnac_predicted} --classes {sorted_bam}  --outfile {output.carnac_res}")
+        shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.qt_clust_predicted} --classes {true}  --outfile {output.qt_clust_res}")
+        shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.linclust_predicted} --classes {true}  --outfile {output.linclust_res}")
+        shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.carnac_predicted} --classes {true}  --outfile {output.carnac_res}")
 
         # if wildcards.ont_dataset == "Alzheimer_IsoSeq_2016":
         #     shell("touch {output.carnac_res}")
