@@ -323,7 +323,7 @@ rule qt_clust_real:
     input:  flnc = rules.isoseq3_real.output.flnc,
             ccs = rules.merge_demultiplexed_files.output.outfile
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{dataset}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{dataset}/pre_clusters.csv"
+            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{dataset}/final_clusters.csv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/".format(wildcards.dataset) )
@@ -434,7 +434,7 @@ rule qt_clust_sim:
     input:  flnc = rules.simulate_dataset.output.reads,
             ccs = rules.simulate_dataset.output.reads
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{sim_dataset}/{nr_reads}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{sim_dataset}/{nr_reads}/pre_clusters.csv"
+            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{sim_dataset}/{nr_reads}/final_clusters.csv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/{1}/".format(wildcards.sim_dataset, wildcards.nr_reads) )
@@ -494,7 +494,7 @@ rule linclust_sim:
 rule qt_clust_ont:
     input:  fastq = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{ont_dataset}/ont/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{ont_dataset}/ont/pre_clusters.csv"
+            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{ont_dataset}/ont/final_clusters.csv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/ont/".format(wildcards.ont_dataset) )
@@ -759,7 +759,7 @@ rule qt_clust_core_variability:
     input:  flnc = rules.isoseq3_real.output.flnc,
             ccs = rules.merge_demultiplexed_files.output.outfile
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem_nr_cores/qt_clust/{dataset}/{nr_cores}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster_nr_cores/qt_clust/{dataset}/{nr_cores}/pre_clusters.csv"
+            clusters = config["ROOT_OUT"] + "cluster_nr_cores/qt_clust/{dataset}/{nr_cores}/final_clusters.csv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem_nr_cores/qt_clust/{0}/{1}/".format(wildcards.dataset, wildcards.nr_cores) )
