@@ -284,7 +284,6 @@ rule lima:
             primers = config["DATA"] + "{dataset}/primers.fasta"
     output: demultiplexed_ccs_reads = config["DATA"] + "{dataset}/lima/{movie}.demux.primer_5p--primer_3p.bam" 
     run:
-        shell("source activate isoseq3")
         out = config["DATA"] + "{0}/lima/{1}.demux.bam".format(wildcards.dataset, wildcards.movie)
         shell("lima {input.ccs_reads} {input.primers} {out} --isoseq --no-pbi --dump-clips")
 
@@ -298,14 +297,16 @@ rule merge_demultiplexed_files:
         shell("pbindex {output.outfile}")
 
 rule isoseq3_refine:
-    input:  ccs = rules.merge_demultiplexed_files.output.outfile
+    input:  ccs = rules.merge_demultiplexed_files.output.outfile,
+            primers = config["DATA"] + "{dataset}/primers.fasta"
     output: flnc = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.flnc.bam",
             fasta_flattened_out = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished_flattened.flnc.fasta",
             fastq_flattened_out = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished_flattened.flnc.fastq"
 
     run:
         time = config["GNUTIME"]
-        shell("{time} isoseq3 refine {input.ccs} {output.flnc}")
+        shell("{time} isoseq3 refine {input.ccs} {input.primers} {output.flnc}")
+        
         fasta = config["ROOT_OUT"] + "cluster/isoseq3/{0}/unpolished.flnc.fasta".format(wildcards.dataset)
         flnc_in = config["ROOT_OUT"] + "cluster/isoseq3/{0}/unpolished.flnc.bam".format(wildcards.dataset)
         shell("bamtools convert -format fasta -in {flnc_in} -out {fasta} ")
@@ -326,7 +327,6 @@ rule isoseq3_real:
             clusters = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.cluster",
             consensus = config["ROOT_OUT"] + "cluster/isoseq3/{dataset}/unpolished.bam"
     run:
-        shell("source activate isoseq3")
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/isoseq3/{0}/".format(wildcards.dataset) )
         mkdir_p(config["ROOT_OUT"] + "cluster/isoseq3/{0}/".format(wildcards.dataset) )
@@ -446,7 +446,6 @@ rule isoseq3_sim:
             flnc = config["ROOT_OUT"] + "cluster/isoseq3/{sim_dataset}/{nr_reads}/unpolished.flnc.bam",
             consensus = config["ROOT_OUT"] + "cluster/isoseq3/{sim_dataset}/{nr_reads}/unpolished.bam"
     run:
-        # shell("source activate isoseq3")
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/isoseq3/{0}_{1}/".format(wildcards.sim_dataset, wildcards.nr_reads) )
         mkdir_p(config["ROOT_OUT"] + "cluster/isoseq3/{0}_{1}/".format(wildcards.sim_dataset, wildcards.nr_reads) )
@@ -668,7 +667,6 @@ rule v_measure_ont:
     run:
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["ROOT_OUT"] + "evaluation_ont/{0}/ont/".format(wildcards.ont_dataset))
-        # shell("source activate isoseq3")
         # shell("which python")
         # shell("python --version")
         # shell("pip list")
@@ -709,10 +707,6 @@ rule v_measure_real:
 
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["ROOT_OUT"] + "evaluation/{0}/".format(wildcards.dataset))
-        # shell("source activate isoseq3")
-        # shell("which python")
-        # shell("python --version")
-        # shell("pip list")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.isonclust2_predicted} --classes {sorted_bam}  --outfile {output.isonclust2_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {sorted_bam}  --outfile {output.isoseq3_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
@@ -840,7 +834,6 @@ rule v_measure_core_variability:
 
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["ROOT_OUT"] + "evaluation_nr_cores/{0}/{1}".format(wildcards.dataset, wildcards.nr_cores))
-        shell("source activate isoseq3")
         shell("which python")
         shell("python --version")
         shell("pip list")
@@ -899,7 +892,7 @@ rule v_measure_quals:
 
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["HOME_ROOT_OUT"] + "evaluation_quals/{0}/{1}".format(wildcards.dataset, wildcards.quals))
-        shell("source activate isoseq3")
+
         shell("which python")
         shell("python --version")
         shell("pip list")
@@ -951,7 +944,6 @@ rule v_measure_quals_ont:
 
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["HOME_ROOT_OUT"] + "evaluation_quals/{0}/{1}".format(wildcards.ont_dataset, wildcards.quals))
-        shell("source activate isoseq3")
         shell("which python")
         shell("python --version")
         shell("pip list")
