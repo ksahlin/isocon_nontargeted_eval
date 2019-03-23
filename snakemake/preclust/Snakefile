@@ -810,7 +810,7 @@ rule make_eval_table:
 ########################################################
 
 rule qt_clust_core_variability:
-    input:  flnc = rules.isoseq3_real.output.flnc,
+    input:  flnc = rules.isoseq3_refine.output.flnc,
             ccs = rules.merge_demultiplexed_files.output.outfile
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem_nr_cores/qt_clust/{dataset}/{nr_cores}/runtime.stdout",
             clusters = config["ROOT_OUT"] + "cluster_nr_cores/qt_clust/{dataset}/{nr_cores}/final_clusters.csv"
@@ -854,7 +854,7 @@ rule v_measure_core_variability:
 ########################################################
 
 rule write_fake_fastq:
-    input:  flnc = rules.isoseq3_real.output.flnc,
+    input:  flnc = rules.isoseq3_refine.output.flnc,
             ccs = rules.merge_demultiplexed_files.output.outfile
     output: fix_q_outfile = config["ROOT_OUT"] + "cluster_quals/qt_clust/{dataset}/{quals}/flnc_fixed.fastq"
     run:
