@@ -454,12 +454,12 @@ rule isoseq3_sim:
 
 rule isonclust2_sim:
     input:  flnc = rules.simulate_dataset.output.fastq
-    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/isonclust2/{sim_dataset}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/isonclust2/{sim_dataset}/final_clusters.csv"
+    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/isonclust2/{sim_dataset}/{nr_reads}/runtime.stdout",
+            clusters = config["ROOT_OUT"] + "cluster/isonclust2/{sim_dataset}/{nr_reads}/final_clusters.csv"
     run:
         time = config["GNUTIME"]
-        mkdir_p(config["ROOT_OUT"] + "time_and_mem/isonclust2/{0}/".format(wildcards.sim_dataset) )
-        outfolder = config["ROOT_OUT"] + "cluster/isonclust2/{0}/".format(wildcards.sim_dataset)
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/isonclust2/{0}/".format(wildcards.sim_dataset, wildcards.nr_reads) )
+        outfolder = config["ROOT_OUT"] + "cluster/isonclust2/{0}/".format(wildcards.sim_dataset, wildcards.nr_reads)
         mkdir_p(outfolder)
         shell("{time} isONclust2 -k 15 -w 50 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
@@ -526,12 +526,12 @@ rule linclust_sim:
 
 rule isonclust2_ont:
     input:  flnc = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
-    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/isonclust2/{ont_dataset}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/isonclust2/{ont_dataset}/final_clusters.csv"
+    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/isonclust2/{ont_dataset}/ont/runtime.stdout",
+            clusters = config["ROOT_OUT"] + "cluster/isonclust2/{ont_dataset}/ont/final_clusters.csv"
     run:
         time = config["GNUTIME"]
-        mkdir_p(config["ROOT_OUT"] + "time_and_mem/isonclust2/{0}/".format(wildcards.ont_dataset) )
-        outfolder = config["ROOT_OUT"] + "cluster/isonclust2/{0}/".format(wildcards.ont_dataset)
+        mkdir_p(config["ROOT_OUT"] + "time_and_mem/isonclust2/{0}/ont/".format(wildcards.ont_dataset) )
+        outfolder = config["ROOT_OUT"] + "cluster/isonclust2/{0}/ont/".format(wildcards.ont_dataset)
         mkdir_p(outfolder)
         shell("{time} isONclust2 -k 13 -w 20 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
