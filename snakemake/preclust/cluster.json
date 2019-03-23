@@ -12,6 +12,38 @@
 
     },
 
+    "isonclust2_real" : 
+    {
+        "jobname" : "isonclust2_real",
+        "ntasks" : "4",
+        "Nodes" : 1,
+        "runtime" : "7-00:00:00",
+        "mail" : "ksahlin@kth.se",
+        "mail_type" : "FAIL",
+        "exclude" : "c[4,6-7,8-16]"
+    },
+    "isonclust2_sim" : 
+    {
+        "jobname" : "isonclust2_sim",
+        "ntasks" : "4",
+        "Nodes" : 1,
+        "runtime" : "7-00:00:00",
+        "mail" : "ksahlin@kth.se",
+        "mail_type" : "FAIL",
+        "exclude" : "c[4,6-7,8-16]"
+    },
+
+    "isonclust2_ont" : 
+    {
+        "jobname" : "isonclust2_ont",
+        "ntasks" : "4",
+        "Nodes" : 1,
+        "runtime" : "7-00:00:00",
+        "mail" : "ksahlin@kth.se",
+        "mail_type" : "FAIL",
+        "exclude" : "c[4,6-7,8-16]"
+    },
+
     "qt_clust_real" : 
     {
         "jobname" : "qt_clust_real",
