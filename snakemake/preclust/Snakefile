@@ -345,7 +345,7 @@ rule isonclust2_real:
 
 
 rule qt_clust_real:
-    input:  flnc =  rules.isoseq3_refine.output.fastq_flattened_out,
+    input:  fastq =  rules.isoseq3_refine.output.fastq_flattened_out,
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{dataset}/runtime.stdout",
             clusters = config["ROOT_OUT"] + "cluster/qt_clust/{dataset}/final_clusters.csv"
     run:
@@ -354,9 +354,9 @@ rule qt_clust_real:
         outfolder = config["ROOT_OUT"] + "cluster/qt_clust/{0}/".format(wildcards.dataset)
 
         mkdir_p(outfolder)
-        # python qt_qlust.py --flnc ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --ccs ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --outfolder ~/tmp/qt_clust_chr22_100k/ --t 4
+        # python qt_qlust.py --fastq ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --ccs ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --outfolder ~/tmp/qt_clust_chr22_100k/ --t 4
         # time python  preclust3.py  --reads ~/Documents/data/iso-Seq/alzheimer/isoseq_flnc_300k.fastq  --outfolder ~/tmp/precluster3/alz_400kreads_debug_time_t4 --t 4
-        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --t 1 --fastq {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --t 1 --fastq {input.fastq}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 rule carnac_real:
     input:  flnc_fasta = rules.isoseq3_refine.output.fasta_flattened_out,
@@ -465,7 +465,7 @@ rule isonclust2_sim:
 
 
 rule qt_clust_sim:
-    input:  flnc = rules.simulate_dataset.output.fastq
+    input:  fastq = rules.simulate_dataset.output.fastq
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{sim_dataset}/{nr_reads}/runtime.stdout",
             clusters = config["ROOT_OUT"] + "cluster/qt_clust/{sim_dataset}/{nr_reads}/final_clusters.csv"
     run:
@@ -474,9 +474,9 @@ rule qt_clust_sim:
         outfolder = config["ROOT_OUT"] + "cluster/qt_clust/{0}/{1}/".format(wildcards.sim_dataset, wildcards.nr_reads)
 
         mkdir_p(outfolder)
-        # python qt_qlust.py --flnc ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --ccs ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --outfolder ~/tmp/qt_clust_chr22_100k/ --t 4
+        # python qt_qlust.py --fastq ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --ccs ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --outfolder ~/tmp/qt_clust_chr22_100k/ --t 4
         # time python  preclust3.py  --reads ~/Documents/data/iso-Seq/alzheimer/isoseq_flnc_300k.fastq  --outfolder ~/tmp/precluster3/alz_400kreads_debug_time_t4 --t 4
-        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --t 1 --flnc {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --t 1 --fastq {input.fastq}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
 rule carnac_sim:
