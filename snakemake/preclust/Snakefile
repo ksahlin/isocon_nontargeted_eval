@@ -341,6 +341,7 @@ rule isonclust2_real:
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/isonclust2/{0}/".format(wildcards.dataset) )
         outfolder = config["ROOT_OUT"] + "cluster/isonclust2/{0}/".format(wildcards.dataset)
         # mkdir_p(outfolder)
+        shell("rm -fr {outfolder}")
         shell("{time} isONclust2 -k 15 -w 50 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
@@ -460,6 +461,7 @@ rule isonclust2_sim:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/isonclust2/{0}/{1}".format(wildcards.sim_dataset, wildcards.nr_reads) )
         outfolder = config["ROOT_OUT"] + "cluster/isonclust2/{0}/{1}".format(wildcards.sim_dataset, wildcards.nr_reads)
+        shell("rm -fr {outfolder}")
         shell("{time} isONclust2 -k 15 -w 50 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
@@ -532,6 +534,7 @@ rule isonclust2_ont:
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/isonclust2/{0}/ont/".format(wildcards.ont_dataset) )
         outfolder = config["ROOT_OUT"] + "cluster/isonclust2/{0}/ont/".format(wildcards.ont_dataset)
         # mkdir_p(outfolder)
+        shell("rm -fr {outfolder}")
         shell("{time} isONclust2 -k 13 -w 20 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
