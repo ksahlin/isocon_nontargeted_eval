@@ -40,7 +40,7 @@ def readfq(fp): # this is a generator function
 
 def main(args):
 
-    fastx_seqs = {acc: (seq.upper(), qual) for acc, (seq, qual) in  read_fasta(open(args.fasta_file, 'r'))}
+    fastx_seqs = {acc: (seq.upper(), qual) for acc, (seq, qual) in  read_fasta(open(args.infile, 'r'))}
 
     fastx_flattened = open(args.outfile, "w")
     for acc, (seq, qual) in  sorted(fasta_seqs.items(), key=lambda x: len(x[1])):
