@@ -494,7 +494,8 @@ rule carnac_sim:
         minimap_out = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/{1}/minimap2.paf".format(wildcards.sim_dataset, wildcards.nr_reads)
         time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{0}/{1}/runtime_minimap.stdout".format(wildcards.sim_dataset, wildcards.nr_reads)
 
-        shell("{time} minimap2 -t 8 -X {input.flnc} {input.flnc} > {minimap_out} 2> {time_and_mem_minimap}")
+        # shell("{time} minimap2 -t 8 -X {input.flnc} {input.flnc} > {minimap_out} 2> {time_and_mem_minimap}")
+        shell("{time} minimap -Sw2 -L100 -t8 {input.flnc} {input.flnc} > {minimap_out} 2> {time_and_mem_minimap}")
 
         carnac_input = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/{1}/carnac_in.txt​".format(wildcards.sim_dataset, wildcards.nr_reads)
         shell("python /galaxy/home/ksahlin/prefix/source/CARNAC/scripts/paf_to_CARNAC.py {minimap_out} {input.flnc}  {carnac_input}")
