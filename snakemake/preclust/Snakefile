@@ -1,6 +1,6 @@
 """
-    snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile experimental_experiments.json --latency-wait 100 --verbose -n
-    snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile experimental_experiments.json --latency-wait 100 --verbose --forcerun linclust_sim linclust_real v_measure_sim v_measure_real v_measure_ont  evaluation_sim evaluation evaluation_ont -n --reason
+    snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile experimental_experiments.json --latency-wait 1000 --verbose -n
+    snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile experimental_experiments.json --latency-wait 1000 --verbose --forcerun linclust_sim linclust_real v_measure_sim v_measure_real v_measure_ont  evaluation_sim evaluation evaluation_ont -n --reason
     snakemake  --configfile experimental_experiments.json --latency-wait 100 --verbose -n
     snakemake --configfile experimental_experiments.json --latency-wait 100 --verbose --rerun-incomplete quality -n 
     snakemake --rulegraph --configfile experiments.json | dot -Tpng > figures/ruledag.png
@@ -305,7 +305,7 @@ rule isoseq3_refine:
 
     run:
         time = config["GNUTIME"]
-        shell("{time} isoseq3 refine {input.ccs} {input.primers} {output.flnc}")
+        shell("{time} isoseq3 refine --require-polya {input.ccs} {input.primers} {output.flnc}")
         
         fasta = config["ROOT_OUT"] + "cluster/isoseq3/{0}/unpolished.flnc.fasta".format(wildcards.dataset)
         flnc_in = config["ROOT_OUT"] + "cluster/isoseq3/{0}/unpolished.flnc.bam".format(wildcards.dataset)
@@ -348,7 +348,7 @@ rule isonclust2_real:
 rule qt_clust_real:
     input:  fastq =  rules.isoseq3_refine.output.fastq_flattened_out,
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{dataset}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{dataset}/final_clusters.csv"
+            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{dataset}/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/".format(wildcards.dataset) )
@@ -468,7 +468,7 @@ rule isonclust2_sim:
 rule qt_clust_sim:
     input:  fastq = rules.simulate_dataset.output.fastq
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{sim_dataset}/{nr_reads}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{sim_dataset}/{nr_reads}/final_clusters.csv"
+            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{sim_dataset}/{nr_reads}/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/{1}/".format(wildcards.sim_dataset, wildcards.nr_reads) )
@@ -542,7 +542,7 @@ rule isonclust2_ont:
 rule qt_clust_ont:
     input:  fastq = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{ont_dataset}/ont/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{ont_dataset}/ont/final_clusters.csv"
+            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{ont_dataset}/ont/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/ont/".format(wildcards.ont_dataset) )
@@ -811,7 +811,7 @@ rule qt_clust_core_variability:
     input:  flnc = rules.isoseq3_refine.output.flnc,
             ccs = rules.merge_demultiplexed_files.output.outfile
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem_nr_cores/qt_clust/{dataset}/{nr_cores}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster_nr_cores/qt_clust/{dataset}/{nr_cores}/final_clusters.csv"
+            clusters = config["ROOT_OUT"] + "cluster_nr_cores/qt_clust/{dataset}/{nr_cores}/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem_nr_cores/qt_clust/{0}/{1}/".format(wildcards.dataset, wildcards.nr_cores) )
@@ -863,7 +863,7 @@ rule write_fake_fastq:
 
 rule qt_clust_quals:
     input:  fastq = rules.write_fake_fastq.output.fix_q_outfile
-    output: clusters = config["ROOT_OUT"] + "cluster_quals/qt_clust/{dataset}/{quals}/final_clusters.csv"
+    output: clusters = config["ROOT_OUT"] + "cluster_quals/qt_clust/{dataset}/{quals}/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem_quals/qt_clust/{0}/{1}/".format(wildcards.dataset, wildcards.quals) )
@@ -915,7 +915,7 @@ rule write_fake_fastq_ont:
 
 rule qt_clust_quals_ont:
     input:  fastq = rules.write_fake_fastq_ont.output.fix_q_outfile
-    output: clusters = config["ROOT_OUT"] + "cluster_quals/qt_clust/{ont_dataset}/ont/{quals}/final_clusters.csv"
+    output: clusters = config["ROOT_OUT"] + "cluster_quals/qt_clust/{ont_dataset}/ont/{quals}/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem_quals/qt_clust/{0}/{1}/".format(wildcards.ont_dataset, wildcards.quals) )
