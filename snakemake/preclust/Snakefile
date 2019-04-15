@@ -342,7 +342,7 @@ rule isonclust2_real:
         outfolder = config["ROOT_OUT"] + "cluster/isonclust2/{0}/".format(wildcards.dataset)
         # mkdir_p(outfolder)
         shell("rm -fr {outfolder}")
-        shell("{time} isONclust2 -k 15 -w 50 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+        shell("{time} isONclust2 -q 0 -k 15 -w 50 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
 rule qt_clust_real:
@@ -462,7 +462,7 @@ rule isonclust2_sim:
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/isonclust2/{0}/{1}".format(wildcards.sim_dataset, wildcards.nr_reads) )
         outfolder = config["ROOT_OUT"] + "cluster/isonclust2/{0}/{1}".format(wildcards.sim_dataset, wildcards.nr_reads)
         shell("rm -fr {outfolder}")
-        shell("{time} isONclust2 -k 15 -w 50 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+        shell("{time} isONclust2 -q 0 -k 15 -w 50 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
 rule qt_clust_sim:
@@ -536,7 +536,7 @@ rule isonclust2_ont:
         outfolder = config["ROOT_OUT"] + "cluster/isonclust2/{0}/ont/".format(wildcards.ont_dataset)
         # mkdir_p(outfolder)
         shell("rm -fr {outfolder}")
-        shell("{time} isONclust2 -k 13 -w 20 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+        shell("{time} isONclust2 -q 0 -k 13 -w 20 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
 rule qt_clust_ont:
