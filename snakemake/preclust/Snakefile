@@ -345,7 +345,7 @@ rule isonclust2_real:
         time_and_mem = config["ROOT_OUT"] + "time_and_mem/isonclust2/{0}/runtime.stdout".format(wildcards.dataset) 
         shell("rm -fr {outfolder}")
         shell("{time} isONclust2 -q 0 -k 15 -w 50 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {time_and_mem}")
-
+        shell("touch {output.flag}")
 
 rule qt_clust_real:
     input:  fastq =  rules.isoseq3_refine.output.fastq_flattened_out,
@@ -468,7 +468,7 @@ rule isonclust2_sim:
 
         shell("rm -fr {outfolder}")
         shell("{time} isONclust2 -q 0 -k 15 -w 50 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {time_and_mem}")
-
+        shell("touch {output.flag}")
 
 rule qt_clust_sim:
     input:  fastq = rules.simulate_dataset.output.fastq
@@ -545,7 +545,7 @@ rule isonclust2_ont:
 
         shell("rm -fr {outfolder}")
         shell("{time} isONclust2 -q 0 -k 13 -w 20 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {time_and_mem}")
-
+        shell("touch {output.flag}")
 
 rule qt_clust_ont:
     input:  fastq = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
