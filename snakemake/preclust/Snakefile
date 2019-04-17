@@ -1,6 +1,6 @@
 """
-    snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile experimental_experiments.json --latency-wait 100 --verbose -n
-    snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile experimental_experiments.json --latency-wait 100 --verbose --forcerun linclust_sim linclust_real v_measure_sim v_measure_real v_measure_ont  evaluation_sim evaluation evaluation_ont -n --reason
+    snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile experimental_experiments.json --latency-wait 1000 --verbose -n
+    snakemake --keep-going -j 999999 --cluster "sbatch --exclude={cluster.exclude} -c {cluster.ntasks} -N {cluster.Nodes}  -t {cluster.runtime} -J {cluster.jobname} --mail-type={cluster.mail_type} --mail-user={cluster.mail}" --cluster-config cluster.json --configfile experimental_experiments.json --latency-wait 1000 --verbose --forcerun linclust_sim linclust_real v_measure_sim v_measure_real v_measure_ont  evaluation_sim evaluation evaluation_ont -n --reason
     snakemake  --configfile experimental_experiments.json --latency-wait 100 --verbose -n
     snakemake --configfile experimental_experiments.json --latency-wait 100 --verbose --rerun-incomplete quality -n 
     snakemake --rulegraph --configfile experiments.json | dot -Tpng > figures/ruledag.png
@@ -305,7 +305,7 @@ rule isoseq3_refine:
 
     run:
         time = config["GNUTIME"]
-        shell("{time} isoseq3 refine {input.ccs} {input.primers} {output.flnc}")
+        shell("{time} isoseq3 refine --require-polya {input.ccs} {input.primers} {output.flnc}")
         
         fasta = config["ROOT_OUT"] + "cluster/isoseq3/{0}/unpolished.flnc.fasta".format(wildcards.dataset)
         flnc_in = config["ROOT_OUT"] + "cluster/isoseq3/{0}/unpolished.flnc.bam".format(wildcards.dataset)
@@ -334,21 +334,23 @@ rule isoseq3_real:
         
 rule isonclust2_real:
     input:  flnc =  rules.isoseq3_refine.output.fastq_flattened_out,
-    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/isonclust2/{dataset}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/isonclust2/{dataset}/final_clusters.tsv"
+    output: flag = config["ROOT_OUT"] + "time_and_mem/isonclust2/{dataset}/rule_complete.txt"
+            # time_and_mem = config["ROOT_OUT"] + "time_and_mem/isonclust2/{dataset}/runtime.stdout",
+            # clusters = config["ROOT_OUT"] + "cluster/isonclust2/{dataset}/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/isonclust2/{0}/".format(wildcards.dataset) )
         outfolder = config["ROOT_OUT"] + "cluster/isonclust2/{0}/".format(wildcards.dataset)
         # mkdir_p(outfolder)
+        time_and_mem = config["ROOT_OUT"] + "time_and_mem/isonclust2/{0}/runtime.stdout".format(wildcards.dataset) 
         shell("rm -fr {outfolder}")
-        shell("{time} isONclust2 -k 15 -w 50 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
-
+        shell("{time} isONclust2 -q 0 -k 15 -w 50 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {time_and_mem}")
+        shell("touch {output.flag}")
 
 rule qt_clust_real:
     input:  fastq =  rules.isoseq3_refine.output.fastq_flattened_out,
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{dataset}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{dataset}/final_clusters.csv"
+            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{dataset}/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/".format(wildcards.dataset) )
@@ -357,7 +359,7 @@ rule qt_clust_real:
         mkdir_p(outfolder)
         # python qt_qlust.py --fastq ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --ccs ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --outfolder ~/tmp/qt_clust_chr22_100k/ --t 4
         # time python  preclust3.py  --reads ~/Documents/data/iso-Seq/alzheimer/isoseq_flnc_300k.fastq  --outfolder ~/tmp/precluster3/alz_400kreads_debug_time_t4 --t 4
-        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --t 1 --fastq {input.fastq}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --q 0.0 --t 1 --fastq {input.fastq}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 rule carnac_real:
     input:  flnc_fasta = rules.isoseq3_refine.output.fasta_flattened_out,
@@ -455,20 +457,23 @@ rule isoseq3_sim:
 
 rule isonclust2_sim:
     input:  flnc = rules.simulate_dataset.output.fastq
-    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/isonclust2/{sim_dataset}/{nr_reads}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/isonclust2/{sim_dataset}/{nr_reads}/final_clusters.tsv"
+    output: flag = config["ROOT_OUT"] + "time_and_mem/isonclust2/{sim_dataset}/{nr_reads}/rule_complete.txt"
+            # time_and_mem = config["ROOT_OUT"] + "time_and_mem/isonclust2/{sim_dataset}/{nr_reads}/runtime.stdout",
+            # clusters = config["ROOT_OUT"] + "cluster/isonclust2/{sim_dataset}/{nr_reads}/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/isonclust2/{0}/{1}".format(wildcards.sim_dataset, wildcards.nr_reads) )
         outfolder = config["ROOT_OUT"] + "cluster/isonclust2/{0}/{1}".format(wildcards.sim_dataset, wildcards.nr_reads)
-        shell("rm -fr {outfolder}")
-        shell("{time} isONclust2 -k 15 -w 50 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+        time_and_mem = config["ROOT_OUT"] + "time_and_mem/isonclust2/{0}/{1}/runtime.stdout".format(wildcards.sim_dataset, wildcards.nr_reads)
 
+        shell("rm -fr {outfolder}")
+        shell("{time} isONclust2 -q 0 -k 15 -w 50 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {time_and_mem}")
+        shell("touch {output.flag}")
 
 rule qt_clust_sim:
     input:  fastq = rules.simulate_dataset.output.fastq
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{sim_dataset}/{nr_reads}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{sim_dataset}/{nr_reads}/final_clusters.csv"
+            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{sim_dataset}/{nr_reads}/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/{1}/".format(wildcards.sim_dataset, wildcards.nr_reads) )
@@ -477,7 +482,7 @@ rule qt_clust_sim:
         mkdir_p(outfolder)
         # python qt_qlust.py --fastq ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --ccs ~/tmp/simlord_simulated_ensembl_coding_seqs_chr22_w_extra_tags.fastq.bam --outfolder ~/tmp/qt_clust_chr22_100k/ --t 4
         # time python  preclust3.py  --reads ~/Documents/data/iso-Seq/alzheimer/isoseq_flnc_300k.fastq  --outfolder ~/tmp/precluster3/alz_400kreads_debug_time_t4 --t 4
-        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --t 1 --fastq {input.fastq}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --q 0.0 --t 1 --fastq {input.fastq}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
 rule carnac_sim:
@@ -494,7 +499,8 @@ rule carnac_sim:
         minimap_out = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/{1}/minimap2.paf".format(wildcards.sim_dataset, wildcards.nr_reads)
         time_and_mem_minimap = config["ROOT_OUT"] + "time_and_mem/carnac_lr/{0}/{1}/runtime_minimap.stdout".format(wildcards.sim_dataset, wildcards.nr_reads)
 
-        shell("{time} minimap2 -t 8 -X {input.flnc} {input.flnc} > {minimap_out} 2> {time_and_mem_minimap}")
+        # shell("{time} minimap2 -t 8 -X {input.flnc} {input.flnc} > {minimap_out} 2> {time_and_mem_minimap}")
+        shell("{time} minimap -Sw2 -L100 -t8 {input.flnc} {input.flnc} > {minimap_out} 2> {time_and_mem_minimap}")
 
         carnac_input = config["ROOT_OUT"] + "cluster/carnac_lr/{0}/{1}/carnac_in.txt​".format(wildcards.sim_dataset, wildcards.nr_reads)
         shell("python /galaxy/home/ksahlin/prefix/source/CARNAC/scripts/paf_to_CARNAC.py {minimap_out} {input.flnc}  {carnac_input}")
@@ -527,27 +533,30 @@ rule linclust_sim:
 
 rule isonclust2_ont:
     input:  flnc = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
-    output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/isonclust2/{ont_dataset}/ont/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/isonclust2/{ont_dataset}/ont/final_clusters.tsv"
+    output: flag = config["ROOT_OUT"] + "time_and_mem/isonclust2/{ont_dataset}/ont/rule_complete.txt"
+            # time_and_mem = config["ROOT_OUT"] + "time_and_mem/isonclust2/{ont_dataset}/ont/runtime.stdout",
+            # clusters = config["ROOT_OUT"] + "cluster/isonclust2/{ont_dataset}/ont/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/isonclust2/{0}/ont/".format(wildcards.ont_dataset) )
         outfolder = config["ROOT_OUT"] + "cluster/isonclust2/{0}/ont/".format(wildcards.ont_dataset)
         # mkdir_p(outfolder)
-        shell("rm -fr {outfolder}")
-        shell("{time} isONclust2 -k 13 -w 20 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+        time_and_mem =  config["ROOT_OUT"] + "time_and_mem/isonclust2/{0}/ont/runtime.stdout".format(wildcards.ont_dataset)  # config["ROOT_OUT"] + "time_and_mem/isonclust2/{ont_dataset}/ont/runtime.stdout"
 
+        shell("rm -fr {outfolder}")
+        shell("{time} isONclust2 -q 0 -k 13 -w 20 {input.flnc}  --outfolder {outfolder}  2>&1 | tee {time_and_mem}")
+        shell("touch {output.flag}")
 
 rule qt_clust_ont:
     input:  fastq = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem/qt_clust/{ont_dataset}/ont/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{ont_dataset}/ont/final_clusters.csv"
+            clusters = config["ROOT_OUT"] + "cluster/qt_clust/{ont_dataset}/ont/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem/qt_clust/{0}/ont/".format(wildcards.ont_dataset) )
         outfolder = config["ROOT_OUT"] + "cluster/qt_clust/{0}/ont/".format(wildcards.ont_dataset)
         mkdir_p(outfolder)
-        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --t 1 --w 20 --k 13 --fastq {input.fastq}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
+        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --q 0.0 --t 1 --w 20 --k 13 --fastq {input.fastq}  --outfolder {outfolder}  2>&1 | tee {output.time_and_mem}")
 
 
 rule carnac_ont:
@@ -657,7 +666,7 @@ rule sam_to_sorted_bam_ont:
 rule v_measure_ont:
     input:  true  = rules.sam_to_sorted_bam_ont.output.sorted_bam,
         qt_clust_predicted = rules.qt_clust_ont.output.clusters,
-        isonclust2_predicted = rules.isonclust2_ont.output.clusters,
+        isonclust2_predicted = rules.isonclust2_ont.output.flag,
         carnac_predicted = rules.carnac_ont.output.clusters,
         linclust_predicted = rules.linclust_ont.output.clusters
 
@@ -672,7 +681,8 @@ rule v_measure_ont:
         # shell("which python")
         # shell("python --version")
         # shell("pip list")
-        shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.isonclust2_predicted} --classes {input.true}  --outfile {output.isonclust2_res}")
+        isonclust2_predicted = config["ROOT_OUT"] + "cluster/isonclust2/{0}/ont/final_clusters.tsv".format(wildcards.ont_dataset)
+        shell("python {script_path}/compute_cluster_quality.py --ont --clusters {isonclust2_predicted} --classes {input.true}  --outfile {output.isonclust2_res}")
         shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.qt_clust_predicted} --classes {input.true}  --outfile {output.qt_clust_res}")
         shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.linclust_predicted} --classes {input.true}  --outfile {output.linclust_res}")
         shell("python {script_path}/compute_cluster_quality.py --ont --clusters {input.carnac_predicted} --classes {input.true}  --outfile {output.carnac_res}")
@@ -689,7 +699,7 @@ rule v_measure_real:
         true  = rules.minimap2_align_real.output.alignment,
         isoseq3_predicted  = rules.file_convert_isoseq3_real_clusters.output.clusters,
         qt_clust_predicted = rules.qt_clust_real.output.clusters,
-        isonclust2_predicted = rules.isonclust2_real.output.clusters,
+        isonclust2_predicted = rules.isonclust2_real.output.flag,
         carnac_predicted = rules.carnac_real.output.clusters,
         linclust_predicted = rules.linclust_real.output.clusters
 
@@ -706,10 +716,10 @@ rule v_measure_real:
         sorted_bam = "{0}_sorted.bam".format(input.true)
         shell("samtools sort {bam} > {sorted_bam}")
         shell("samtools index {sorted_bam}")
-
+        isonclust2_predicted =  config["ROOT_OUT"] + "cluster/isonclust2/{0}/final_clusters.tsv".format(wildcards.dataset)
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["ROOT_OUT"] + "evaluation/{0}/".format(wildcards.dataset))
-        shell("python {script_path}/compute_cluster_quality.py --clusters {input.isonclust2_predicted} --classes {sorted_bam}  --outfile {output.isonclust2_res}")
+        shell("python {script_path}/compute_cluster_quality.py --clusters {isonclust2_predicted} --classes {sorted_bam}  --outfile {output.isonclust2_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {sorted_bam}  --outfile {output.isoseq3_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.linclust_predicted} --classes {sorted_bam}  --outfile {output.linclust_res}")
@@ -726,7 +736,7 @@ rule v_measure_sim:
         true  = rules.minimap2_align_sim.output.alignment,
         isoseq3_predicted  = rules.file_convert_isoseq3_sim_clusters.output.clusters,
         qt_clust_predicted = rules.qt_clust_sim.output.clusters,
-        isonclust2_predicted = rules.isonclust2_sim.output.clusters,
+        isonclust2_predicted = rules.isonclust2_sim.output.flag,
         carnac_predicted = rules.carnac_sim.output.clusters,
         linclust_predicted = rules.linclust_sim.output.clusters
 
@@ -746,13 +756,15 @@ rule v_measure_sim:
 
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(config["ROOT_OUT"] + "evaluation_sim/{0}_{1}/".format(wildcards.sim_dataset, wildcards.nr_reads))
+
+        isonclust2_predicted = config["ROOT_OUT"] + "cluster/isonclust2/{0}/{1}/final_clusters.tsv".format(wildcards.sim_dataset, wildcards.nr_reads)
         # shell("source activate isoseq3")
         # shell("which python")
         # shell("python --version")
         # shell("pip list")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.isoseq3_predicted} --classes {sorted_bam}  --outfile {output.isoseq3_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
-        shell("python {script_path}/compute_cluster_quality.py --clusters {input.isonclust2_predicted} --classes {sorted_bam}  --outfile {output.isonclust2_res}")
+        shell("python {script_path}/compute_cluster_quality.py --clusters {isonclust2_predicted} --classes {sorted_bam}  --outfile {output.isonclust2_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.carnac_predicted} --classes {sorted_bam}  --outfile {output.carnac_res}")
         shell("python {script_path}/compute_cluster_quality.py --clusters {input.linclust_predicted} --classes {sorted_bam}  --outfile {output.linclust_res}")
 
@@ -810,7 +822,7 @@ rule qt_clust_core_variability:
     input:  flnc = rules.isoseq3_refine.output.flnc,
             ccs = rules.merge_demultiplexed_files.output.outfile
     output: time_and_mem = config["ROOT_OUT"] + "time_and_mem_nr_cores/qt_clust/{dataset}/{nr_cores}/runtime.stdout",
-            clusters = config["ROOT_OUT"] + "cluster_nr_cores/qt_clust/{dataset}/{nr_cores}/final_clusters.csv"
+            clusters = config["ROOT_OUT"] + "cluster_nr_cores/qt_clust/{dataset}/{nr_cores}/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem_nr_cores/qt_clust/{0}/{1}/".format(wildcards.dataset, wildcards.nr_cores) )
@@ -862,7 +874,7 @@ rule write_fake_fastq:
 
 rule qt_clust_quals:
     input:  fastq = rules.write_fake_fastq.output.fix_q_outfile
-    output: clusters = config["ROOT_OUT"] + "cluster_quals/qt_clust/{dataset}/{quals}/final_clusters.csv"
+    output: clusters = config["ROOT_OUT"] + "cluster_quals/qt_clust/{dataset}/{quals}/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem_quals/qt_clust/{0}/{1}/".format(wildcards.dataset, wildcards.quals) )
@@ -914,7 +926,7 @@ rule write_fake_fastq_ont:
 
 rule qt_clust_quals_ont:
     input:  fastq = rules.write_fake_fastq_ont.output.fix_q_outfile
-    output: clusters = config["ROOT_OUT"] + "cluster_quals/qt_clust/{ont_dataset}/ont/{quals}/final_clusters.csv"
+    output: clusters = config["ROOT_OUT"] + "cluster_quals/qt_clust/{ont_dataset}/ont/{quals}/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem_quals/qt_clust/{0}/{1}/".format(wildcards.ont_dataset, wildcards.quals) )
