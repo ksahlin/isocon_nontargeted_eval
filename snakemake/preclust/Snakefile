@@ -881,7 +881,10 @@ rule qt_clust_quals:
         outfolder = config["ROOT_OUT"] + "cluster_quals/qt_clust/{0}/{1}/".format(wildcards.dataset, wildcards.quals)
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(outfolder)
-        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --isoseq --t 1 --fastq {input.fastq}  --outfolder {outfolder} ")
+        if wildcards.dataset == "Bham_run1_pass":
+            shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --ont --t 1 --fastq {input.fastq}  --outfolder {outfolder} ")
+        else:
+            shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --isoseq --t 1 --fastq {input.fastq}  --outfolder {outfolder} ")
 
 
 rule v_measure_quals:
