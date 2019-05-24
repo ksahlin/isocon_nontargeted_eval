@@ -862,14 +862,14 @@ rule v_measure_core_variability:
 ########################################################
 
 rule write_fake_fastq:
-    input:  flnc = rules.isoseq3_refine.output.flnc,
-            ccs = rules.merge_demultiplexed_files.output.outfile
+    input:  #flnc = rules.isoseq3_refine.output.flnc,
+            #ccs = rules.merge_demultiplexed_files.output.outfile
     output: fix_q_outfile = config["ROOT_OUT"] + "cluster_quals/qt_clust/{dataset}/{quals}/flnc_fixed.fastq"
     run:
         outfolder = config["ROOT_OUT"] + "cluster_quals/qt_clust/{0}/{1}/".format(wildcards.dataset, wildcards.quals)
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(outfolder)
-        shell("python {script_path}/fix_quality_values_experiment.py  --flnc {input.flnc} --quality {wildcards.quals} --outfile {output.fix_q_outfile}")
+        # shell("python {script_path}/fix_quality_values_experiment.py  --flnc {input.flnc} --quality {wildcards.quals} --outfile {output.fix_q_outfile}")
 
 
 rule qt_clust_quals:
@@ -915,25 +915,25 @@ rule v_measure_quals:
 
 
 rule write_fake_fastq_ont:
-    input:  fastq = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
-    output: fix_q_outfile = config["ROOT_OUT"] + "cluster_quals/qt_clust/{ont_dataset}/ont/{quals}/flnc_fixed.fastq"
+    input:  #fastq = config["ROOT_OUT"] + "ont/{ont_dataset}/ont/ont.fastq"
+    output: fix_q_outfile = config["ROOT_OUT"] + "cluster_quals/qt_clust/{ont_dataset}/{quals}/flnc_fixed.fastq"
     run:
         outfolder = config["ROOT_OUT"] + "cluster_quals/qt_clust/{0}/{1}/".format(wildcards.ont_dataset, wildcards.quals)
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(outfolder)
-        shell("python {script_path}/fix_quality_values_experiment.py  --fastq {input.fastq} --quality {wildcards.quals} --outfile {output.fix_q_outfile}")
+        #shell("python {script_path}/fix_quality_values_experiment.py  --fastq {input.fastq} --quality {wildcards.quals} --outfile {output.fix_q_outfile}")
 
 
 rule qt_clust_quals_ont:
     input:  fastq = rules.write_fake_fastq_ont.output.fix_q_outfile
-    output: clusters = config["ROOT_OUT"] + "cluster_quals/qt_clust/{ont_dataset}/ont/{quals}/final_clusters.tsv"
+    output: clusters = config["ROOT_OUT"] + "cluster_quals/qt_clust/{ont_dataset}/{quals}/final_clusters.tsv"
     run:
         time = config["GNUTIME"]
         mkdir_p(config["ROOT_OUT"] + "time_and_mem_quals/qt_clust/{0}/{1}/".format(wildcards.ont_dataset, wildcards.quals) )
-        outfolder = config["ROOT_OUT"] + "cluster_quals/qt_clust/{0}/ont/{1}/".format(wildcards.ont_dataset, wildcards.quals)
+        outfolder = config["ROOT_OUT"] + "cluster_quals/qt_clust/{0}/{1}/".format(wildcards.ont_dataset, wildcards.quals)
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(outfolder)
-        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --ont --t 16 --fastq {input.fastq}  --outfolder {outfolder} ")
+        shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --ont --t 1 --fastq {input.fastq}  --outfolder {outfolder} ")
 
 
 rule v_measure_quals_ont:
