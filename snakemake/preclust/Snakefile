@@ -614,8 +614,8 @@ rule minimap2_align_ont:
 
 
 rule minimap2_align_real:
-    input:  reads = rules.isoseq3_refine.output.flnc
-    output: fastq = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{dataset}.fastq",
+    input:  #reads = rules.isoseq3_refine.output.flnc
+    output: #fastq = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{dataset}.fastq",
             alignment = "/nfs/brubeck.bx.psu.edu/scratch6/ksahlin/preclust_eval/read_alignment/{dataset}.sam"
     
     run:
@@ -882,9 +882,9 @@ rule qt_clust_quals:
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p(outfolder)
         if wildcards.dataset == "Bham_run1_pass":
-            shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --ont --t 1 --fastq {input.fastq}  --outfolder {outfolder} ")
+            shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --q 6.5 --ont --t 1 --fastq {input.fastq}  --outfolder {outfolder} ")
         else:
-            shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --isoseq --t 1 --fastq {input.fastq}  --outfolder {outfolder} ")
+            shell("{time} python /galaxy/home/ksahlin/prefix/source/isONclust/isONclust --q 6.5 --isoseq --t 1 --fastq {input.fastq}  --outfolder {outfolder} ")
 
 
 rule v_measure_quals:
