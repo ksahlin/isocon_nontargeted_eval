@@ -198,7 +198,7 @@ TARGET_FILES["evaluation_nr_cores"] = evaluation_nr_cores_files
 
 #EVALUATION QUALS
 evaluation_quals_files = expand(config["HOME_ROOT_OUT"] + "evaluation_quals/{dataset}/{quals}/{tool}_table.tsv", dataset = config["ISOSEQ_DATASET"] + config["ONT_DATASET"], tool = ["qt_clust"], quals = config["QUALS"]) 
-TARGET_FILES["evaluation_quals"] = evaluation_quals_files
+TARGET_FILES["evaluation_quals"] =  config["ROOT_OUT"] + "evaluation/all_datasets_QV_eval_table.tsv"  #evaluation_quals_files
 
 #EVALUATION QUALS ONT
 evaluation_quals_files = expand(config["HOME_ROOT_OUT"] + "evaluation_quals/{ont_dataset}/ont/{quals}/{tool}_table.tsv", ont_dataset = config["ONT_DATASET"], tool = ["qt_clust"], quals = config["QUALS"]) 
@@ -918,6 +918,23 @@ rule v_measure_quals:
         else:
             shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
 
+rule make_qual_eval_table:
+    input: real_files = expand(rules.v_measure_quals.output, dataset = config["ISOSEQ_DATASET"], quals = config["QUALS"]),
+    output:
+        eval_table = config["ROOT_OUT"] + "evaluation/all_datasets_QV_eval_table.tsv"
+
+    run:
+
+        out_table = open(output.eval_table, 'w')
+        # print(type(input.real_files), input.real_files)
+        for file_name in input.real_files:
+            file_ = open(file_name, "r")
+            QV = file_name.split("/")[-2]
+            dataset = file_name.split("/")[-2]
+            line = file_.readlines()[-1]
+            out_table.write("{0},{1},{2}\n".format(dataset, QV, line.strip()))
+
+        out_table.close()
 
 
 #rule write_fake_fastq_ont:
