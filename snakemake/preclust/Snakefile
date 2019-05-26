@@ -930,7 +930,7 @@ rule make_qual_eval_table:
         for file_name in input.real_files:
             file_ = open(file_name, "r")
             QV = file_name.split("/")[-2]
-            dataset = file_name.split("/")[-2]
+            dataset = file_name.split("/")[-3]
             line = file_.readlines()[-1]
             out_table.write("{0},{1},{2}\n".format(dataset, QV, line.strip()))
 
