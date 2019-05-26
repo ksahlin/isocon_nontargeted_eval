@@ -919,7 +919,7 @@ rule v_measure_quals:
             shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.qt_clust_res}")
 
 rule make_qual_eval_table:
-    input: real_files = expand(rules.v_measure_quals.output, dataset = config["ISOSEQ_DATASET"], quals = config["QUALS"]),
+    input: files = expand(rules.v_measure_quals.output, dataset = config["ISOSEQ_DATASET"] + config["ONT_DATASET"], quals = config["QUALS"]),
     output:
         eval_table = config["ROOT_OUT"] + "evaluation/all_datasets_QV_eval_table.tsv"
 
