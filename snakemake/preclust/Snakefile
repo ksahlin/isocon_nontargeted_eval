@@ -926,8 +926,7 @@ rule make_qual_eval_table:
     run:
 
         out_table = open(output.eval_table, 'w')
-        # print(type(input.real_files), input.real_files)
-        for file_name in input.real_files:
+        for file_name in input.files:
             file_ = open(file_name, "r")
             QV = file_name.split("/")[-2]
             dataset = file_name.split("/")[-3]
