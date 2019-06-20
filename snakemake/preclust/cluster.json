@@ -16,7 +16,7 @@
     "isonclust2_real" : 
     {
         "jobname" : "isonclust2_real",
-        "mem" : "16000",
+        "mem" : "32000",
         "ntasks" : "2",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
@@ -27,7 +27,7 @@
     "isonclust2_sim" : 
     {
         "jobname" : "isonclust2_sim",
-        "mem" : "16000",
+        "mem" : "32000",
         "ntasks" : "2",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
@@ -39,7 +39,7 @@
     "isonclust2_ont" : 
     {
         "jobname" : "isonclust2_ont",
-        "mem" : "16000",
+        "mem" : "32000",
         "ntasks" : "2",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
