@@ -15,8 +15,8 @@
     "isonclust2_real" : 
     {
         "jobname" : "isonclust2_real",
-        "ntasks" : "8",
-        "Nodes" : 3,
+        "ntasks" : "12",
+        "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
@@ -25,8 +25,8 @@
     "isonclust2_sim" : 
     {
         "jobname" : "isonclust2_sim",
-        "ntasks" : "8",
-        "Nodes" : 3,
+        "ntasks" : "12",
+        "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
@@ -36,8 +36,8 @@
     "isonclust2_ont" : 
     {
         "jobname" : "isonclust2_ont",
-        "ntasks" : "8",
-        "Nodes" : 3,
+        "ntasks" : "12",
+        "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
