@@ -2,6 +2,7 @@
     "__default__" : 
     {
         "account" : "",
+        "mem" : "16000",
         "ntasks" : "16",
         "Nodes" : 1,
         "runtime" : "3-00:00:00",
@@ -15,7 +16,6 @@
     "isonclust2_real" : 
     {
         "jobname" : "isonclust2_real",
-        "ntasks" : "8",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -25,7 +25,6 @@
     "isonclust2_sim" : 
     {
         "jobname" : "isonclust2_sim",
-        "ntasks" : "8",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -36,7 +35,6 @@
     "isonclust2_ont" : 
     {
         "jobname" : "isonclust2_ont",
-        "ntasks" : "8",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -47,6 +45,7 @@
     "qt_clust_real" : 
     {
         "jobname" : "qt_clust_real",
+        "mem" : "16000",
         "ntasks" : "16",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
@@ -58,7 +57,8 @@
     "qt_clust_quals" : 
     {
         "jobname" : "qt_clust_quals",
-        "ntasks" : "16",
+        "mem" : "16000",
+        "ntasks" : "6",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -68,7 +68,8 @@
     "qt_clust_quals_ont" : 
     {
         "jobname" : "qt_clust_quals",
-        "ntasks" : "16",
+        "mem" : "16000",
+        "ntasks" : "4",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -79,6 +80,7 @@
     "qt_clust_core_variability" : 
     {
         "jobname" : "qt_clust_core_variability",
+        "mem" : "16000",
         "ntasks" : "64",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
@@ -131,6 +133,7 @@
     "qt_clust_sim" : 
     {
         "jobname" : "qt_clust_sim",
+        "mem" : "16000",
         "ntasks" : "16",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
@@ -185,6 +188,7 @@
     "qt_clust_ont" : 
     {
         "jobname" : "qt_clust_ont",
+        "mem" : "16000",
         "ntasks" : "16",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
@@ -197,6 +201,7 @@
     {
         "jobname" : "minimap2_align_ont",
         "ntasks" : "64",
+        "mem" : "128000",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -209,6 +214,7 @@
     {
         "jobname" : "minimap2_align_real",
         "ntasks" : "64",
+        "mem" : "128000",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -220,6 +226,7 @@
     {
         "jobname" : "minimap2_align_sim",
         "ntasks" : "64",
+        "mem" : "128000",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
