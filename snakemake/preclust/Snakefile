@@ -873,8 +873,9 @@ rule isONclust2_parameters:
     output: flag = config["ROOT_OUT"] + "time_and_mem_isonclust2_parameter_eval/{k}_{w}/rule_complete.txt"
     run:
 
-        time_and_mem =  config["ROOT_OUT"] + "time_and_mem_isonclust2_parameter_eval/{0}_{1}/".format(wildcards.k, wildcards.w)
-        mkdir_p(time_and_mem)
+        time_and_mem_folder =  config["ROOT_OUT"] + "time_and_mem_isonclust2_parameter_eval/{0}_{1}/".format(wildcards.k, wildcards.w)
+        mkdir_p(time_and_mem_folder)
+        time_and_mem = time_and_mem_folder + "time_and_mem.txt"
 
         outfolder = config["ROOT_OUT"] + "cluster_isonclust2_parameter_eval/{0}_{1}".format(wildcards.k, wildcards.w)
         shell("rm -fr {outfolder}")
