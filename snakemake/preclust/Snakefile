@@ -252,6 +252,9 @@ rule evaluation_ont:
 rule evaluation_nr_cores:
         input: TARGET_FILES["evaluation_nr_cores"]
 
+rule evaluation_isonclust2:
+        input: TARGET_FILES["evaluation_isonclust2"]
+
 rule evaluation_quals:
         input: TARGET_FILES["evaluation_quals"]
 
