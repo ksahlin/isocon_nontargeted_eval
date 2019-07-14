@@ -196,6 +196,10 @@ TARGET_FILES["evaluation_ont"] = eval_ont_files
 evaluation_nr_cores_files = expand(config["ROOT_OUT"] + "evaluation_nr_cores/{dataset}/{nr_cores}/{tool}_table.tsv", dataset = config["ISOSEQ_DATASET"], tool = ["qt_clust"], nr_cores = config["NR_CORES"]) 
 TARGET_FILES["evaluation_nr_cores"] = evaluation_nr_cores_files
 
+#EVALUATION ISONCLUST2 PARAMETER CHOICE
+evaluation_isonclust2_files = expand(config["ROOT_OUT"] + "evaluation_isonclust2_parameters_NA12878/{k}_{w}/results.tsv", k = ["11", "12", "13", "14", "15"], w =["15", "20", "25", "30", "35", "40", "50"]) 
+TARGET_FILES["evaluation_isonclust2"] = evaluation_isonclust2_files
+
 #EVALUATION QUALS
 evaluation_quals_files = expand(config["HOME_ROOT_OUT"] + "evaluation_quals/{dataset}/{quals}/{tool}_table.tsv", dataset = config["ISOSEQ_DATASET"] + config["ONT_DATASET"], tool = ["qt_clust"], quals = config["QUALS"]) 
 TARGET_FILES["evaluation_quals"] =  config["ROOT_OUT"] + "evaluation/all_datasets_QV_eval_table.tsv"  #evaluation_quals_files
@@ -855,6 +859,57 @@ rule v_measure_core_variability:
 
 ########################################################
 ########################################################
+
+
+
+################ ISONCLUST2 PARAMETER CHOICE ###########
+########################################################
+
+rule isONclust2_parameters:
+    input:  fastq = "/nfs/brubeck.bx.psu.edu/scratch4/ksahlin/isoncorrect_eval/data/human/NA12878_subset_1M.fq"
+    output: flag = config["ROOT_OUT"] + "time_and_mem_isonclust2_parameter_eval/{k}_{w}/rule_complete.txt"
+    run:
+
+        time_and_mem =  config["ROOT_OUT"] + "time_and_mem_isonclust2_parameter_eval/{0}_{1}/".format(wildcards.k, wildcards.w)
+        mkdir_p(time_and_mem)
+
+        outfolder = config["ROOT_OUT"] + "cluster_isonclust2_parameter_eval/{0}_{1}".format(wildcards.k, wildcards.w)
+        shell("rm -fr {outfolder}")
+
+        time = config["GNUTIME"]
+        shell("{time} isONclust2 -k {k} -w {w} {input.fastq}  --outfolder {outfolder}  2>&1 | tee {time_and_mem}")
+        shell("touch {output.flag}")
+
+rule minimap2_align_NA12878:
+    input:  reads = "/nfs/brubeck.bx.psu.edu/scratch4/ksahlin/isoncorrect_eval/data/human/NA12878_subset_1M.fq"
+    output: sorted_bam = "/nfs/brubeck.bx.psu.edu/scratch4/ksahlin/isoncorrect_eval/data/human/NA12878_subset_1M_sorted.bam"
+    
+    run:
+        ref = config["MMI"]
+        sam_file = "/nfs/brubeck.bx.psu.edu/scratch4/ksahlin/isoncorrect_eval/data/human/NA12878_subset_1M.sam"
+        shell("/usr/bin/time -v  minimap2 -t 8 -ax splice -uf -k14 {ref} {input.reads} > {sam_file}")
+        bam_file = "/nfs/brubeck.bx.psu.edu/scratch4/ksahlin/isoncorrect_eval/data/human/NA12878_subset_1M.bam"
+        shell("samtools view -b {sam_file} > {bam_file}")
+        sorted_bam = "/nfs/brubeck.bx.psu.edu/scratch4/ksahlin/isoncorrect_eval/data/human/NA12878_subset_1M_sorted.bam"
+        shell("samtools sort {bam_file} > {sorted_bam}")
+        shell("samtools index {sorted_bam}")
+
+
+rule v_measure_isONclust2_parameters:
+    input: 
+        true_sorted_bam  = rules.minimap2_align_NA12878.output.sorted_bam,
+        isONclust2_done = rules.isONclust2_parameters.output.flag,
+        isONclust2_predicted = config["ROOT_OUT"] + "cluster_isonclust2_parameter_eval/{k}_{w}/final_clusters.csv
+    output: 
+        results = config["ROOT_OUT"] + "evaluation_isonclust2_parameters_NA12878/{k}_{w}/results.tsv"
+    run:
+        script_path = config["SCRIPT_FOLDER"]
+        mkdir_p( config["ROOT_OUT"] + "evaluation_isonclust2_parameters_NA12878/{k}_{w}/" )
+        shell("python {script_path}/compute_cluster_quality.py --clusters {input.qt_clust_predicted} --classes {sorted_bam}  --outfile {output.results}")
+
+########################################################
+########################################################
+
 
 
 
