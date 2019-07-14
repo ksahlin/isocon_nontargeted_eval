@@ -13,6 +13,30 @@
 
     },
 
+    "isONclust2_parameters" : 
+    {
+        "jobname" : "isONclust2_parameters",
+        "mem" : "16000",
+        "Nodes" : 1,
+        "ntasks" : "1",
+        "runtime" : "2-00:00:00",
+        "mail" : "ksahlin@kth.se",
+        "mail_type" : "FAIL",
+        "exclude" : "c[4,6-7,8-16]"
+    },
+
+    "v_measure_isONclust2_parameters" : 
+    {
+        "jobname" : "v_measure_isONclust2_parameters",
+        "mem" : "16000",
+        "Nodes" : 1,
+        "ntasks" : "1",
+        "runtime" : "2-00:00:00",
+        "mail" : "ksahlin@kth.se",
+        "mail_type" : "FAIL",
+        "exclude" : "c[4,6-7,8-16]"
+    },
+
     "isonclust2_real" : 
     {
         "jobname" : "isonclust2_real",
