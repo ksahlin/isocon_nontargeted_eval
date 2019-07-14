@@ -880,7 +880,7 @@ rule isONclust2_parameters:
         shell("rm -fr {outfolder}")
 
         time = config["GNUTIME"]
-        shell("{time} isONclust2 -k {k} -w {w} {input.fastq}  --outfolder {outfolder}  2>&1 | tee {time_and_mem}")
+        shell("{time} isONclust2 -k {wildcards.k} -w {wildcards.w} {input.fastq}  --outfolder {outfolder}  2>&1 | tee {time_and_mem}")
         shell("touch {output.flag}")
 
 rule minimap2_align_NA12878:
