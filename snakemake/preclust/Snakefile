@@ -902,7 +902,7 @@ rule v_measure_isONclust2_parameters:
     input: 
         true_sorted_bam  = rules.minimap2_align_NA12878.output.sorted_bam,
         isONclust2_done = rules.isONclust2_parameters.output.flag,
-        isONclust2_predicted = config["ROOT_OUT"] + "cluster_isonclust2_parameter_eval/{k}_{w}/final_clusters.csv
+        isONclust2_predicted = config["ROOT_OUT"] + "cluster_isonclust2_parameter_eval/{k}_{w}/final_clusters.csv"
     output: 
         results = config["ROOT_OUT"] + "evaluation_isonclust2_parameters_NA12878/{k}_{w}/results.tsv"
     run:
