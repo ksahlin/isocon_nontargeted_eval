@@ -909,7 +909,7 @@ rule v_measure_isONclust2_parameters:
         script_path = config["SCRIPT_FOLDER"]
         mkdir_p( config["ROOT_OUT"] + "evaluation_isonclust2_parameters_NA12878/{0}_{1}/".format(wildcards.k, wildcards.w) )
         isONclust2_predicted = config["ROOT_OUT"] + "cluster_isonclust2_parameter_eval/{0}_{1}/final_clusters.tsv".format(wildcards.k, wildcards.w)
-        shell("python {script_path}/compute_cluster_quality.py --clusters {isONclust2_predicted} --classes {input.true_sorted_bam}  --outfile {output.results}")
+        shell("python {script_path}/compute_cluster_quality.py --modified_ont --clusters {isONclust2_predicted} --classes {input.true_sorted_bam}  --outfile {output.results}")
 
 ########################################################
 ########################################################
