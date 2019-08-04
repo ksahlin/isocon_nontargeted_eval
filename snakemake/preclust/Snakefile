@@ -869,7 +869,7 @@ rule v_measure_core_variability:
 ########################################################
 
 rule isONclust2_parameters:
-    input:  fastq = "/nfs/brubeck.bx.psu.edu/scratch4/ksahlin/isoncorrect_eval/data/human/NA12878_subset_1M.fq"
+    input:  fastq = "/nfs/brubeck.bx.psu.edu/scratch4/ksahlin/isoncorrect_eval/data/NA12878/NA12878_subset_1M.fq"
     output: flag = config["ROOT_OUT"] + "time_and_mem_isonclust2_parameter_eval/{k}_{w}/rule_complete.txt"
     run:
 
