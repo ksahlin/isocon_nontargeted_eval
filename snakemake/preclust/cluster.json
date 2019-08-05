@@ -3,7 +3,7 @@
     {
         "account" : "",
         "mem" : "16000",
-        "ntasks" : "16",
+        "cpus-per-task" : "16",
         "Nodes" : 1,
         "runtime" : "3-00:00:00",
         "jobname" : "pipline",
@@ -18,7 +18,7 @@
         "jobname" : "isONclust2_parameters",
         "mem" : "32000",
         "Nodes" : 1,
-        "ntasks" : "1",
+        "cpus-per-task" : "1",
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
@@ -30,7 +30,7 @@
         "jobname" : "v_measure_isONclust2_parameters",
         "mem" : "16000",
         "Nodes" : 1,
-        "ntasks" : "1",
+        "cpus-per-task" : "1",
         "runtime" : "2-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
@@ -70,7 +70,7 @@
     {
         "jobname" : "qt_clust_real",
         "mem" : "16000",
-        "ntasks" : "16",
+        "cpus-per-task" : "16",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -82,7 +82,7 @@
     {
         "jobname" : "qt_clust_quals",
         "mem" : "16000",
-        "ntasks" : "6",
+        "cpus-per-task" : "6",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -93,7 +93,7 @@
     {
         "jobname" : "qt_clust_quals",
         "mem" : "16000",
-        "ntasks" : "4",
+        "cpus-per-task" : "4",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -105,7 +105,7 @@
     {
         "jobname" : "qt_clust_core_variability",
         "mem" : "16000",
-        "ntasks" : "64",
+        "cpus-per-task" : "64",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -116,7 +116,7 @@
     "linclust_sim" : 
     {
         "jobname" : "linclust_sim",
-        "ntasks" : "64",
+        "cpus-per-task" : "64",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -126,7 +126,7 @@
     "linclust_real" : 
     {
         "jobname" : "linclust_real",
-        "ntasks" : "64",
+        "cpus-per-task" : "64",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -136,7 +136,7 @@
     "carnac_sim" : 
     {
         "jobname" : "carnac_sim",
-        "ntasks" : "64",
+        "cpus-per-task" : "64",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -146,7 +146,7 @@
     "carnac_real" : 
     {
         "jobname" : "carnac_real",
-        "ntasks" : "64",
+        "cpus-per-task" : "64",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -158,7 +158,7 @@
     {
         "jobname" : "qt_clust_sim",
         "mem" : "16000",
-        "ntasks" : "16",
+        "cpus-per-task" : "16",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -169,7 +169,7 @@
     "isoseq3_real" : 
     {
         "jobname" : "isoseq3_real",
-        "ntasks" : "64",
+        "cpus-per-task" : "64",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -180,7 +180,7 @@
     "isoseq3_sim" : 
     {
         "jobname" : "isoseq3_sim",
-        "ntasks" : "64",
+        "cpus-per-task" : "64",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -191,7 +191,7 @@
     "linclust_ont" : 
     {
         "jobname" : "linclust_ont",
-        "ntasks" : "64",
+        "cpus-per-task" : "64",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -201,7 +201,7 @@
     "carnac_ont" : 
     {
         "jobname" : "carnac_ont",
-        "ntasks" : "64",
+        "cpus-per-task" : "64",
         "Nodes" : 1,
         "runtime" : "10-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -213,7 +213,7 @@
     {
         "jobname" : "qt_clust_ont",
         "mem" : "16000",
-        "ntasks" : "16",
+        "cpus-per-task" : "16",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -224,7 +224,7 @@
     "minimap2_align_ont" : 
     {
         "jobname" : "minimap2_align_ont",
-        "ntasks" : "64",
+        "cpus-per-task" : "64",
         "mem" : "128000",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
@@ -237,7 +237,7 @@
     "minimap2_align_real" : 
     {
         "jobname" : "minimap2_align_real",
-        "ntasks" : "64",
+        "cpus-per-task" : "64",
         "mem" : "128000",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
@@ -249,7 +249,7 @@
     "minimap2_align_sim" : 
     {
         "jobname" : "minimap2_align_sim",
-        "ntasks" : "64",
+        "cpus-per-task" : "64",
         "mem" : "128000",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
@@ -261,7 +261,7 @@
     "ccs" : 
     {
         "jobname" : "ccs",
-        "ntasks" : "64",
+        "cpus-per-task" : "64",
         "Nodes" : 1,
         "runtime" : "10-00:00:00",
         "mail" : "ksahlin@kth.se",
@@ -271,7 +271,7 @@
     "bax2bam" : 
     {
         "jobname" : "bax2bam",
-        "ntasks" : "16",
+        "cpus-per-task" : "16",
         "Nodes" : 1,
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
