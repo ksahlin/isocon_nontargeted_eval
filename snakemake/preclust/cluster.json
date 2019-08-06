@@ -22,7 +22,7 @@
         "runtime" : "7-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
-        "exclude" : "c[4,6-7,8-16]"
+        "exclude" : "c[4,6-7,8-16],nn[0,1,4,6-9]"
     },
 
     "v_measure_isONclust2_parameters" : 
@@ -34,7 +34,7 @@
         "runtime" : "2-00:00:00",
         "mail" : "ksahlin@kth.se",
         "mail_type" : "FAIL",
-        "exclude" : "c[4,6-7,8-16]"
+        "exclude" : "c[4,6-7,8-16],nn[0,1,4,6-9]"
     },
 
     "isonclust2_real" : 
